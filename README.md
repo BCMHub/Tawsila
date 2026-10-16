@@ -205,3 +205,14 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 
 - **Figma:** "Tawsila – iOS App Design" (pages: Cover, Foundations, Components, Onboarding, Board & Join, Post a Trip, Regular Trips, My Trips, Messages, Profile & Safety, States, Tooltip Tour).
 - **BRD:** "Tawsila · Business Requirements Document (screen-level)" with every screen specified (purpose, entry and exit, content, behaviour, states, requirements), business rules BR-01 to BR-32, open decisions OD-01 to OD-24, and a traceability matrix.
+
+## CLH Mobile engineering framework
+
+This repository also includes the CLH Mobile harness foundation used to govern AI-assisted development. It complements the Tawsila product plan and does not replace the mobile app specification.
+
+- Every implementation is tied to an authorized Notion card and an isolated Git worktree.
+- Repository context is retrieved graph first, with a normal 40% model-context ceiling.
+- Fresh agent sessions resume from persisted task state and the same worktree.
+- Review, integration, regression verification, and cleanup are separate recorded gates.
+
+See [the framework overview](docs/architecture/clh-overview.md), [implementation plan](docs/superpowers/plans/2026-10-16-clh-governance-state.md), and [validation status](docs/architecture/clh-validation.md). Run `npm run test:clh` for the harness suite, `npm run test:clh:integration` for the loop scenario, and `npm run test:clh:graphify` for the optional Graphify fixture.

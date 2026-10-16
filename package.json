@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "rea-agents": "^4.0.1"
+  },
+  "name": "clh-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test tests/clh/*.test.mjs",
+    "test:clh": "node --test tests/clh/*.test.mjs",
+    "clh:check": "node harness/cli.mjs check",
+    "test:clh:integration": "node --test tests/clh/loop.integration.test.mjs",
+    "test:clh:graphify": "CLH_TEST_GRAPHIFY=1 node --test tests/clh/graphify-adapter.test.mjs"
+  }
+}

@@ -1,42 +1,218 @@
-# CLH Mobile
+# Tawsila
 
-CLH Mobile is a dependency-light Node.js harness foundation for governed, agent-assisted mobile development. Notion cards authorize work, Figma governs approved design, Git contains implementation, and the harness assembles bounded context and records evidence. This repository contains the harness framework; it does not contain or implement the Tawsila mobile app.
+**Peer-to-peer, non-commercial carpooling for people travelling the same way.**
 
-## Requirements and checks
+Tawsila replaces the WhatsApp and Facebook groups people use today to find a shared ride. A car owner offers empty seats on a trip they were already going to make. People going the same way ask to join and share the cost. Nobody is hired and nobody profits: the app calculates a fixed, fair cost share and the two people settle it directly.
 
-Use Node.js 24 LTS or newer. The test suite uses Node's built-in test runner:
+> Status: design phase (iOS app, Figma designs and a screen-level BRD). The designs use SAR amounts and Saudi place names as placeholders. Egyptian pounds, Egyptian cities and Arabic/RTL are planned (see Open decisions).
 
-```sh
-npm run test:clh
-npm run test:clh:integration
-npm run test:clh:graphify
+---
+
+## 1. The idea in one minute
+
+- A **car owner** posts a journey they already planned: from, to, when, how many seats.
+- A **rider** browses trips from their own city, or posts a request for the ride they need.
+- The owner **approves every rider**. Either side can start a chat to agree the pickup.
+- Tawsila shows one **suggested cost share** per person. It is a guide calculated from fuel and tolls, it cannot be edited or negotiated, and the two people pay each other directly. Tawsila never touches the money.
+- Tawsila earns from an optional **Pro subscription**, not from rides.
+
+It is built for long-distance trips between cities, one-off or repeated every week (regular commutes). It is not a taxi service and not Uber: posts are only shown to people in the same city.
+
+## 2. Who it is for
+
+| Role | What they do |
+| --- | --- |
+| **Owner** | Offers seats on a trip they are already making, approves riders, manages seats, picks the pickup point |
+| **Rider** | Finds a matching trip or posts a ride request, asks to join, rates the trip |
+| **Both** | Most users do both, depending on the day |
+
+## 3. How it works
+
+1. **Sign up** with a phone number, verify it, create a profile, and set a **home area** (the city and area you live in). Only the area name is public.
+2. **Pick how you use Tawsila** (rider, owner or both) and add your car if you drive.
+3. **Find or post.**
+   - Rider: open a trip on the Board, tap **Request seat**.
+   - Rider: no match? **Post a ride request** and share it with your area or specific people.
+   - Owner: **Post a trip** (one-off or regular weekly) in three steps: route and time, seats, audience.
+   - Owner who sees a request: tap **Offer a ride**.
+4. **Owner approves** the request. Seats can be managed on a seat diagram, including seats taken outside the app.
+5. **Trip agreement.** Both sides confirm: the share is a fair split, there is no negotiation, and they settle directly.
+6. **Travel.** The exact pickup pin and phone number are shared only after acceptance.
+7. **Rate** the trip and say whether the suggested share was settled.
+
+Riders can also ask one person directly from a chat: **"+" → Ask for a ride** (and owners **Offer a ride**).
+
+## 4. The cost-sharing model (why it is non-commercial)
+
+```
+Suggested share per person = (fuel cost of the trip + tolls) ÷ (people on board, driver included)
 ```
 
-The Graphify test requires the optional pinned `graphifyy` 0.8.31 command and runs its Python fixture in isolated staging. Graphify is a pluggable, advisory context provider; code and runtime evidence remain authoritative. If Graphify is unavailable, the context engine uses bounded source search and retrieval.
+- **Locked.** Nobody can enter a price, bid, or counter. There are no price fields, "open to offers" toggles or counter offers.
+- **Inputs are controlled by Tawsila:** route distance, a vehicle preset (sedan, SUV, van), the published fuel price and a toll table.
+- **Recalculated** when seats change. It can fall as more people join, never rise for a rider who already agreed.
+- **No payments in the app.** No cards, wallets, fees, receipts, refunds or payouts. Riders and owners settle directly (for example in cash).
+- **Wording:** always "suggested share", never price, fare, earnings or fee.
 
-`policies/harness.json` intentionally ships with an empty model registry. The CLI and library cannot launch an agent until a host supplies verified model capacity/estimator metadata, a human authorization verifier, and a runtime adapter that enforces scope, usage limits, termination, context observation, and read-only review. Set up these host adapters and trust checks before any unattended execution. Do not replace them with test fixtures.
+The legal reasoning (Egyptian traffic rules and Law No. 87 of 2018) is the product owner's reading and **needs confirmation from a lawyer before launch**.
 
-The read-only CLI commands are:
+## 5. Business model
 
-```sh
-node harness/cli.mjs check --card CARD.json --approval APPROVAL.json
-node harness/cli.mjs inspect --run RUN_ID
-node harness/cli.mjs inspect-worktree --card CARD_ID
-node harness/cli.mjs inspect-graph --card CARD_ID
-node harness/cli.mjs context-check --manifest MANIFEST.json
-```
+- **Free plan:** the full core flow, with ads on the Board and My trips, and one active regular trip.
+- **Tawsila Pro:** no ads, unlimited regular trips, full trip history, priority support.
+- **Free trial:** 7 days by default (1 month for campaigns, 6 months for early members). Billed by Apple.
+- Safety features are never limited by plan. No boosted or sponsored trips.
+- Ads never appear in chat, safety tools or the trip agreement.
 
-`check` does not grant authorization when the trusted verifier is unavailable. `context-check` requires configured model metadata and a manifest bound to the active policy. Inspection commands do not modify state.
+## 6. Rewards and badges
 
-## Execution shape
+- **Monthly discount on Pro**, earned from **shared kilometres or number of rides**, whichever comes first (placeholder levels):
 
-```text
-Authorized Notion card → isolated card worktree → graph-first retrieval
-→ context budget gate (≤40%) → fresh bounded agent session → evidence gates
-→ independent diff review → commit and Notion sync → separate integration
-→ regression checks → safe cleanup
-```
+  | Level | Needs | Discount |
+  | --- | --- | --- |
+  | Bronze | 100 km or 3 rides | 10% |
+  | Silver | 300 km or 8 rides | 25% |
+  | Gold | 600 km or 15 rides | 50% |
 
-Each repair or role change can start with a fresh agent context while reusing the same card worktree and persisted checkpoint. Worktrees do not directly reduce model tokens; isolation allows the context builder to select a smaller, task-specific code neighborhood. Graph summaries, source excerpts, instructions, schemas and retained conversation count toward the active input estimate.
+- **Badges** for riders (First ride, 10 rides, Green rider, Reliable rider) and owners (First trip shared, 10 trips driven, Regular commuter, Trusted owner). No cash value.
+- **Abuse rules** (in the Rewards terms screen): only completed trips of 10 km or more confirmed by both people count; daily and weekly caps; a limit on the same two people; confirmation 48 hours after the trip; misuse can remove kilometres and badges, cancel a discount or suspend an account.
 
-See [the governance architecture](docs/architecture/clh-governance.md), [the graph provider boundary](docs/architecture/clh-graph-provider.md), [the approved design specification](docs/superpowers/specs/2026-10-16-clh-mobile-design.md), and [the revised implementation plan](docs/superpowers/plans/2026-10-16-clh-governance-state.md).
+## 7. Trust, privacy and safety
+
+- **Owner approves each rider.** Verified badges, ratings and reliability history.
+- **Area-only visibility.** Only the area name is public; the exact pickup point and phone are shared after acceptance.
+- **Consent-based direct messages.** People who are not trip contacts can send one message or one ride offer as a request until accepted. Users choose who can message them and whether they are visible in their city.
+- **One-time location sharing** in chat (a snapshot, never live), approximate or exact according to the user's setting.
+- **Polls** in chat, **reporting and blocking**, emergency contacts, trip sharing and an emergency call shortcut.
+
+## 8. Screens (summary of the Figma design)
+
+iOS (iPhone, 393 × 852), built on Apple's Human Interface Guidelines with a floating tab bar: **Board · Trips · Messages · Profile**.
+
+| Area | Screens |
+| --- | --- |
+| **Onboarding** | Launch, welcome, phone, verification code, profile, home area, role, add car, location and notification permissions |
+| **Board and join** | Nearby board (Offers / Requests), filters, trip detail with seat diagram, request a seat, request sent, request accepted, owner profile, trip agreement |
+| **Post a trip or request** | Route and time, seats and cost share, audience and review, post a request, published, manage requests, request detail, pickup point, share with specific people |
+| **Regular trips** | My regular trips, new regular trip, schedule, seat manager, join all days or pick days |
+| **My trips** | Upcoming, trip detail, cancel, rate (with settled-share check), past trips |
+| **Messages** | Inbox, chat, notifications, "+" menu (share location, offer or ask for a ride, poll), message requests |
+| **Profile and settings** | Profile, edit, verification, vehicles, report, privacy and location, safety, notifications and language, messages and visibility, help |
+| **Plans, ads and rewards** | Plan and subscription, choose your plan, trial started, trial ending, ads and privacy, Board with ad, Rewards, shared trips, rewards terms, badges |
+| **States** | Empty, offline, loading, request declined, trip cancelled by owner |
+| **Tooltip tour** | A nine-step first-time tour of the main areas |
+
+Design tokens: SF Pro, brand green `#0B4D3B`, light and dark modes, an Apple-style component set (buttons, tab bar, chips, cards, seat diagram, cost share guide, plan card, ad card, chat bubbles and more).
+
+## 9. Design concept
+
+> A calm, trustworthy iOS app: warm paper, one deep green, and a native Apple feel. The green marks every action that moves a trip forward.
+
+**Theme:** light and dark (both supported). **Platform:** iPhone, 393 × 852, built on Apple's Human Interface Guidelines.
+
+Tawsila should feel like a neighbourhood notice board that happens to be a good iOS app, not a ride-hailing machine. The canvas is warm off-white, text is deep green-black, and a single forest green (`brand/primary`) carries every primary action, selected state, selected seat and confirmation. Surfaces separate through luminance (paper, white cards, grouped fills) and a very soft shadow, never through heavy borders or gradients. Everything uses native iOS patterns (floating tab bar, bottom sheets, segmented controls, system alerts) so it is instantly familiar.
+
+### Colour tokens
+
+| Token | Light | Dark | Role |
+| --- | --- | --- | --- |
+| `brand/primary` | `#0B4D3B` | `#3DC796` | Primary buttons, selected tab, selected seat, links, confirmations |
+| `brand/primary-pressed` | `#083A2D` | `#2FA97E` | Pressed state of primary actions |
+| `brand/on-primary` | `#FFFFFF` | `#04241B` | Text and icons on the primary colour |
+| `brand/tint` | `#E3F0EA` | `#10312A` | Soft green wash: selected chips, free seats, info and success banners, hero cards |
+| `brand/sun` | `#F3E3C3` | `#3A3020` | Warm accent surface (use sparingly) |
+| `bg/base` | `#FBFAF6` | `#000000` | Screen background (warm paper) |
+| `bg/grouped` | `#F4F2EC` | `#000000` | Grouped list backgrounds |
+| `bg/elevated` / `bg/elevated-2` | `#FFFFFF` | `#1C1C1E` / `#2C2C2E` | Cards, sheets, inputs |
+| `label/primary` | `#14201B` | `#FFFFFF` | Main text |
+| `label/secondary` | `#5E6A65` | `#A3AEA9` | Supporting text |
+| `label/tertiary` / `label/quaternary` | `#8B958F` / `#C5CBC7` | `#6F7873` / `#3F4643` | Hints, disabled |
+| `separator` | `#E4E1D8` | `#2C2C2E` | Hairlines |
+| `fill/secondary` / `fill/tertiary` | `#EEECE5` / `#F4F2EC` | `#2C2C2E` / `#1C1C1E` | Inactive controls, progress tracks |
+| `seat/free` / `seat/taken` / `seat/mine` | `#E3F0EA` / `#DAD7CE` / `#0B4D3B` | `#10312A` / `#3A3A3C` / `#3DC796` | Seat diagram states |
+| `system/red`, `orange`, `yellow`, `green`, `blue` | iOS system colours | iOS dark variants | Destructive, warning, status and links; each red and orange has a soft `-tint` |
+| `overlay/scrim` | `#000000` at ~40% | same | Dimmed background behind sheets |
+
+### Typography
+
+**SF Pro** (system font) with the iOS type scale: Large Title 34 Bold, Title 1 28 Bold, Title 2 22 Bold, Title 3 20 Semibold, Headline 17 Semibold, Body 17, Callout 16, Subheadline 15 (Regular and Semibold), Footnote 13 (Regular and Semibold), Caption 1 12, Caption 2 11 Medium. Dynamic Type friendly. Arabic and right-to-left are planned, so layouts use auto layout and can flip.
+
+### Spacing, shape and depth
+
+- **Spacing scale:** 4, 8, 12, 16, 20, 24, 32, 40. Screen side gutter 16, card padding 16, gap between cards 12.
+- **Radii:** 8 (small), 12, 16 (cards), 20, 28 (bottom sheets), full (pills, avatars, chips).
+- **Touch targets:** at least 44 pt (small 36 pt buttons get a 44 pt hit area).
+- **Depth:** `Elevation/Card` (0 / 2 / 12 blur, 8% green-black) and `Elevation/Sheet` (0 / -4 / 24 blur, 16% black). No gradients, no heavy shadows.
+
+### Core components
+
+- **Buttons:** Primary, Secondary, Outline, Destructive, Plain, each in Default and Disabled; a Small version for card actions. 52 pt tall, fully rounded.
+- **Floating tab bar:** Board · Trips · Messages · Profile, with the active tab in green.
+- **Nav bar:** Inline and Large title styles. **Segmented control:** 2 or 3 segments (Offers / Requests, Upcoming / Regular / Past).
+- **Post card:** avatar, name, verified badge, rating, route with times, date, seats left, tags, and the suggested share, in Offer and Request versions.
+- **Cost share guide:** a read-only card showing fuel and tolls, people on board, and the suggested share per person. It never has an input field.
+- **Seat diagram:** top view of Sedan, SUV or Van with free, taken and "your pick" seats.
+- **Chat:** message bubbles, ride cards (offer or request), one-time location message, poll, message-request banners.
+- **Plan card and ad card:** the Free and Pro plans, and the sponsored card shown on the Free plan.
+- **Also:** chips, tags, badges (Verified, Pending, Confirmed, Declined, Completed, Cancelled), banners (Info, Warning, Success), text fields (Default, Focused, Filled, Error), list rows, toggles, route block, map preview slot, tour tooltip with spotlight.
+
+### Do
+
+- Use the green only for actions, selected states and confirmations, so it stays a signal.
+- Keep money wording neutral: "suggested share", never price, fare, fee or earnings.
+- Separate surfaces by background and soft shadow; keep the paper background behind white cards.
+- Use native iOS patterns: bottom sheets for tools, system alerts for permissions, a floating tab bar.
+- Show trust everywhere decisions are made: verified badge, rating, area name, reliability.
+
+### Don't
+
+- Don't show a price field, counter offer, "open to offers" toggle, receipt or payment button.
+- Don't use gradients or shadows heavier than the two elevation styles.
+- Don't introduce new hues beyond the palette and iOS system colours.
+- Don't put ads in chat, safety screens or the trip agreement.
+- Don't show exact pickup points or phone numbers before the owner accepts.
+
+### Imagery and tone
+
+No photography or stock art. People appear as initials avatars (with photo optional), the car as a seat diagram, and the route as text with a quiet map preview slot (the live map is out of phase 1). Success and empty states use a single flat icon in a tinted circle. Copy is short, warm and neighbourly, and avoids commercial wording.
+
+### Layout rhythm
+
+Large title, then a segmented control, then a vertical feed of white cards on warm paper. Forms are grouped cards with 16 pt padding. Tools (filters, agreement, chat tools, ads consent) open as bottom sheets over a dimmed screen. The first-time tour spotlights one element at a time with a tooltip.
+
+## 10. Concept under consideration: city communities
+
+To postpone paying for a maps API in the MVP, every user could join a **predefined city community** at registration (detected from their location and confirmed). Destinations would come from a **predefined list of places and stops**, with distances and tolls stored in a table, so the cost share needs no routing service. Matching "a car going near my destination" would use a stored "near" relation between places. Current screens would not change. Open questions: how fine communities should be (cities or neighbourhoods), whether a user can have a second community, and who maintains the place, distance and toll tables.
+
+## 11. Phase 1 scope
+
+**In:** onboarding and profile, nearby board, posting trips and requests, owner approval, locked cost share, trip agreement, pickup points, seat diagram, regular trips, ratings, cancellations, direct messages with message requests, one-time location sharing, ride offers and polls, notifications, verification, safety and reporting, privacy settings, Free and Pro subscription with ads and trial, rewards and badges, tooltip tour.
+
+**Out:** live route map and live location tracking, area group chats, administrator web console, any in-app payment between users, Arabic right-to-left layouts (layouts are built to flip later).
+
+## 12. Open decisions
+
+- Legal confirmation of the non-commercial model in Egypt (cost share only, no fee, no in-app money, subscription revenue).
+- Fuel price and toll data: who maintains it and how often.
+- Pro price, trial lengths and currency (placeholder EGP 99 a month).
+- Free plan limits (one active regular trip is a proposal).
+- Ad network, consent flow and local ad rules.
+- Egypt localisation: EGP, Egyptian cities and routes, emergency numbers, Arabic and right-to-left.
+- Apple subscription discounts for the rewards levels (promotional offers).
+- Rewards levels and limits (placeholders until real usage data exists).
+
+## 13. Where the detail lives
+
+- **Figma:** "Tawsila – iOS App Design" (pages: Cover, Foundations, Components, Onboarding, Board & Join, Post a Trip, Regular Trips, My Trips, Messages, Profile & Safety, States, Tooltip Tour).
+- **BRD:** "Tawsila · Business Requirements Document (screen-level)" with every screen specified (purpose, entry and exit, content, behaviour, states, requirements), business rules BR-01 to BR-32, open decisions OD-01 to OD-24, and a traceability matrix.
+
+## CLH Mobile engineering framework
+
+This repository also includes the CLH Mobile harness foundation used to govern AI-assisted development. It complements the Tawsila product plan and does not replace the mobile app specification.
+
+- Every implementation is tied to an authorized Notion card and an isolated Git worktree.
+- Repository context is retrieved graph first, with a normal 40% model-context ceiling.
+- Fresh agent sessions resume from persisted task state and the same worktree.
+- Review, integration, regression verification, and cleanup are separate recorded gates.
+
+See [the framework overview](docs/architecture/clh-overview.md), [implementation plan](docs/superpowers/plans/2026-10-16-clh-governance-state.md), and [validation status](docs/architecture/clh-validation.md). Run `npm run test:clh` for the harness suite, `npm run test:clh:integration` for the loop scenario, and `npm run test:clh:graphify` for the optional Graphify fixture.

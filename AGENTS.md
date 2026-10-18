@@ -6,8 +6,9 @@ No implementation without a READY Notion card approved by the owner.
 
 ## Tawsila facts
 
-- Work Ledger: https://app.notion.com/p/8f532f99b27d491fae9cc9b5ad71643b
+- Work Ledger: Tawsila Product Work Ledger, https://app.notion.com/p/7ebe1308fe8f4e6baa74215d56138a42
 - Figma file: "Tawsila – iOS App Design" (owns approved design).
 - BRD: "Tawsila · Business Requirements Document (screen-level)".
 - MVP definition: docs/product/mvp.md.
-- iOS first.
+- Approved architecture: React Native + Expo + TypeScript, Supabase/PostgreSQL backend.
+- Platforms: iOS and Android, iOS first.

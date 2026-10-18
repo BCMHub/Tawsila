@@ -1,9 +1,0 @@
-{
-  "cardId": "CLH-7",
-  "scopeDigest": "acc0223b3660a1653b9aed461acfd4aff3ceb5bb20bac7cf98cb022f7021f612",
-  "approverId": "fixture-only",
-  "approvedAt": "2026-10-16T10:00:00Z",
-  "evidenceUrl": "https://notion.so/fixture",
-  "revoked": false,
-  "riskExceptions": []
-}

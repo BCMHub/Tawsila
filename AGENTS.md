@@ -1,12 +1,13 @@
-# CLH Mobile constitution
+# Tawsila agent instructions
 
-- No Notion card → no implementation. Human approval binds exact scope; READY alone is insufficient.
-- Notion authorizes scope, Figma owns approved design, source/runtime evidence owns code behavior.
-- Graph first, files second. Graph data is derived context; stale/missing providers fall back to targeted source.
-- Dedicated card worktree; preserve it across implement/debug/test/repair sessions. Never force user branches/worktrees.
-- Preferred context 20–30%; normal ceiling 40% of verified usable model capacity. Count the complete input envelope.
-- Persist checkpoints, provenance, cumulative budgets and evidence outside disposable conversations/worktrees.
-- Runtime adapters must enforce scope, tools, credentials, usage limits and termination. Missing enforcement blocks unattended dispatch.
-- Independent exact-revision review and actual gate evidence precede verification. UI cards require real design/device gates.
-- Worktree integration is separate, authorized and regression-verified. Never deploy or destructively modify shared state implicitly.
-- Proposed discoveries are not authorized work. Never promote them without an explicit human instruction.
+This repository is governed by the CLH Mobile framework. The framework’s rules (constitution), policy and harness live only in [CLH-Mobile](https://github.com/BCMHub/CLH-Mobile/blob/main/AGENTS.md) (local checkout: ../CLH-Mobile/AGENTS.md). Read them before doing any work here.
+
+No implementation without a READY Notion card approved by the owner.
+
+## Tawsila facts
+
+- Work Ledger: https://app.notion.com/p/8f532f99b27d491fae9cc9b5ad71643b
+- Figma file: "Tawsila – iOS App Design" (owns approved design).
+- BRD: "Tawsila · Business Requirements Document (screen-level)".
+- MVP definition: docs/product/mvp.md.
+- iOS first.

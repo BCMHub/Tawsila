@@ -207,6 +207,49 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 - **BRD:** "Tawsila · Business Requirements Document (screen-level)" with every screen specified (purpose, entry and exit, content, behaviour, states, requirements), business rules BR-01 to BR-32, open decisions OD-01 to OD-24, and a traceability matrix.
 - **MVP definition:** [docs/product/mvp.md](docs/product/mvp.md)
 
+## Run the app
+
+The mobile app lives in `apps/mobile` (Expo SDK 58, React Native, TypeScript). For now it is a navigation shell with four placeholder tabs (Board, Trips, Messages, Profile), light and dark themes built from the Figma tokens, and shared loading, empty and error states. There is no backend, no accounts and no ride logic yet. iOS is the first target; Android is only checked by a bundle build at this stage.
+
+### Prerequisites
+
+| Tool | Version | Notes |
+| --- | --- | --- |
+| Node.js | 24 LTS | `.nvmrc` pins `24`. Expo SDK 58 supports Node 22.13+, 24.3+ and 26+, but not odd-numbered releases such as 25, which are end-of-life. |
+| npm | Ships with Node | |
+| Xcode and iOS Simulator | macOS only | Needed for iOS. Install an iOS Simulator runtime in Xcode. |
+
+If your default `node` is not 24, use a version manager that reads `.nvmrc` (for example `nvm use` or `fnm use`), or put Node 24 first on your `PATH`.
+
+### Run
+
+From the repository root:
+
+```bash
+cd apps/mobile
+npm ci
+npx expo start
+```
+
+Press `i` to open the iOS Simulator, or run `npm run ios` instead of `npx expo start`.
+
+### Checks
+
+Run these inside `apps/mobile`:
+
+```bash
+npx tsc --noEmit
+npx expo lint
+npm test
+npx expo export --platform ios
+npx expo export --platform android
+```
+
+### Notes
+
+- **Debug states:** a "Debug states" row on the Profile tab opens a screen showing the loading, empty and error states. It is for development only and does not exist in production builds.
+- **Design reference:** the Figma file "Tawsila – iOS App Design" owns the approved design. Theme values live in `apps/mobile/src/theme`, and notes on design decisions are in [`apps/mobile/DESIGN_NOTES.md`](apps/mobile/DESIGN_NOTES.md).
+
 ## How work is governed
 
 Development is governed by the CLH Mobile framework in [BCMHub/CLH-Mobile](https://github.com/BCMHub/CLH-Mobile).

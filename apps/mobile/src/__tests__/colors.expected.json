@@ -1,0 +1,110 @@
+{
+  "label/primary": [
+    "#14201b",
+    "#ffffff"
+  ],
+  "label/secondary": [
+    "#5e6a65",
+    "#a3aea9"
+  ],
+  "label/tertiary": [
+    "#8b958f",
+    "#6f7873"
+  ],
+  "label/quaternary": [
+    "#c5cbc7",
+    "#3f4643"
+  ],
+  "brand/primary": [
+    "#0b4d3b",
+    "#3dc796"
+  ],
+  "brand/primary-pressed": [
+    "#083a2d",
+    "#2fa97e"
+  ],
+  "brand/on-primary": [
+    "#ffffff",
+    "#04241b"
+  ],
+  "brand/tint": [
+    "#e3f0ea",
+    "#10312a"
+  ],
+  "brand/sun": [
+    "#f3e3c3",
+    "#3a3020"
+  ],
+  "bg/base": [
+    "#fbfaf6",
+    "#000000"
+  ],
+  "bg/grouped": [
+    "#f4f2ec",
+    "#000000"
+  ],
+  "bg/elevated": [
+    "#ffffff",
+    "#1c1c1e"
+  ],
+  "bg/elevated-2": [
+    "#ffffff",
+    "#2c2c2e"
+  ],
+  "separator": [
+    "#e4e1d8",
+    "#2c2c2e"
+  ],
+  "fill/secondary": [
+    "#eeece5",
+    "#2c2c2e"
+  ],
+  "fill/tertiary": [
+    "#f4f2ec",
+    "#1c1c1e"
+  ],
+  "system/red": [
+    "#ff3b30",
+    "#ff453a"
+  ],
+  "system/red-tint": [
+    "#fde8e6",
+    "#3a1512"
+  ],
+  "system/orange": [
+    "#ff9500",
+    "#ff9f0a"
+  ],
+  "system/orange-tint": [
+    "#fff1dc",
+    "#3a2a10"
+  ],
+  "system/yellow": [
+    "#ffb800",
+    "#ffd60a"
+  ],
+  "system/green": [
+    "#34c759",
+    "#30d158"
+  ],
+  "system/blue": [
+    "#007aff",
+    "#0a84ff"
+  ],
+  "seat/free": [
+    "#e3f0ea",
+    "#10312a"
+  ],
+  "seat/taken": [
+    "#dad7ce",
+    "#3a3a3c"
+  ],
+  "seat/mine": [
+    "#0b4d3b",
+    "#3dc796"
+  ],
+  "overlay/scrim": [
+    "#000000",
+    "#000000"
+  ]
+}

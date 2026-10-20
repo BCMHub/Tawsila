@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Tawsila",
+    "slug": "tawsila",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "tawsila",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

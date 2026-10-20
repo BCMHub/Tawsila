@@ -7,3 +7,10 @@ node_modules/
 *.key
 .DS_Store
 outputs/
+
+# Expo mobile
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/ios/
+apps/mobile/android/
+apps/mobile/coverage/

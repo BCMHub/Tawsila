@@ -5,6 +5,10 @@ import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { strings } from '../strings';
 
 jest.mock('expo-image', () => ({ Image: 'Image' }));
+jest.mock('expo-symbols', () => {
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
+  return { SymbolView: (props: object) => <View {...props} testID="offline-symbol" /> };
+});
 afterEach(() => { jest.restoreAllMocks(); });
 
 test('loading announces progress and busy state', async () => {
@@ -17,6 +21,15 @@ test('offline error announces an alert and retries', async () => {
   expect(screen.getByRole('alert', { name: `${strings.offlineTitle}. ${strings.offlineBody}` })).toBeTruthy();
   await fireEvent.press(screen.getByRole('button', { name: strings.retry }));
   expect(onRetry).toHaveBeenCalledTimes(1);
+});
+test('offline icon uses decorative platform symbols instead of the supplied SVG', async () => {
+  const view = await render(<ErrorState onRetry={() => {}} />);
+  const symbol = screen.getByTestId('offline-symbol');
+  expect(symbol.props.name).toEqual({ ios: 'wifi.slash', android: 'wifi_off', web: 'wifi_off' });
+  expect(symbol.props.size).toBe(60);
+  expect(symbol.props.accessible).toBe(false);
+  expect(symbol.props.tintColor).toBe(screen.getByText(strings.offlineBody).props.style.color);
+  expect(JSON.stringify(view.toJSON())).not.toContain('"type":"Image"');
 });
 test('empty state renders supplied content and both functional actions', async () => {
   const primary = jest.fn(); const secondary = jest.fn();

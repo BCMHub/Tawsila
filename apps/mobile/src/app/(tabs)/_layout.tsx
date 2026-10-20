@@ -11,7 +11,7 @@ export default function TabsLayout() {
   const t = useTheme();
   return <NativeTabs minimizeBehavior="never" backgroundColor={t['bg/elevated']} indicatorColor={t['brand/tint']}
     iconColor={{ default: t['label/secondary'], selected: t['brand/primary'] }}
-    labelStyle={{ default: { ...typography.caption2, color: t['label/secondary'] }, selected: { ...typography.caption2, color: t['brand/primary'] } }}>
+    labelStyle={{ default: { fontSize: typography.caption2.fontSize, fontWeight: typography.caption2.fontWeight, color: t['label/secondary'] }, selected: { fontSize: typography.caption2.fontSize, fontWeight: typography.caption2.fontWeight, color: t['brand/primary'] } }}>
     {tabs.map((tab, i) => <NativeTabs.Trigger key={tab.name} name={tab.name} accessibilityLabel={strings.tabs[i]} disableTransparentOnScrollEdge>
       <NativeTabs.Trigger.Label>{strings.tabs[i]}</NativeTabs.Trigger.Label>
       <NativeTabs.Trigger.Icon src={{ default: tab.inactive, selected: tab.active }} renderingMode="template" />

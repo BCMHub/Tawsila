@@ -16,7 +16,7 @@ export default function DebugScreen() {
       {state === 'loading' ? <LoadingState fill /> :
         state === 'empty' ? <EmptyState fill title={strings.emptyTitle} body={strings.emptyBody} primaryAction={{ label: strings.primary, onPress: acknowledge }} secondaryAction={{ label: strings.secondary, onPress: acknowledge }} /> :
           state === 'error' ? <ErrorState fill onRetry={acknowledge} /> :
-            (['loading', 'empty', 'error'] as const).map(name => <Link key={name} href={`/debug?state=${name}`} style={{ ...typography.body, color: t['brand/primary'], padding: 16, minHeight: 44 }}>{name}</Link>)}
+            (['loading', 'empty', 'error'] as const).map(name => <Link key={name} href={`/debug?state=${name}`} style={{ ...typography.body, color: t['brand/primary'], padding: 16, minHeight: 44 }}>{strings.debugStates[name]}</Link>)}
     </ScrollView>
   </SafeAreaView>;
 }

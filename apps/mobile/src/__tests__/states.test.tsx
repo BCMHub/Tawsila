@@ -1,10 +1,11 @@
-import { expect, jest, test } from '@jest/globals';
-import { AccessibilityInfo } from 'react-native';
+import { afterEach, expect, jest, test } from '@jest/globals';
+import { AccessibilityInfo, Platform } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { strings } from '../strings';
 
 jest.mock('expo-image', () => ({ Image: 'Image' }));
+afterEach(() => { jest.restoreAllMocks(); });
 
 test('loading announces progress and busy state', async () => {
   await render(<LoadingState />);
@@ -28,12 +29,18 @@ test('empty state renders supplied content and both functional actions', async (
   expect(primary).toHaveBeenCalledTimes(1); expect(secondary).toHaveBeenCalledTimes(1);
 });
 
-test('error announces its title and message on mount', async () => {
+test.each(['ios', 'android'] as const)('error announcement on %s avoids duplicate live-region speech', async platform => {
+  jest.replaceProperty(Platform, 'OS', platform);
   const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => {});
+  announce.mockClear();
   await render(<ErrorState onRetry={() => {}} />);
-  expect(announce).toHaveBeenCalledWith(`${strings.offlineTitle}. ${strings.offlineBody}`);
+  if (platform === 'ios') {
+    expect(announce).toHaveBeenCalledTimes(1);
+    expect(announce).toHaveBeenCalledWith(`${strings.offlineTitle}. ${strings.offlineBody}`);
+  } else {
+    expect(announce).not.toHaveBeenCalled();
+  }
   expect(screen.getByRole('alert').props.accessibilityLiveRegion).toBe('assertive');
-  announce.mockRestore();
 });
 
 test('fill centres each state in the available screen', async () => {

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AccessibilityInfo, Pressable, Text, View, StyleSheet } from 'react-native';
+import { AccessibilityInfo, Platform, Pressable, Text, View, StyleSheet } from 'react-native';
 import { Icon, type IconName } from './Icon';
 import { typography, useTheme } from '../theme';
 import { strings } from '../strings';
@@ -15,7 +15,9 @@ function ActionButton({ action, secondary = false }: { action: Action; secondary
 export function ErrorState({ onRetry, fill = false }: { onRetry: () => void; fill?: boolean }) {
   const t = useTheme();
   useEffect(() => {
-    AccessibilityInfo.announceForAccessibility(`${strings.offlineTitle}. ${strings.offlineBody}`);
+    if (Platform.OS === 'ios') {
+      AccessibilityInfo.announceForAccessibility(`${strings.offlineTitle}. ${strings.offlineBody}`);
+    }
   }, []);
   return <View style={[styles.state, fill && styles.fill, { backgroundColor: t['bg/base'] }]}>
     <View style={[styles.circle, { backgroundColor: t['fill/secondary'] }]}><Icon name="wifi" size={60} color={t['label/secondary']} /></View>

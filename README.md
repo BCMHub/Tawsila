@@ -215,7 +215,7 @@ The mobile app lives in `apps/mobile` (Expo SDK 58, React Native, TypeScript). F
 
 | Tool | Version | Notes |
 | --- | --- | --- |
-| Node.js | 24 LTS | `.nvmrc` pins `24`. Expo SDK 58 supports Node 22.13+, 24.3+ and 26+, but not odd-numbered releases such as 25, which are end-of-life. |
+| Node.js | 24 LTS | `.nvmrc` pins `24`. Expo SDK 58 supports Node 22.13+, 24.3+ and 26+. Node 25 is not supported (it is end-of-life); use 24 LTS. |
 | npm | Ships with Node | |
 | Xcode and iOS Simulator | macOS only | Needed for iOS. Install an iOS Simulator runtime in Xcode. |
 
@@ -247,7 +247,7 @@ npx expo export --platform android
 
 ### Notes
 
-- **Debug states:** a "Debug states" row on the Profile tab opens a screen showing the loading, empty and error states. It is for development only and does not exist in production builds.
+- **Debug states:** a "Debug states" row on the Profile tab opens a screen showing the loading, empty and error states. It is for development only, is hidden and redirects to Board in production builds, and opens one state at a time via the links it shows.
 - **Design reference:** the Figma file "Tawsila – iOS App Design" owns the approved design. Theme values live in `apps/mobile/src/theme`, and notes on design decisions are in [`apps/mobile/DESIGN_NOTES.md`](apps/mobile/DESIGN_NOTES.md).
 
 ## How work is governed

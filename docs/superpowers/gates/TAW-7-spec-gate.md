@@ -33,3 +33,14 @@ Raw output: .clh/evidence/TAW-8/spec-gate-3-raw.txt (Tawsila checkout, outside t
 Usage: 68,688 tokens (Codex reported)   Started/Ended: 2026-10-21 (see accounting-TAW-8.md)
 Verdict: FAIL
 
+Attempt: 4   Round: 4 (attempts extended by the owner: "round 4", 2026-10-21; the gate was not waived)
+Document: docs/superpowers/specs/2026-10-21-TAW-7-design.md
+Revision: e7873d3f785a19e376889a51dcfce4370f6f3b9d:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; the harness digest is unavailable, no adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a (file 2j3vO1USLBA8XiRpQKCF3H, frames 14:2 and 14:80)
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=0 P2=0 P3=0 (round-3 inconsistency between sections 4 and 9 resolved)
+Criteria mapping: AC1->1,2,4,5; AC2->1,2,3,7; AC3->2,3,4,9; AC4->2,3,9; AC5->4,6,9; AC6->1,4,7; AC7->3; AC8->9; AC9->1,6,9,10; AC10->1; AC11->3,7; AC12->8,9,10 (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/spec-gate-4-raw.txt (Tawsila checkout, outside the worktree)
+Usage: 53,997 tokens (Codex reported)   Started/Ended: 2026-10-21 (see accounting-TAW-8.md)
+Verdict: PASS
+

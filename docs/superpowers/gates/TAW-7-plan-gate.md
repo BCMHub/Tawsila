@@ -60,3 +60,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-5-raw.txt
 Usage: 85,723 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL (the owner's extension covered round 4 only; escalated again)
 
+Attempt: 6   Round: technical-failure (owner-authorized round 5 not completed)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 94d1c3a36b89a09bf75486ca79ce96bdc92ab3f8:4732b24c3ec7132e38eca11217187489f6ab9435
+Spec revision (plan gate only): 94d1c3a:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex (stopped by its usage limit before a final answer)
+Findings: none issued. The reviewer's visible working notes (not a verdict) traced all 39 service and provider test cases as passing in a harness and identified one gap: an external SIGNED_OUT arriving during a pending confirmation was discarded and left the user registered with no recovery. Fix applied after the attempt (held-event handling, one test); not reviewed.
+Criteria mapping: none
+Raw output: .clh/evidence/TAW-8/plan-gate-6-raw.txt ("You've hit your usage limit ... try again at 1:15 PM")
+Usage: 98,777 tokens (Codex reported before it stopped); charged 98,777
+Verdict: TECHNICAL-FAILURE (no final structured answer; 1 consecutive technical failure; no fallback to Claude self-review, no skipped gate)
+

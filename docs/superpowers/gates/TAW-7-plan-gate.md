@@ -84,3 +84,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-7-raw.txt
 Usage: 178,626 tokens (Codex reported; includes executing the plan's code to reproduce the findings)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL
 
+Attempt: 8   Round: 6 (owner-authorized "round 6")
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 4cb5616b94d867c5daaf899395aff4d8be135d6d:fc00f907852297f22c60319b35159380a85f806b
+Spec revision (plan gate only): 4cb5616:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=3 P2=0 P3=0 (test fake misclassified AuthRetryableFetchError so one external event looped; recovery's refresh had no timeout so a hung refresh blocked the queue; in-flight handlers at unmount could still write storage or end the session). The sequential-queue redesign produced no race findings. Fixes applied after the gate (consistent fake, bounded recovery refresh, alive checks after every await, four new tests); not yet reviewed.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-8-raw.txt
+Usage: 81,665 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL
+

@@ -96,3 +96,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-8-raw.txt
 Usage: 81,665 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL
 
+Attempt: 9   Round: 7 (owner-authorized "round 7")
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 7909d84133258405cbcb8ffc332b489bb8871d48:0347551d532f4fbe850548a5d229b37bb961e75d
+Spec revision (plan gate only): 7909d84:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=2 P2=0 P3=0 (the timeout fallback `{ error: TIMED_OUT }` does not satisfy the AuthResponse type (TS2741, reproduced); a confirmation that is already in flight at unmount can still start a token refresh, which removes the stored session on a terminal failure, and the new unmount test did not check refresh counts or session storage). No race findings.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-9-raw.txt
+Usage: 106,835 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL (the owner's "round 7" is used up; escalated)
+

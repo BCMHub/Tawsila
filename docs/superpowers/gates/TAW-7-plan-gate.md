@@ -48,3 +48,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-4-raw.txt
 Usage: 117,845 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL (stop rule: round 3 with a P1 open; escalated to the owner)
 
+Attempt: 5   Round: 4 (attempts extended by the owner: "round 4", 2026-10-22; the gate was not waived)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: a72ae69328f56bf5b51528ff2a17968b06bedfb4:a81331e1d46f7a90c28888e5c09050f66a734c1d
+Spec revision (plan gate only): a72ae69:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=1 P2=0 P3=0 (the confirmation's own token refresh emits SIGNED_OUT, which started an independent recovery whose sign-out was not tied to the originating generation; the stale-terminal test and the single-refresh expectation therefore failed as written). Fix prepared after the gate: confirmation vetoable before refreshing, events during a confirmation ignored, recoveries bound to their starting generation, exact refresh-count expectations restored. Not yet reviewed.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-5-raw.txt
+Usage: 85,723 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL (the owner's extension covered round 4 only; escalated again)
+

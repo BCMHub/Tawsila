@@ -36,3 +36,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-3-raw.txt
 Usage: 104,213 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL
 
+Attempt: 4   Round: 3 (last round before the stop rule)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 07f271c494d9518d41465295367379ea77863ba7:bc7a2f29cd479a6e3def867bb52b35868284c01f
+Spec revision (plan gate only): 07f271c:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=1 P2=1 P3=0 (P1: marker writes are not serialized, so an older slow clear can erase a newer registration marker; P2: the re-entry guard covers only the sign-out part of recovery, not the refresh that itself emits SIGNED_OUT). Fixes prepared after the gate (serialized commit queue, exclusive recovery, tests with a slow clear and an event-emitting refresh), not yet reviewed.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-4-raw.txt
+Usage: 117,845 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL (stop rule: round 3 with a P1 open; escalated to the owner)
+

@@ -120,3 +120,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-10-raw.txt
 Usage: 88,846 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL (the owner called round 8 final; escalated)
 
+Attempt: 11   Round: 9 (owner-authorized with a hard stop: the last gate round)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: ecf4cebb9b2b76b6c32a5e40929d0f3d3e6289c2:456ad29efbe038eb4a839b00758e0b1adc2722a7
+Spec revision (plan gate only): ecf4ceb:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=1 P2=0 P3=0 (the round-8 finding is resolved; the new test "a refresh that settles terminally after its timeout does not undo a later registration" contradicts invariants 5-7: the abandoned refresh's SIGNED_OUT is a queued event, the fake fails every refresh terminally, so the queued recovery signs out and clears the marker; an execution reproduced refresh=2, signOut=1, marker=null). The flaw is in a test the author added in round 8, not in an invariant.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-11-raw.txt
+Usage: 72,478 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL (hard stop reached: no further gate rounds; escalated to the owner for an explicit decision)
+

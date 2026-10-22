@@ -24,3 +24,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-2-raw.txt
 Usage: 81,478 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL
 
+Attempt: 3   Round: 2
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: d62d9c16ba1b6a691a3576b2768c93218fcdee0f:8c852c34d9bfc9127d839db79bb63fd68376ab80
+Spec revision (plan gate only): d62d9c1:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=6 P2=1 P3=0 (a7 fixture would trip the verified-number unique index; RNTL 14 interactions not awaited; SIGNED_OUT re-entrancy loop; stale confirmation side effects before the generation check; unreadable stored session could create a second identity; Auth 5xx treated as terminal; concurrency script isolation and PASS count). Fixes: all applied in round 3.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED; AC7 now mapped to Tasks 3 and 13)
+Raw output: .clh/evidence/TAW-8/plan-gate-3-raw.txt
+Usage: 104,213 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL
+

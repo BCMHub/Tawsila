@@ -108,3 +108,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-9-raw.txt
 Usage: 106,835 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL (the owner's "round 7" is used up; escalated)
 
+Attempt: 10   Round: 8 (owner-authorized final round)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: bf782aad27e5f078fa8b660b91cc936f592a1595:6313e2e9ac445eebe408643125593032f2b48689
+Spec revision (plan gate only): bf782aa:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=1 P2=0 P3=0 (a confirmation abandoned by its timeout is still "current" while mounted, so a late 401 would start a token refresh whose terminal failure removes the stored session; the timeout test used a read that never answers). First round on the lean plan (provider code replaced by requirements and tests): no race findings. Fix applied after the gate: expiry of the timeout invalidates the call's isCurrent; late events from an abandoned refresh follow invariant 5; two new tests; not yet reviewed.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-10-raw.txt
+Usage: 88,846 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL (the owner called round 8 final; escalated)
+

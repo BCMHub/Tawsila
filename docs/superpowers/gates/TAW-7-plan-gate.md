@@ -132,3 +132,9 @@ Raw output: .clh/evidence/TAW-8/plan-gate-11-raw.txt
 Usage: 72,478 tokens (Codex reported)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
 Verdict: FAIL (hard stop reached: no further gate rounds; escalated to the owner for an explicit decision)
 
+Owner exception (recorded 2026-10-22, process deviation from authoring workflow section 4 and Checklist A item 3/5; the gate itself was run to its end and not waived silently)
+Context: 9 reviewed plan-gate rounds (attempts 2-5, 7-11; attempts 1 and 6 were Codex usage-limit technical failures) without a clean PASS; the last round (round 9) had P0=0 P1=1, a self-contradicting test the author had added in round 8, since removed; later, after the owner asked for a risk assessment, the author found and fixed one more issue (AuthRefreshDiscardedError handling, auth-js lockless coordination) outside any gate round. The spec gate PASSED (round 4).
+Exception: the owner approved proceeding to document approval and integration of TAW-8 without a clean plan-gate PASS, bound to plan blob e7b0b7da441303c9c4c3c041c658260f1d674ab8 (commit da0763b) and spec blob 93113774653cd21cd755feb187addb1ea1363d32, with these conditions: (1) the carry-over checklist .clh/evidence/TAW-8/carry-over-diff-review-checklist.md is applied in the TAW-7 diff review; (2) the exception and the cost of the plan gate (about 1.02M Codex tokens) are recorded in the CLH-16 report as a process finding; (3) TAW-7 implementation still needs its own owner go-ahead after TAW-8 is DONE.
+Owner words: "approved" (answer to: "Do you approve the exception on those terms?").
+Risk assessment given to the owner (low likelihood, moderate UX impact, low data-loss impact), corrected by the owner's review input on: lockless auth-js coordination (verify installed version), user-visible impact (unexpected sign-out, interrupted verification), and timeouts not cancelling operations (the SDK session state is authoritative).
+

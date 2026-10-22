@@ -72,3 +72,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-6-raw.txt ("You've hit your usage limi
 Usage: 98,777 tokens (Codex reported before it stopped); charged 98,777
 Verdict: TECHNICAL-FAILURE (no final structured answer; 1 consecutive technical failure; no fallback to Claude self-review, no skipped gate)
 
+Attempt: 7   Round: 5 (owner-authorized "round 5"; rerun after the attempt-6 usage-limit stall)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 2c82ea8c4b3457b90c81918085797e543e182631:d95b4d677e88e4ba0df3feed6b6d45c194f280ba
+Spec revision (plan gate only): 2c82ea8:93113774653cd21cd755feb187addb1ea1363d32
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC12 revision 4 (hash 7e887b8a398e284b); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=2 P2=0 P3=0 (P1: a confirmation's queued marker write bumped the generation and made a needed session recovery discard itself; P1: a held SIGNED_OUT boolean lost its originating generation and could sign out a newer registration). The reviewer executed the plan's provider code and reproduced both. Fix prepared after the gate: the provider is redesigned as a single sequential event queue (no generation counters, held flags or exclusivity flags), with tests for each scenario; not yet reviewed.
+Criteria mapping: AC1..AC12 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-7-raw.txt
+Usage: 178,626 tokens (Codex reported; includes executing the plan's code to reproduce the findings)   Started/Ended: 2026-10-22 (see accounting-TAW-8.md)
+Verdict: FAIL
+

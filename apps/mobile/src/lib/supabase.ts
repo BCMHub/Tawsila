@@ -1,3 +1,4 @@
+import type { AuthClient } from '../features/auth/AuthProvider';
 import 'react-native-url-polyfill/auto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { secureStorage } from '../features/auth/secureStorage';
@@ -11,4 +12,19 @@ export function getSupabase() {
   const client = createClient(url, key, { auth: { storage: secureStorage, storageKey: sessionStorageKey, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false } });
   singleton = Object.assign(client, { sessionStorage: secureStorage, sessionStorageKey });
   return singleton;
+}
+
+// Await PostgREST's thenable at the boundary; AuthProvider consumes plain promises.
+export function adaptAuthClient(client: ReturnType<typeof getSupabase>): AuthClient {
+  return {
+    auth: client.auth,
+    sessionStorage: client.sessionStorage,
+    sessionStorageKey: client.sessionStorageKey,
+    from: table => ({ select: columns => ({ eq: (column, value) => ({
+      async maybeSingle() {
+        const result = await client.from(table).select(columns).eq(column, value).maybeSingle();
+        return { error: result.error, data: result.data as { profile_completed_at: string | null } | null };
+      },
+    }) }) }),
+  };
 }

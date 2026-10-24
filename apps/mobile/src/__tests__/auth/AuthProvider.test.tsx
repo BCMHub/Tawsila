@@ -33,7 +33,7 @@ describe('session authority', () => {
   });
   it.each(['cancelled', 'denied', 'unavailable', 'unexpected'])('provider rejection %s leaves no session', async code => {
     const f = fakeAuthClient(); await mount(f, { google: async () => { throw { code }; } }); await act(async () => { await auth.signIn('google'); });
-    expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe(code === 'cancelled' ? null : code === 'unavailable' ? 'unavailable' : 'provider_failed'); expect(f.values.size).toBe(0);
+    expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe(code === 'cancelled' ? 'cancelled' : code === 'unavailable' ? 'unavailable' : 'provider_failed'); expect(f.values.size).toBe(0);
   });
   it('empty and malformed tokens cannot open protected state', async () => {
     const f = fakeAuthClient(); await mount(f, { google: async () => ({ idToken: '', nonce: 'raw' }) }); await act(async () => { await auth.signIn('google'); }); expect(auth.notice).toBe('provider_failed');

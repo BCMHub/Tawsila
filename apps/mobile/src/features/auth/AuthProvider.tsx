@@ -20,7 +20,7 @@ export type AuthClient = {
   from(table: 'accounts'): { select(columns: string): { eq(column: string,value: string): { maybeSingle(): Promise<Result<{ profile_completed_at: string | null } | null>> } } };
 };
 export type AuthState = 'checking' | 'signed_out' | 'authenticating' | 'account_provision_error' | 'needs_profile' | 'ready_to_browse';
-export type Notice = 'offline' | 'failed' | 'provider_failed' | 'unavailable' | null;
+export type Notice = 'cancelled' | 'offline' | 'failed' | 'provider_failed' | 'unavailable' | null;
 type Value = { state: AuthState; canRetry: boolean; notice: Notice; signIn(p: ProviderName): Promise<void>; retry(): Promise<void> };
 const Context = createContext<Value | null>(null);
 const queues = new WeakMap<AuthClient, Promise<unknown>>();
@@ -175,7 +175,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         } catch (error) {
           if (!active()) return;
           const code = (error as { code?: string })?.code;
-          update('signed_out', code === 'cancelled' ? null : code === 'unavailable' ? 'unavailable' : 'provider_failed');
+          update('signed_out', code === 'cancelled' ? 'cancelled' : code === 'unavailable' ? 'unavailable' : 'provider_failed');
         } finally { if (mounted) busy = false; if (active()) clearTimeout(timer); }
       },
     };

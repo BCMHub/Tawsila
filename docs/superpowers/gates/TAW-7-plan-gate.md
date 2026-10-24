@@ -153,3 +153,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-r5-1-raw.txt
 Usage: 43,978 tokens (Codex reported)
 Verdict: FAIL
 
+Attempt: 17   Round: 2 (revision 5)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 112a5c25ee58b402a8c20b79bedd2fe5acfaa554:1c0bafb9040248ee63f4dc4fba773c41fb45d2cf
+Spec revision (plan gate only): 112a5c2:ebb6994b5bde5edf482cbad2c350445aa0c9a35d (owner-approved)
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=2 P2=1 P3=0 (test 4b: an in-flight token exchange completing after unmount changes the SDK session, the boundary was undefined; unmount calls not awaited under RNTL 14; required behaviour said a discarded refresh shows a notice while test 3b requires none). Fixes: applied in round 3 (explicit abandonment boundary, test 4b documents it, unmounts awaited, wording aligned).
+Criteria mapping: AC1..AC13 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-r5-2-raw.txt
+Usage: 67,289 tokens (Codex reported)
+Verdict: FAIL
+

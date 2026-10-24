@@ -1,5 +1,6 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { createProviderHandlers } from '../../features/auth/providers';
+import { GoogleOneTapSignIn } from 'react-native-nitro-google-signin';
 // Jest runs these repository guards in Node; keep Node types out of the app config.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { readdirSync, readFileSync } = require('node:fs') as {
@@ -42,8 +43,70 @@ describe('Google provider', () => {
     await expect(createProviderHandlers('android', d).google()).rejects.toEqual({ code: 'unavailable' });
     expect(d.randomNonce).not.toHaveBeenCalled(); expect(d.google.signIn).not.toHaveBeenCalled();
   });
-  test('default stub unavailable', async () => {
-    await expect(createProviderHandlers('ios').google()).rejects.toEqual({ code: 'unavailable' });
+});
+jest.mock('react-native-nitro-google-signin', () => ({
+  GoogleOneTapSignIn: { configure: jest.fn(), presentExplicitSignIn: jest.fn() },
+}));
+// The mock intercepts the lazy import before native module initialization.
+const native = jest.mocked(GoogleOneTapSignIn);
+describe('default native Google adapter', () => {
+  const oldWeb = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  const oldIos = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  const run = () => createProviderHandlers('ios', {
+    randomNonce: async () => 'synthetic-raw', sha256Hex: async () => 'synthetic-hash',
+  }).google();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    native.configure.mockReset();
+    native.presentExplicitSignIn.mockReset();
+    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = 'synthetic-web';
+    process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID = 'synthetic-ios';
+  });
+  afterEach(() => {
+    if (oldWeb === undefined) delete process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+    else process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = oldWeb;
+    if (oldIos === undefined) delete process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+    else process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID = oldIos;
+  });
+  const success = (idToken: string) => ({ type: 'success' as const, data: {
+    idToken, scopes: [], serverAuthCode: null,
+    user: { id: 'synthetic', email: null, name: null, givenName: null, familyName: null, photo: null },
+  } });
+  test('explicit flow returns token and configures hashed nonce', async () => {
+    native.presentExplicitSignIn.mockResolvedValue(success('synthetic-token'));
+    await expect(run()).resolves.toEqual({ idToken: 'synthetic-token', nonce: 'synthetic-raw' });
+    expect(native.configure).toHaveBeenCalledWith({ webClientId: 'synthetic-web', iosClientId: 'synthetic-ios', nonce: 'synthetic-hash' });
+    expect(native.configure.mock.invocationCallOrder[0]).toBeLessThan(native.presentExplicitSignIn.mock.invocationCallOrder[0]);
+  });
+  test.each(['cancelled', 'noSavedCredentialFound'] as const)('maps response %s', async type => {
+    native.presentExplicitSignIn.mockResolvedValue({ type, data: null });
+    await expect(run()).rejects.toEqual({ code: type === 'cancelled' ? 'cancelled' : 'unavailable' });
+  });
+  test.each(['EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID', 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'])('requires %s', async key => {
+    delete process.env[key];
+    await expect(run()).rejects.toEqual({ code: 'unavailable' });
+    expect(native.configure).not.toHaveBeenCalled();
+    expect(native.presentExplicitSignIn).not.toHaveBeenCalled();
+  });
+  test.each(['', '   '])('rejects empty token %j', async token => {
+    native.presentExplicitSignIn.mockResolvedValue(success(token));
+    await expect(run()).rejects.toEqual({ code: 'unavailable' });
+  });
+  test('native initialization failure is unavailable and logs nothing', async () => {
+    const spies = [jest.spyOn(console, 'log'), jest.spyOn(console, 'warn'), jest.spyOn(console, 'error')];
+    try {
+      native.configure.mockImplementation(() => { throw Error('synthetic missing native module'); });
+      await expect(run()).rejects.toEqual({ code: 'unavailable' });
+      spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+    } finally { spies.forEach(spy => spy.mockRestore()); }
+  });
+  test('library rejection is unavailable and logs nothing', async () => {
+    const spies = [jest.spyOn(console, 'log'), jest.spyOn(console, 'warn'), jest.spyOn(console, 'error')];
+    try {
+      native.presentExplicitSignIn.mockRejectedValue(Error('synthetic sensitive failure'));
+      await expect(run()).rejects.toEqual({ code: 'unavailable' });
+      spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+    } finally { spies.forEach(spy => spy.mockRestore()); }
   });
 });
 function files(dir: string, all = false): string[] {

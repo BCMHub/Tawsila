@@ -6,9 +6,17 @@ type Dependencies = {
   sha256Hex?: (raw: string) => string | Promise<string>;
 };
 const defaultGoogle = {
-  async signIn(_input: { nonce: string }): Promise<{ idToken: string | null }> {
-    // STUB_GOOGLE_PROVIDER: replaced by the verified native adapter in T10.
-    throw { code: 'unavailable' };
+  async signIn({ nonce }: { nonce: string }): Promise<{ idToken: string | null }> {
+    const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+    const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+    if (!webClientId?.trim() || !iosClientId?.trim()) throw { code: 'unavailable' };
+    // Native module loading stays inside the attempt so Expo Go can render Welcome.
+    const { GoogleOneTapSignIn } = await import('react-native-nitro-google-signin');
+    GoogleOneTapSignIn.configure({ webClientId, iosClientId, nonce });
+    const result = await GoogleOneTapSignIn.presentExplicitSignIn();
+    if (result.type === 'cancelled') throw { code: 'cancelled' };
+    if (result.type !== 'success' || !result.data) throw { code: 'unavailable' };
+    return { idToken: result.data.idToken };
   },
 };
 export function createProviderHandlers(platform: 'ios' | 'android', deps: Dependencies = {}) {

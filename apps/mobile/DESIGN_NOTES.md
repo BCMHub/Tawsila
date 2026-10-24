@@ -1,6 +1,6 @@
 # Tawsila shell design decisions
 
-Created with `create-expo-app@5.0.0`, official `expo-template-default@sdk-58`. Production dependencies are the template dependencies only. No extra native module was added. The repository pins Node 24; validation used 24.22.0.
+Created with `create-expo-app@5.0.0`, official `expo-template-default@sdk-58`. The initial shell used template dependencies only; TAW-7 adds the session/storage modules and native Google development-build integration described below. The repository pins Node 24; validation used 24.22.0.
 
 ## Native tabs — Components 6:22
 
@@ -33,3 +33,13 @@ Deviation: offline icon — Figma 34:155's icon is fragmented. iOS uses SF Symbo
 No supplied application text/icon pair failed contrast tests in either theme. Native tab layout and system background are the adaptations described above. The separate iOS simulator gate remains outstanding as assigned; exports do not prove native rendering. The template generated nested AGENTS.md, .claude settings and a demo README; these newly generated files were removed so the handoff contains no instruction/config or README changes. The repository root AGENTS.md and README.md were untouched.
 
 Expo Router 58.0.24 native-tabs iOS 26 colour limitation (Figma 6:22): after checking `tintColor` (selected foreground, already correct), `iconColor` and `labelStyle.color` (already forwarded to native normal/selected item appearances, but inactive colours differ in the simulator), `indicatorColor` (Android/web only), `backgroundColor` and `blurEffect` (no effect on iOS 26), and `disableTransparentOnScrollEdge` (scroll-edge appearance only), no supported prop was found to set the active glass highlight to `brand/tint` or further enforce inactive `label/secondary`, so the native layout is unchanged.
+
+## TAW-7 sign-in and account hand-off
+
+The approved design source is TAW-11 in “Tawsila – iOS App Design”, Figma section `174:365`. Welcome exposes Google on iOS, with progress, cancellation, offline and failure handling. Approved deviations: the wordmark is text; there is no Sign out or Choose another option; the profile hand-off screen has not been designed. New accounts remain at `needs_profile` until TAW-4 provides profile, age and consent with a trusted completion function. A provider response cannot open tabs; only a valid SDK session and server-confirmed completion can. TAW-5 owns phone verification, ride gating and duplicate-phone handling.
+
+Native integration pins `react-native-nitro-google-signin` 2.3.0 and `react-native-nitro-modules` 0.37.1, with Expo-selected `expo-dev-client`. The lazy import lets Expo Go render Welcome while the Google button reports `unavailable`. Use a development build for sign-in: `npx expo run:ios` on Simulator or `npx expo run:ios --device` on the owner's iPhone. Xcode, a Simulator runtime, CocoaPods and device signing are required. Rebuild when native plugins change. Android sign-in returns `unavailable`.
+
+[The Supabase hand-off](../../supabase/README.md) documents local Docker/Colima setup, database checks and concurrency script, `.env.example` variables, the Node environment's `EXPO_NO_DOTENV=1` setting (unset it to load `.env`), the owner's existing Free-tier hosted test configuration, and the database-side test-only seed. The SDK is the session authority. Internal sign-outs verify local storage removal and clear all chunks and the manifest when R2's expired/offline failure retains a session. A marker file in the document directory requires sign-in on fresh installation while allowing updates to retain valid sessions.
+
+The earlier iOS spike verified the nonce flow; it does not verify this production UI on a physical iPhone. Physical sign-in, cancellation, accessibility and reinstall/update behavior are not yet verified: needs the owner's device. Android sign-in, Sign in with Apple, logout, account deletion and store-submission work belong to separate cards; TAW-7 does not implement them.

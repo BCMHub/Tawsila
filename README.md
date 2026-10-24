@@ -209,7 +209,7 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 
 ## Run the app
 
-The mobile app lives in `apps/mobile` (Expo SDK 58, React Native, TypeScript). For now it is a navigation shell with four placeholder tabs (Board, Trips, Messages, Profile), light and dark themes built from the Figma tokens, and shared loading, empty and error states. There is no backend, no accounts and no ride logic yet. iOS is the first target; Android is only checked by a bundle build at this stage.
+The mobile app lives in `apps/mobile` (Expo SDK 58, React Native, TypeScript). It includes Google sign-in on iOS, a Supabase account/session layer, four placeholder tabs (Board, Trips, Messages, Profile), light and dark themes, and shared loading, empty and error states. New accounts stop at the profile hand-off; ride logic is not implemented. iOS is the first target; Android is only checked by a bundle build at this stage.
 
 ### Prerequisites
 
@@ -231,7 +231,7 @@ npm ci
 npx expo start
 ```
 
-Press `i` to open the iOS Simulator, or run `npm run ios` instead of `npx expo start`.
+Google sign-in needs a native development build: run `npx expo run:ios` for the iOS Simulator, or `npx expo run:ios --device` for a connected iPhone with the owner's Xcode signing configured. Xcode, a Simulator runtime and CocoaPods are required. Expo Go can render Welcome, but Google reports `unavailable`.
 
 ### Checks
 
@@ -254,3 +254,13 @@ npx expo export --platform android
 
 Development is governed by the CLH Mobile framework in [BCMHub/CLH-Mobile](https://github.com/BCMHub/CLH-Mobile).
 Every change needs an approved Notion card. See [AGENTS.md](AGENTS.md).
+
+## Sign-in and accounts
+
+TAW-7 revision 7 delivers Google sign-in on iOS with an SDK-authoritative Supabase session and a trigger-created `public.accounts` row. New accounts stop at `needs_profile`; tabs require the server-confirmed `profile_completed_at`. TAW-4 owns profile/consent and its trusted completion function. TAW-5 owns phone verification, ride gating and duplicate-phone handling. Clients can read only their own account and cannot write account fields.
+
+[Local setup and the account/session contract](supabase/README.md) cover Docker or Colima, `supabase start`, `supabase db reset`, `supabase test db`, the concurrency script, every variable in `apps/mobile/.env.example`, and the database-side test-only profile seed. Copy that example to an ignored `.env` using local stack settings. The team's Node environment file sets `EXPO_NO_DOTENV=1`; unset it to let Expo load `.env`. The owner already created a Free-tier hosted test project with Google enabled (Web client first, iOS client second, nonce checking ON). Keys remain in local environment files only; this batch does not use the hosted project.
+
+Every internal sign-out is local and verifies storage removal. An expired session offline can survive the SDK's local sign-out call (R2), so the app clears the stored manifest and chunks itself when needed. A document-directory marker distinguishes a fresh installation from an update and requires sign-in after reinstall even if Keychain credentials remain. Physical-device sign-in and reinstall/update verification is not yet verified: needs the owner's device.
+
+Android sign-in, Sign in with Apple, logout, account deletion and store-submission needs are deferred to separate cards. The design source is TAW-11, Figma section `174:365`; approved deviations are a text wordmark, no Sign out, no Choose another option and a profile hand-off screen not yet designed. See [design notes](apps/mobile/DESIGN_NOTES.md).

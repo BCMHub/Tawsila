@@ -58,3 +58,14 @@ Raw output: .clh/evidence/TAW-8/spec-gate-r5-1-raw.txt
 Usage: 53,071 tokens (Codex reported)
 Verdict: FAIL
 
+Attempt: 13   Round: 2 (revision 5)
+Document: docs/superpowers/specs/2026-10-21-TAW-7-design.md
+Revision: d40724aa7ccbb5c304a8ddd22a6881735aeb5096:5341c7f045088e71712ad6337ea9f3b35feeb0f0
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 (hash 632a7e1e9e25238e); Figma revision n/a (file 2j3vO1USLBA8XiRpQKCF3H; Welcome 14:2 empty, no social frames)
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=0 P2=0 P3=0 (both round-1 findings resolved)
+Criteria mapping: AC1->1,2,4,5,9; AC2->2,3,4,9; AC3->3,9; AC4->4,9; AC5->4,9; AC6->1,5; AC7->1,10; AC8->9; AC9->6,7,9; AC10->1,13; AC11->1,3,8; AC12->8; AC13->2,7,12 (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/spec-gate-r5-2-raw.txt
+Usage: 66,317 tokens (Codex reported)
+Verdict: PASS
+

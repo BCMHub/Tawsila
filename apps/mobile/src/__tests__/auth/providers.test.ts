@@ -3,9 +3,14 @@ import { createProviderHandlers } from '../../features/auth/providers';
 import { GoogleOneTapSignIn } from 'react-native-nitro-google-signin';
 // Jest runs these repository guards in Node; keep Node types out of the app config.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { readdirSync, readFileSync } = require('node:fs') as {
-  readdirSync(path: string, options: { withFileTypes: true }): { name: string; isDirectory(): boolean }[];
+const { readdirSync, readFileSync, mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } = require('node:fs') as {
+  readdirSync(path: string, options: { withFileTypes: true }): { name: string; isDirectory(): boolean; isFile(): boolean; isSymbolicLink(): boolean }[];
   readFileSync(path: string, encoding: 'utf8'): string;
+  mkdtempSync(prefix: string): string;
+  mkdirSync(path: string, options: { recursive: true }): void;
+  writeFileSync(path: string, content: string): void;
+  symlinkSync(target: string, path: string): void;
+  rmSync(path: string, options: { recursive: true; force: true }): void;
 };
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { join } = require('node:path') as { join(...parts: string[]): string };
@@ -111,9 +116,11 @@ describe('default native Google adapter', () => {
 });
 function files(dir: string, all = false): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap(e => {
-    if (['node_modules', '.expo', '.git'].includes(e.name)) return [];
+    if (e.isSymbolicLink()) return [];
+    if (e.isDirectory() && ['node_modules', 'ios', 'android', '.expo', 'dist', 'coverage', 'Pods', 'build', 'DerivedData', '.git'].includes(e.name)) return [];
     const path = join(dir, e.name);
-    return e.isDirectory() ? files(path, all) : all || /\.[cm]?[jt]sx?$/.test(e.name) ? [path] : [];
+    if (e.isDirectory()) return files(path, all);
+    return e.isFile() && (all || /\.[cm]?[jt]sx?$/.test(e.name)) ? [path] : [];
   });
 }
 test('application source excludes forbidden authentication paths', () => {
@@ -121,7 +128,39 @@ test('application source excludes forbidden authentication paths', () => {
     expect(readFileSync(path, 'utf8')).not.toMatch(/signInWith(?:Otp|Password)|signInAnonymously|signUp\s*\(|(?:skip|bypass)[_\w]*profile|profile[_\w]*(?:skip|bypass)|expo-apple-authentication|AppleAuthentication|provider\s*:\s*['"]apple['"]/i);
   }
 });
-(process.env.TAW7_COMPLETION === '1' ? test : test.skip)('completion has no provider stub anywhere under apps', () => {
+function expectNoProviderStub(root: string) {
   const marker = ['STUB', 'GOOGLE', 'PROVIDER'].join('_');
-  for (const path of files(join(process.cwd(), '..'), true)) expect(readFileSync(path, 'utf8')).not.toContain(marker);
+  for (const path of files(root, true)) expect(readFileSync(path, 'utf8')).not.toContain(marker);
+}
+describe('completion source scan fixtures', () => {
+  let root: string;
+  const marker = ['STUB', 'GOOGLE', 'PROVIDER'].join('_');
+  const write = (relative: string, content: string) => {
+    const path = join(root, relative);
+    mkdirSync(join(path, '..'), { recursive: true });
+    writeFileSync(path, content);
+  };
+  beforeEach(() => { root = mkdtempSync('/private/tmp/taw7-provider-scan-'); });
+  afterEach(() => { rmSync(root, { recursive: true, force: true }); });
+  test.each(['mobile/src/provider.ts', 'other/src/provider.ts', 'other/source.txt'])(
+    'rejects marker in source file %s', relative => {
+      write(relative, marker);
+      expect(() => expectNoProviderStub(root)).toThrow(marker);
+    },
+  );
+  test.each(['node_modules', 'ios', 'android', '.expo', 'dist', 'coverage', 'Pods', 'build', 'DerivedData', '.git'])(
+    'ignores marker inside %s', directory => {
+      write(`mobile/${directory}/nested/provider.ts`, marker);
+      expect(() => expectNoProviderStub(root)).not.toThrow();
+    },
+  );
+  test('ignores directory and file symlinks', () => {
+    write('mobile/ios/provider.ts', marker);
+    symlinkSync(join(root, 'mobile/ios'), join(root, 'linked-directory'));
+    symlinkSync(join(root, 'mobile/ios/provider.ts'), join(root, 'linked-file.ts'));
+    expect(() => expectNoProviderStub(root)).not.toThrow();
+  });
+});
+(process.env.TAW7_COMPLETION === '1' ? test : test.skip)('completion has no provider stub anywhere under apps', () => {
+  expectNoProviderStub(join(process.cwd(), '..'));
 });

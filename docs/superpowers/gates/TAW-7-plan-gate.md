@@ -165,3 +165,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-r5-2-raw.txt
 Usage: 67,289 tokens (Codex reported)
 Verdict: FAIL
 
+Attempt: 18   Round: 3 (revision 5)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: f8c45d11d1eeb7eb5639576c36a50bb2d68b9b64:69680ef9f07438da2964d1ccdb16c12e51d93539
+Spec revision (plan gate only): f8c45d1:ebb6994b5bde5edf482cbad2c350445aa0c9a35d (owner-approved)
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=0 P2=0 P3=0 (round-2 findings resolved; the abandonment boundary accepted)
+Criteria mapping: AC1->1,5,6,7,9,10; AC2->2,3,5; AC3->2,3; AC4->3,5,6,7; AC5->4,5,9; AC6->9; AC7->8; AC8->2,4,5,6,7,9; AC9->7,10; AC10->10; AC11->3,6,9,10; AC12->1,6,8; AC13->0,1,9 (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-r5-3-raw.txt
+Usage: 44,757 tokens (Codex reported)
+Verdict: PASS
+

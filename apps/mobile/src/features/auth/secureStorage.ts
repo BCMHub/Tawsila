@@ -18,6 +18,8 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
   const limit = options?.chunkSize ?? 1900;
   if (!Number.isInteger(limit) || limit < 128 || limit > 2000) throw new Error('Invalid chunk size');
   let queue: Promise<unknown> = Promise.resolve();
+  // Each session key needs its own restart scan; failed cleanup stays retryable.
+  const pruned = new Set<string>();
   function serial<T>(operation: () => Promise<T>): Promise<T> {
     const result = queue.then(operation);
     queue = result.catch(() => undefined);
@@ -28,12 +30,14 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
   }
   const chunkKey = (key: string, bank: number, i: number) => `${key}.chunk.${bank}.${i}`;
   async function prune(key: string, keep?: Manifest) {
+    pruned.delete(key);
     for (const bank of [0, 1]) {
       for (let i = 0; i < SLOTS; i++) {
         if (keep?.bank === bank && i < keep.count) continue;
         await store.deleteItemAsync(chunkKey(key, bank, i));
       }
     }
+    pruned.add(key);
   }
   async function read(key: string): Promise<{ value: string; manifest: Manifest } | null> {
     const raw = await store.getItemAsync(key);
@@ -50,7 +54,7 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
       }
       const value = chunks.join('');
       if (value.length !== m.size || digest(value) !== m.hash) throw new Error('Damaged session');
-      await prune(key, manifest);
+      if (!pruned.has(key)) await prune(key, manifest);
       return { value, manifest: m };
     } catch (error) {
       // Storage I/O errors must propagate; only malformed stored content is invalidated.
@@ -74,11 +78,23 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
         const manifest: Manifest = { v: 1, bank: previous?.manifest.bank === 0 ? 1 : 0, count, size: value.length, hash: digest(value) };
         const encoded = JSON.stringify(manifest);
         if (encoded.length >= limit) throw new Error('Manifest exceeds chunk size');
-        for (let i = 0; i < count; i++) {
-          await store.setItemAsync(chunkKey(key, manifest.bank, i), value.slice(i * (limit - 1), (i + 1) * (limit - 1)));
+        let committed = false;
+        try {
+          for (let i = 0; i < count; i++) {
+            await store.setItemAsync(chunkKey(key, manifest.bank, i), value.slice(i * (limit - 1), (i + 1) * (limit - 1)));
+          }
+          await store.setItemAsync(key, encoded);
+          committed = true;
+          await prune(key, manifest);
+        } catch (error) {
+          try {
+            await prune(key, committed ? manifest : previous?.manifest);
+          } catch {
+            // Preserve the write error; the next read retries cleanup.
+          }
+          pruned.delete(key);
+          throw error;
         }
-        await store.setItemAsync(key, encoded);
-        await prune(key, manifest);
       });
     },
     removeItem(key: string): Promise<void> {

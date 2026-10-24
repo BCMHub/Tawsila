@@ -8,20 +8,71 @@ function fake() {
   const data = new Map<string, string>();
   let writes = 0;
   let failAt = Infinity;
+  const deletes: string[] = [];
   return {
     data,
+    deletes,
+    failDeletes: false,
     fail(n: number) { writes = 0; failAt = n; },
     async getItemAsync(k: string) { return data.get(k) ?? null; },
     async setItemAsync(k: string, v: string) {
       if (++writes === failAt) throw new Error('interrupted');
       data.set(k, v);
     },
-    async deleteItemAsync(k: string) { data.delete(k); },
+    async deleteItemAsync(k: string) {
+      deletes.push(k);
+      if (this.failDeletes) throw new Error('delete interrupted');
+      data.delete(k);
+    },
   };
 }
 const adapter = (s: ReturnType<typeof fake>) => createSecureStorage(s, { chunkSize: 128 });
 
 describe('secure session storage', () => {
+  test('successful reads after the first read issue no deletes', async () => {
+    const s = fake();
+    await adapter(s).setItem(key, oldValue);
+    const a = adapter(s);
+    s.deletes.length = 0;
+    expect(await a.getItem(key)).toBe(oldValue);
+    expect(s.deletes.length).toBeGreaterThan(0);
+    s.deletes.length = 0;
+    expect(await a.getItem(key)).toBe(oldValue);
+    expect(await a.getItem(key)).toBe(oldValue);
+    expect(s.deletes).toEqual([]);
+  });
+
+  test('first read after restart removes abandoned chunks', async () => {
+    const s = fake();
+    await adapter(s).setItem(key, oldValue);
+    const clean = new Map(s.data);
+    // Model process death after writing into the inactive bank, before cleanup.
+    const manifest = JSON.parse(s.data.get(key)!);
+    s.data.set(`${key}.chunk.${1 - manifest.bank}.0`, 'abandoned');
+    const restarted = adapter(s);
+    expect(await restarted.getItem(key)).toBe(oldValue);
+    expect(s.data).toEqual(clean);
+  });
+
+  test('same-instance read removes orphans after an interrupted write', async () => {
+    const s = fake(); const a = adapter(s);
+    await a.setItem(key, oldValue);
+    await a.getItem(key);
+    const clean = new Map(s.data);
+    s.fail(2);
+    s.failDeletes = true;
+    await expect(a.setItem(key, newValue)).rejects.toThrow('interrupted');
+    expect(s.data.size).toBeGreaterThan(clean.size);
+    s.failDeletes = false;
+    s.deletes.length = 0;
+    expect(await a.getItem(key)).toBe(oldValue);
+    expect(s.deletes.length).toBeGreaterThan(0);
+    expect(s.data).toEqual(clean);
+    s.deletes.length = 0;
+    expect(await a.getItem(key)).toBe(oldValue);
+    expect(s.deletes).toEqual([]);
+  });
+
   test('multi-chunk round trip, entry bound, key and ASCII validation', async () => {
     const s = fake(); const a = adapter(s);
     await a.setItem(key, newValue);

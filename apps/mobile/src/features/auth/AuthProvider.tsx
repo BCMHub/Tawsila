@@ -113,11 +113,13 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     const begin = (fallback: AuthState | (() => AuthState), notice: () => Notice = () => 'failed') => {
       const id = ++revision;
       clearTimeout(timer);
-      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
+      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
       return () => mounted && revision === id;
     };
     async function derive(silent = false, existingActive?: () => boolean) {
       const active = existingActive ?? begin('account_provision_error');
+      // This read covers SDK events queued by the operation that started it.
+      deriveDeferred = false;
       if (!silent) update('checking');
       try {
         await recoverBeforeMount(client);
@@ -140,7 +142,8 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     }
     async function termination() {
       if (exchangeBlocked(client) || busy || !initialized) { terminationDeferred = true; return; }
-      if (!mounted || terminating || ended) return;
+      if (terminating) { terminationDeferred = true; return; }
+      if (!mounted || ended) return;
       terminating = true;
       try {
         const result = await client.auth.getSession();
@@ -150,12 +153,16 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
           if (temporary(result.error)) { setSnapshot(s => ({ ...s, notice: 'offline' })); return; }
         }
         if (result.data.session) return;
+        if (currentState === 'signed_out') {
+          const remaining = await Promise.all(['', '-user', '-code-verifier', '-flows-code-verifier'].map(suffix => client.sessionStorage.getItem(client.sessionStorageKey + suffix)));
+          if (remaining.every(value => value === null)) return;
+        }
         revision++; clearTimeout(timer);
         await localClear(client);
         ended = true;
         update('signed_out');
       } catch { if (mounted) setSnapshot(s => ({ ...s, notice: 'offline' })); }
-      finally { terminating = false; }
+      finally { terminating = false; await flushDeferred(); }
     }
     async function flushDeferred() {
       if (!mounted || !initialized || busy || exchangeBlocked(client)) return;
@@ -166,7 +173,8 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     }
     const notify = () => { void Promise.resolve().then(flushDeferred); };
     const listeners = settlementListeners.get(client) ?? new Set<() => void>();
-    listeners.add(notify); settlementListeners.set(client, listeners);
+    const settled = () => { if (!busy) deriveDeferred = false; notify(); };
+    listeners.add(settled); settlementListeners.set(client, listeners);
     const subscription = client.auth.onAuthStateChange(event => {
       // initialize() owns the initial session read. The SDK's subscription
       // snapshot is not a change to replay after that read has timed out.
@@ -188,11 +196,13 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         if (!initialized && cleanupRequired) await initialize();
         else {
           busy = true;
+          const active = begin('account_provision_error');
+          update('checking');
           try {
             // A timed-out exchange can still install credentials before compensation.
             await queues.get(client)?.catch(() => {});
-            if (mounted) await derive();
-          } finally { busy = false; }
+            if (active()) await derive(false, active);
+          } finally { if (active()) { busy = false; clearTimeout(timer); } }
         }
         await flushDeferred();
       },
@@ -218,6 +228,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         } finally {
           // An abandoned attempt must not release a newer attempt's event guard.
           if (active()) { busy = false; clearTimeout(timer); }
+          else if (!busy) deriveDeferred = false;
           await flushDeferred();
         }
       },
@@ -245,7 +256,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       finally { busy = false; await flushDeferred(); }
     }
     void initialize();
-    return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; listeners.delete(notify); subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };
+    return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; listeners.delete(settled); subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };
   }, [client, providers, installGuard, timeoutMs]);
   return <Context.Provider value={{ ...snapshot, canRetry: snapshot.state === 'account_provision_error' || (snapshot.state === 'signed_out' && snapshot.notice === 'failed'), signIn: async p => { await controller.current?.signIn(p); }, retry: async () => { await controller.current?.retry(); } }}>{children}</Context.Provider>;
 }

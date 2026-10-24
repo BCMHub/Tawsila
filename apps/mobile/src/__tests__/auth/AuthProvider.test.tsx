@@ -312,3 +312,64 @@ it('local clear sweeps first-use orphans and uses one verification read per key'
   await mount(f, undefined, {isFreshInstall:async () => true});
   expect(data.size).toBe(0); expect(operations).toBe(4 * 3);
 });
+
+it.each([false, true])('own SIGNED_IN causes one derive, including abandoned read: %s', async slow => {
+  const f = fakeAuthClient(); const exchange = f.client.auth.signInWithIdToken;
+  f.client.auth.signInWithIdToken = async input => { const result = await exchange(input); f.emit('SIGNED_IN'); return result; };
+  const row = deferred<void>(); let reads = 0;
+  f.client.from = () => ({select: () => ({eq: () => ({maybeSingle: async () => { reads++; if (slow && reads === 1) await row.promise; return {data:{profile_completed_at:null},error:null}; }})})});
+  await mount(f); jest.useFakeTimers();
+  try {
+    let pending!: Promise<void>; await act(async () => { pending = auth.signIn('google'); });
+    if (slow) { await act(async () => jest.advanceTimersByTime(1001)); expect(auth.state).toBe('account_provision_error'); }
+    await act(async () => { row.resolve(); await pending; });
+    expect(auth.state).toBe(slow ? 'account_provision_error' : 'needs_profile'); expect(reads).toBe(1);
+  } finally { jest.useRealTimers(); }
+});
+it('compensation SIGNED_OUT preserves the provider failure banner', async () => {
+  const f = fakeAuthClient(); const gate = deferred<void>(); const exchange = f.client.auth.signInWithIdToken; const clear = f.client.auth.signOut;
+  f.client.auth.signInWithIdToken = async input => { await gate.promise; const result = await exchange(input); f.emit('SIGNED_IN'); return result; };
+  f.client.auth.signOut = jest.fn(async () => { const result = await clear({scope:'local'}); f.emit('SIGNED_OUT'); return result; });
+  await mount(f); jest.useFakeTimers();
+  try {
+    let pending!: Promise<void>; await act(async () => { pending = auth.signIn('google'); });
+    await act(async () => jest.advanceTimersByTime(1001));
+    await act(async () => { gate.resolve(); await pending; });
+    expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe('provider_failed'); expect(f.client.auth.signOut).toHaveBeenCalledTimes(1);
+  } finally { jest.useRealTimers(); }
+});
+it('genuine SIGNED_OUT during stale termination is replayed and cleared once', async () => {
+  const f = fakeAuthClient(stored); await mount(f); const gate = deferred<void>(); const read = f.client.auth.getSession; let hold = true;
+  f.client.auth.getSession = async () => { const snapshot = await read(); if (hold) { hold = false; await gate.promise; } return snapshot; };
+  await act(async () => f.emit('SIGNED_OUT'));
+  f.setSession(null); await act(async () => f.emit('SIGNED_OUT'));
+  await act(async () => gate.resolve());
+  expect(auth.state).toBe('signed_out'); expect(f.client.auth.signOut).toHaveBeenCalledTimes(1); expect(f.values.size).toBe(0);
+});
+it('abandoned retry cannot release the newer retry event guard', async () => {
+  const f = fakeAuthClient(stored); const first = deferred<void>(); const second = deferred<void>(); let reads = 0;
+  f.client.from = () => ({select: () => ({eq: () => ({maybeSingle: async () => { const n = ++reads; if (n === 2) await first.promise; if (n >= 3) await second.promise; return {data:null,error:{status:503}}; }})})});
+  await mount(f); jest.useFakeTimers();
+  try {
+    let r1!: Promise<void>, r2!: Promise<void>;
+    await act(async () => { r1 = auth.retry(); }); await act(async () => jest.advanceTimersByTime(1001));
+    await act(async () => { r2 = auth.retry(); });
+    await act(async () => { first.resolve(); await r1; });
+    const before = jest.mocked(f.client.auth.getSession).mock.calls.length;
+    await act(async () => f.emit('TOKEN_REFRESHED'));
+    expect(jest.mocked(f.client.auth.getSession).mock.calls.length).toBe(before);
+    await act(async () => { second.resolve(); await r2; });
+  } finally { jest.useRealTimers(); }
+});
+it('retry timeout includes waiting for a stalled exchange queue', async () => {
+  const f = fakeAuthClient(); const gate = deferred<void>(); const exchange = f.client.auth.signInWithIdToken;
+  f.client.auth.signInWithIdToken = async input => { await gate.promise; return exchange(input); };
+  await mount(f); jest.useFakeTimers();
+  try {
+    let pending!: Promise<void>, retry!: Promise<void>;
+    await act(async () => { pending = auth.signIn('google'); }); await act(async () => jest.advanceTimersByTime(1001));
+    await act(async () => { retry = auth.retry(); }); await act(async () => jest.advanceTimersByTime(1001));
+    expect(auth.state).toBe('account_provision_error'); expect(auth.canRetry).toBe(true);
+    await act(async () => { gate.resolve(); await pending; await retry; });
+  } finally { jest.useRealTimers(); }
+});

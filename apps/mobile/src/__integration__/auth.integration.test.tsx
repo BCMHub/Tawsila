@@ -181,3 +181,19 @@ it('rejected exchange token leaves the SDK and storage signed out', async () => 
   await act(async () => auth.signIn('google'));
   expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe('provider_failed'); await same(f,null);
 });
+
+it('sign-in abandoned account read arriving after timeout changes no state or credentials', async () => {
+  const f = makeClient(); const exchange = exchangeDriver(f); const intercept = f.control.intercept!; const row = gate(); let reads = 0;
+  f.control.intercept = async (input, init) => {
+    const response = await intercept(input, init);
+    if (String(input).includes('/rest/v1/accounts')) { reads++; if (reads === 1) { row.enter(); await row.wait; } }
+    return response;
+  };
+  await mount(f,300); let pending!: Promise<void>;
+  await act(async () => { pending = auth.signIn('google'); }); await exchange.entered;
+  await act(async () => exchange.release()); await row.entered;
+  await waitFor(() => expect(auth.state).toBe('account_provision_error'));
+  const current = await session(f); states.length = 0;
+  await act(async () => { row.release(); await pending; });
+  expect(auth.state).toBe('account_provision_error'); expect(states).toEqual([]); expect(reads).toBe(1); await same(f,current);
+});

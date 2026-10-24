@@ -95,3 +95,29 @@ Verdict: PASS
 Spec approval (checklist A item 2; the combined approval line binding spec and plan is written after the plan gate)
 Approved: Sherif Ehab 2026-10-24T14:23:18Z https://app.notion.com/p/40094bb42447814cb3a8df4e524f88e2 authoringCard=TAW-8 implCard=TAW-7 spec=ebb6994b5bde5edf482cbad2c350445aa0c9a35d plan=pending authoringScopeDigest=n/a(manual) implCriteriaHash=e7606d0dd7d25cfab0c3bd12f5eade9008cd3846e07d518f87027d8d0eb60e1f figma=n/a
 Owner words: "approved" (reply to: reply "approved, spec ebb6994b" to approve the exact spec blob, 2026-10-24, Claude Code session). The spec file was not changed after the round-4 gate PASS (blob ebb6994b); any later edit voids this approval.
+
+Attempt: 16   Round: post-approval micro change (line 48 pattern written with \d; the owner approval of blob ebb6994b is void after any edit)
+Document: docs/superpowers/specs/2026-10-21-TAW-7-design.md
+Revision: e0f8550f1f195a0c27b63f09007c67c96de3f675:037ffa3e699351726e5f4a7191e74a310c2b8f3c
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended 2026-10-24 (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=1 P2=0 P3=0
+Findings note: (the \d class is collation dependent in PostgreSQL and can accept non-ASCII digits; fixed in the next attempt)
+Criteria mapping: AC1->1,2,5,9; AC2->2,3,4,9; AC3->3,9; AC4->4,9; AC5->4,9,12; AC6->1,5,9; AC7->1,10; AC8->9; AC9->6,7,9; AC10->1; AC11->1,3,8; AC12->8; AC13->2,7,12 (exhaustive, every criterion mapped)
+Raw output: .clh/evidence/TAW-8/spec-gate-r5-5-raw.txt
+Usage: 60,275 tokens (Codex reported)
+Verdict: FAIL
+
+Attempt: 17   Round: post-approval micro change, second round (ASCII class restored with a lookahead)
+Document: docs/superpowers/specs/2026-10-21-TAW-7-design.md
+Revision: 3051b05f8e0bba4b8b107392bf49df11cf8a0705:b76b3cafa8af784417be0b7d6bfe163cf4772737
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended 2026-10-24 (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=0 P2=0 P3=0
+Findings note: (only line 48 changed against the approved blob; the pattern accepts the same strings; plan unchanged)
+Criteria mapping: AC1->1,2,5,9; AC2->2,3,4,9; AC3->3,9; AC4->4,9; AC5->4,9,12; AC6->1,5,9; AC7->1,10; AC8->9; AC9->6,7,9; AC10->1; AC11->1,3,8; AC12->8; AC13->2,7,12 (exhaustive, every criterion mapped)
+Raw output: .clh/evidence/TAW-8/spec-gate-r5-6-raw.txt
+Usage: 67,445 tokens (Codex reported)
+Verdict: PASS
+
+Spec re-approval pending: the owner approved blob ebb6994b; the blob is now b76b3caf and needs a new owner approval before merge.

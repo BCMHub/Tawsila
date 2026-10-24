@@ -211,3 +211,18 @@ Verdict: PASS
 Combined approval of the exact documents (checklist A item 5; binds the spec and the plan)
 Approved: Sherif Ehab 2026-10-24T14:56:15Z https://app.notion.com/p/40094bb42447814cb3a8df4e524f88e2 authoringCard=TAW-8 implCard=TAW-7 spec=ebb6994b5bde5edf482cbad2c350445aa0c9a35d plan=aacfe9c9736abc0e547e087ce590ab349c259cf4 authoringScopeDigest=n/a(manual) implCriteriaHash=e7606d0dd7d25cfab0c3bd12f5eade9008cd3846e07d518f87027d8d0eb60e1f figma=n/a
 Owner words: "approved" (reply to: reply "approved, spec ebb6994b, plan aacfe9c9" to approve the exact spec and plan blobs, 2026-10-24, Claude Code session). Both documents are unchanged since their gate PASS (spec round 4, plan re-review attempt 20); any later edit to either voids this approval. Checklist A items 1-4 and 6 hold: lane line confirmed (TAW-7 Critical, TAW-8 Standard), spec gate PASS for the spec blob, plan gate PASS for the plan blob against that spec blob, criteria mappings exhaustive, no open stop condition, gate files, raw outputs and accounting stored outside the worktree in .clh/evidence/TAW-8/.
+
+Attempt: 21   Round: re-check after the one-line spec change (plan blob unchanged)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 3051b05f8e0bba4b8b107392bf49df11cf8a0705:aacfe9c9736abc0e547e087ce590ab349c259cf4
+Spec revision (plan gate only): 3051b05f8e0bba4b8b107392bf49df11cf8a0705:b76b3cafa8af784417be0b7d6bfe163cf4772737
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=0 P2=0 P3=0
+Findings note: (the same review covered spec and plan; plan blob identical to the approved one)
+Criteria mapping: AC1->1,2,5,9; AC2->2,3,4,9; AC3->3,9; AC4->4,9; AC5->4,9,12; AC6->1,5,9; AC7->1,10; AC8->9; AC9->6,7,9; AC10->1; AC11->1,3,8; AC12->8; AC13->2,7,12 (exhaustive, every criterion mapped)
+Raw output: .clh/evidence/TAW-8/spec-gate-r5-6-raw.txt
+Usage: 67,445 tokens (Codex reported; shared with spec attempt 17)
+Verdict: PASS
+
+Combined re-approval pending: the owner approved spec ebb6994b and plan aacfe9c9; the spec blob is now b76b3caf.

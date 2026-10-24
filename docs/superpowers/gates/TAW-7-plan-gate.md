@@ -138,3 +138,18 @@ Exception: the owner approved proceeding to document approval and integration of
 Owner words: "approved" (answer to: "Do you approve the exception on those terms?").
 Risk assessment given to the owner (low likelihood, moderate UX impact, low data-loss impact), corrected by the owner's review input on: lockless auth-js coordination (verify installed version), user-visible impact (unexpected sign-out, interrupted verification), and timeouts not cancelling operations (the SDK session state is authoritative).
 
+
+# Revision 5 (social sign-in): plan gate, 2026-10-24 (lean plan; target about 3 rounds)
+
+Attempt: 16   Round: 1 (revision 5)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 9aa81a1952d404286b108b75a6851bf097fec479:72e75557dd966a7e2b6e91df3fb96ca586238c49
+Spec revision (plan gate only): 9aa81a1:ebb6994b5bde5edf482cbad2c350445aa0c9a35d (owner-approved)
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=3 P2=1 P3=0 (no provider-wrapper tests and no automated nonce, returning-identity or concurrent first-sign-in tests; invariant tests did not reach the refresh paths and lacked timeout and in-flight token-exchange abandonment cases; no executable routing regression test; the storage corruption test could damage a key outside the store under test). All test-coverage gaps; no race or design findings. Fixes: applied in round 2 (provider wrapper tests, integration tests and a concurrency script, SIGNED_OUT re-read semantics and abandonment tests, a routing test, a corrected corruption test).
+Criteria mapping: AC1..AC13 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-r5-1-raw.txt
+Usage: 43,978 tokens (Codex reported)
+Verdict: FAIL
+

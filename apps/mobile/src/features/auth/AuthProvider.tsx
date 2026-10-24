@@ -105,15 +105,21 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
   const [snapshot, setSnapshot] = useState<{ state: AuthState; notice: Notice }>({ state: 'checking', notice: null });
   const controller = useRef<{ signIn(p: ProviderName): Promise<void>; retry(): Promise<void> } | null>(null);
   useEffect(() => {
-    let mounted = true, revision = 0, busy = false, terminating = false, initialized = false, ended = false;
+    let mounted = true, revision = 0, busy = false, terminating = false, initialized = false;
+    // Guard ownership is independent of result revisions. A timeout releases only
+    // its operation; late finally blocks cannot release a replacement owner.
+    let busyOwner: symbol | undefined;
+    const acquire = () => { const owner = Symbol(); busyOwner = owner; busy = true; return owner; };
+    const release = (owner: symbol | undefined) => { if (busyOwner === owner) { busyOwner = undefined; busy = false; } };
     let currentState: AuthState = 'checking';
     let cleanupRequired = false, terminationDeferred = false, deriveDeferred = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const update = (state: AuthState, notice: Notice = null) => { if (mounted) { currentState = state; setSnapshot(previous => previous.state === state && previous.notice === notice ? previous : { state, notice }); } };
     const begin = (fallback: AuthState | (() => AuthState), notice: () => Notice = () => 'failed') => {
       const id = ++revision;
+      const owner = busyOwner;
       clearTimeout(timer);
-      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
+      timer = setTimeout(() => { if (mounted && revision === id) { revision++; release(owner); deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
       return () => mounted && revision === id;
     };
     async function derive(silent = false, existingActive?: () => boolean) {
@@ -128,7 +134,6 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         if (!active()) return;
         if (result.error) { update('account_provision_error', temporary(result.error) ? 'offline' : 'failed'); return; }
         if (!result.data.session) { update('signed_out'); return; }
-        ended = false;
         const token = result.data.session.access_token;
         const row = await client.from('accounts').select('profile_completed_at').eq('user_id', result.data.session.user.id).maybeSingle();
         if (!active()) return;
@@ -143,7 +148,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     async function termination() {
       if (exchangeBlocked(client) || busy || !initialized) { terminationDeferred = true; return; }
       if (terminating) { terminationDeferred = true; return; }
-      if (!mounted || ended) return;
+      if (!mounted) return;
       terminating = true;
       try {
         const result = await client.auth.getSession();
@@ -157,9 +162,9 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
           const remaining = await Promise.all(['', '-user', '-code-verifier', '-flows-code-verifier'].map(suffix => client.sessionStorage.getItem(client.sessionStorageKey + suffix)));
           if (remaining.every(value => value === null)) return;
         }
+        if (busy) { terminationDeferred = true; return; }
         revision++; clearTimeout(timer);
         await localClear(client);
-        ended = true;
         update('signed_out');
       } catch { if (mounted) setSnapshot(s => ({ ...s, notice: 'offline' })); }
       finally { terminating = false; await flushDeferred(); }
@@ -192,23 +197,23 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     const appSubscription = AppState.addEventListener('change', foreground);
     controller.current = {
       retry: async () => {
-        if (!mounted || busy) return;
+        if (!mounted || busy || terminating) return;
         if (!initialized && cleanupRequired) await initialize();
         else {
-          busy = true;
+          const owner = acquire();
           const active = begin('account_provision_error');
           update('checking');
           try {
             // A timed-out exchange can still install credentials before compensation.
             await queues.get(client)?.catch(() => {});
             if (active()) await derive(false, active);
-          } finally { if (active()) { busy = false; clearTimeout(timer); } }
+          } finally { release(owner); if (active()) clearTimeout(timer); }
         }
         await flushDeferred();
       },
       signIn: async provider => {
         if (!mounted || !initialized || busy || terminating || currentState !== 'signed_out') return;
-        busy = true;
+        const owner = acquire();
         const id = ++revision;
         let active = () => mounted && revision === id;
         update('authenticating');
@@ -227,7 +232,8 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
           update('signed_out', code === 'cancelled' ? 'cancelled' : code === 'unavailable' ? 'unavailable' : code === 'offline' ? 'offline' : 'provider_failed');
         } finally {
           // An abandoned attempt must not release a newer attempt's event guard.
-          if (active()) { busy = false; clearTimeout(timer); }
+          release(owner);
+          if (active()) { clearTimeout(timer); }
           else if (!busy) deriveDeferred = false;
           await flushDeferred();
         }
@@ -235,7 +241,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     };
     async function initialize() {
       if (busy) return;
-      busy = true;
+      const owner = acquire();
       try {
         const recovered = await recoverBeforeMount(client);
         let fresh = true;
@@ -253,7 +259,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         if (fresh || recovered) update('signed_out');
         else await derive();
       } catch { cleanupRequired = true; update(pendingCompensations.has(client) ? 'account_provision_error' : 'signed_out', 'failed'); }
-      finally { busy = false; await flushDeferred(); }
+      finally { release(owner); await flushDeferred(); }
     }
     void initialize();
     return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; listeners.delete(settled); subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };

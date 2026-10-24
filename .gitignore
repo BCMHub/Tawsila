@@ -14,3 +14,10 @@ apps/mobile/dist/
 apps/mobile/ios/
 apps/mobile/android/
 apps/mobile/coverage/
+
+# Local Supabase state and environment
+.env
+apps/mobile/.env
+!apps/mobile/.env.example
+supabase/.branches/
+supabase/.temp/

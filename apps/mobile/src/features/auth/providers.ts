@@ -1,5 +1,5 @@
 export type ProviderName = 'google';
-type ProviderCode = 'cancelled' | 'denied' | 'unavailable';
+type ProviderCode = 'cancelled' | 'denied' | 'unavailable' | 'failed';
 type Dependencies = {
   google?: { signIn(input: { nonce: string }): Promise<{ idToken: string | null }> };
   randomNonce?: () => string | Promise<string>;
@@ -11,11 +11,16 @@ const defaultGoogle = {
     const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
     if (!webClientId?.trim() || !iosClientId?.trim()) throw { code: 'unavailable' };
     // Native module loading stays inside the attempt so Expo Go can render Welcome.
-    const { GoogleOneTapSignIn } = await import('react-native-nitro-google-signin');
-    GoogleOneTapSignIn.configure({ webClientId, iosClientId, nonce });
-    const result = await GoogleOneTapSignIn.presentExplicitSignIn();
+    const { GoogleOneTapSignIn } = await import('react-native-nitro-google-signin').catch(() => { throw { code: 'unavailable' }; });
+    const result = await (async () => {
+      GoogleOneTapSignIn.configure({ webClientId, iosClientId, nonce });
+      return GoogleOneTapSignIn.presentExplicitSignIn();
+    })().catch(error => {
+      const code = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
+      throw { code: code === 'cancelled' || code === 'denied' ? code : 'failed' };
+    });
     if (result.type === 'cancelled') throw { code: 'cancelled' };
-    if (result.type !== 'success' || !result.data) throw { code: 'unavailable' };
+    if (result.type !== 'success' || !result.data) throw { code: 'failed' };
     return { idToken: result.data.idToken };
   },
 };
@@ -34,11 +39,11 @@ export function createProviderHandlers(platform: 'ios' | 'android', deps: Depend
         });
         const nonce = await randomNonce();
         const result = await (deps.google ?? defaultGoogle).signIn({ nonce: await sha256Hex(nonce) });
-        if (typeof result?.idToken !== 'string' || !result.idToken.trim()) throw { code: 'unavailable' };
+        if (typeof result?.idToken !== 'string' || !result.idToken.trim()) throw { code: 'failed' };
         return { idToken: result.idToken, nonce };
       } catch (error) {
         const code = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
-        const mapped: ProviderCode = code === 'cancelled' || code === 'denied' ? code : 'unavailable';
+        const mapped: ProviderCode = code === 'cancelled' || code === 'denied' || code === 'unavailable' ? code : 'failed';
         throw { code: mapped };
       }
     },

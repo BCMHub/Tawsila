@@ -169,5 +169,15 @@ it('failed exchange fetch leaves the SDK and storage signed out', async () => {
     return network(input,init);
   };
   await act(async () => auth.signIn('google'));
+  expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe('offline'); await same(f,null);
+});
+
+it('rejected exchange token leaves the SDK and storage signed out', async () => {
+  const f = makeClient(); await mount(f);
+  f.control.intercept = async (input,init) => {
+    if (String(input).includes('grant_type=id_token')) return new Response(JSON.stringify({error:'invalid_grant',error_description:'Synthetic rejected token'}), {status:400,headers:{'Content-Type':'application/json'}});
+    return network(input,init);
+  };
+  await act(async () => auth.signIn('google'));
   expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe('provider_failed'); await same(f,null);
 });

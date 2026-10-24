@@ -23,6 +23,8 @@ export type AuthState = 'checking' | 'signed_out' | 'authenticating' | 'account_
 export type Notice = 'cancelled' | 'offline' | 'failed' | 'provider_failed' | 'unavailable' | null;
 type Value = { state: AuthState; canRetry: boolean; notice: Notice; signIn(p: ProviderName): Promise<void>; retry(): Promise<void> };
 const Context = createContext<Value | null>(null);
+const exchangesInFlight = new WeakMap<AuthClient, number>();
+const exchangeBlocked = (client: AuthClient) => !!exchangesInFlight.get(client) || pendingCompensations.has(client);
 const queues = new WeakMap<AuthClient, Promise<unknown>>();
 async function localClear(client: AuthClient) {
   try { await client.auth.signOut({ scope: 'local' }); } catch { /* Verify storage even when transport throws. */ }
@@ -74,6 +76,7 @@ async function recoverBeforeMount(client: AuthClient) {
   return task;
 }
 async function exchange(client: AuthClient, result: ProviderResult, active: () => boolean) {
+  exchangesInFlight.set(client, (exchangesInFlight.get(client) ?? 0) + 1);
   const previous = queues.get(client) ?? Promise.resolve();
   const task = previous.catch(() => {}).then(async () => {
     await recoverCompensation(client);
@@ -83,14 +86,17 @@ async function exchange(client: AuthClient, result: ProviderResult, active: () =
     if (before.error || before.data.session || !active()) return null;
     const saved = await Promise.all(['', '-user', '-code-verifier', '-flows-code-verifier'].map(async suffix => { const key = client.sessionStorageKey + suffix; return { key, value: await client.sessionStorage.getItem(key) }; }));
     if (!active()) return null;
-    const response = await client.auth.signInWithIdToken({ provider: 'google', token: result.idToken, nonce: result.nonce });
+    const response = await client.auth.signInWithIdToken({ provider: 'google', token: result.idToken, nonce: result.nonce }).catch((error: Failure) => {
+      throw { code: temporary(error) ? 'offline' : 'failed' };
+    });
     if (!active() && response.data.session) {
       await compensate(client, response.data.session.access_token, saved);
       return null;
     }
-    if (response.error || !response.data.session) throw Error('Provider exchange failed');
+    if (response.error) throw { code: temporary(response.error) ? 'offline' : 'failed' };
+    if (!response.data.session) throw { code: 'failed' };
     return response.data.session;
-  });
+  }).finally(() => { exchangesInFlight.set(client, (exchangesInFlight.get(client) ?? 1) - 1); });
   queues.set(client, task);
   return task;
 }
@@ -104,10 +110,10 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     let cleanupRequired = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const update = (state: AuthState, notice: Notice = null) => { if (mounted) { currentState = state; setSnapshot(previous => previous.state === state && previous.notice === notice ? previous : { state, notice }); } };
-    const begin = (fallback: AuthState) => {
+    const begin = (fallback: AuthState | (() => AuthState)) => {
       const id = ++revision;
       clearTimeout(timer);
-      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; update(fallback, 'failed'); } }, timeoutMs);
+      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; update(typeof fallback === 'function' ? fallback() : fallback, 'failed'); } }, timeoutMs);
       return () => mounted && revision === id;
     };
     async function derive(silent = false, existingActive?: () => boolean) {
@@ -131,7 +137,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       finally { if (active()) clearTimeout(timer); }
     }
     async function termination() {
-      if (!mounted || terminating || !initialized || busy || ended) return;
+      if (!mounted || terminating || !initialized || busy || ended || exchangeBlocked(client)) return;
       terminating = true;
       try {
         const result = await client.auth.getSession();
@@ -151,7 +157,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     const subscription = client.auth.onAuthStateChange(event => {
       // Defer SDK calls outside its synchronous event callback.
       if (event === 'SIGNED_OUT') void Promise.resolve().then(termination);
-      else if (initialized && !busy && mounted) void Promise.resolve().then(() => { if (mounted) void derive(true); });
+      else if (initialized && !busy && mounted && !exchangeBlocked(client)) void Promise.resolve().then(() => { if (mounted && !exchangeBlocked(client)) void derive(true); });
     }).data.subscription;
     const foreground = (state: string) => { if (state === 'active') client.auth.startAutoRefresh?.(); else client.auth.stopAutoRefresh?.(); };
     foreground(AppState.currentState ?? 'inactive');
@@ -168,14 +174,15 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
           const result = await providers[provider]();
           if (!active()) return;
           if (!result.idToken?.trim()) throw Error('Empty provider token');
-          active = begin('signed_out');
-          await exchange(client, result, active);
+          let committed = false;
+          active = begin(() => committed ? 'account_provision_error' : 'signed_out');
+          committed = !!(await exchange(client, result, active));
           if (!active()) return;
           await derive(false, active);
         } catch (error) {
           if (!active()) return;
           const code = (error as { code?: string })?.code;
-          update('signed_out', code === 'cancelled' ? 'cancelled' : code === 'unavailable' ? 'unavailable' : 'provider_failed');
+          update('signed_out', code === 'cancelled' ? 'cancelled' : code === 'unavailable' ? 'unavailable' : code === 'offline' ? 'offline' : 'provider_failed');
         } finally {
           // An abandoned attempt must not release a newer attempt's event guard.
           if (active()) { busy = false; clearTimeout(timer); }

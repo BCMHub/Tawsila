@@ -41,6 +41,10 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
   }
   async function read(key: string): Promise<{ value: string; manifest: Manifest } | null> {
     const raw = await store.getItemAsync(key);
+    if (raw === null) {
+      if (!pruned.has(key)) await prune(key);
+      return null;
+    }
     let manifest: Manifest | undefined;
     try {
       const m = JSON.parse(raw ?? 'null');
@@ -85,7 +89,13 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
           }
           await store.setItemAsync(key, encoded);
           committed = true;
-          await prune(key, manifest);
+          // The initial read already scanned both banks. Only the previously
+          // committed chunks can remain outside the newly written bank.
+          if (previous) {
+            for (let i = 0; i < previous.manifest.count; i++) {
+              await store.deleteItemAsync(chunkKey(key, previous.manifest.bank, i));
+            }
+          }
         } catch (error) {
           try {
             await prune(key, committed ? manifest : previous?.manifest);

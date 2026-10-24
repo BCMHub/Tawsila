@@ -139,3 +139,31 @@ test('SDK sign-out may read and remove its empty flow index', async () => {
   await a.setItem(index, '[]'); await a.removeItem(index);
   expect(s.data.size).toBe(0);
 });
+
+test('absent reads avoid repeated sweeps and writes avoid redundant bank sweeps', async () => {
+  const s = fake(); const a = createSecureStorage(s);
+  await a.getItem(key); s.deletes.length = 0;
+  expect(await a.getItem(key)).toBeNull(); expect(await a.getItem(key)).toBeNull();
+  expect(s.deletes).toHaveLength(0);
+  await a.setItem(key, 'x'.repeat(3000));
+  expect(s.deletes.length).toBeLessThan(140);
+  await a.removeItem(key); expect(s.data.size).toBe(0);
+});
+
+test('3 KB write uses a bounded number of native operations', async () => {
+  const data = new Map<string,string>(); let operations = 0;
+  const a = createSecureStorage({
+    getItemAsync: async k => {operations++; return data.get(k) ?? null;},
+    setItemAsync: async (k,v) => {operations++; data.set(k,v);},
+    deleteItemAsync: async k => {operations++; data.delete(k);},
+  });
+  await a.setItem(key, 'x'.repeat(3000));
+  expect(operations).toBeLessThanOrEqual(265);
+  await a.removeItem(key); operations = 0;
+  await a.getItem(key); await a.getItem(key);
+  expect(operations).toBe(2); // Only the authoritative manifest lookups.
+  operations = 0; await a.setItem(key, 'x'.repeat(3000));
+  expect(operations).toBeLessThanOrEqual(6);
+  operations = 0; await a.setItem(key, 'y'.repeat(3000));
+  expect(operations).toBeLessThanOrEqual(10);
+});

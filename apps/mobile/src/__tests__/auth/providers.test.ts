@@ -33,13 +33,13 @@ describe('Google provider', () => {
   });
   test.each(['', null])('rejects empty token %s', async idToken => {
     const d = deps(); d.google.signIn.mockResolvedValue({ idToken });
-    await expect(createProviderHandlers('ios', d).google()).rejects.toEqual({ code: 'unavailable' });
+    await expect(createProviderHandlers('ios', d).google()).rejects.toEqual({ code: 'failed' });
   });
   test('sanitizes unexpected failures and never logs token or error', async () => {
     const spies = [jest.spyOn(console, 'log'), jest.spyOn(console, 'warn'), jest.spyOn(console, 'error')];
     try {
       const d = deps(); d.google.signIn.mockRejectedValue(new Error('sensitive synthetic failure'));
-      await expect(createProviderHandlers('ios', d).google()).rejects.toEqual({ code: 'unavailable' });
+      await expect(createProviderHandlers('ios', d).google()).rejects.toEqual({ code: 'failed' });
       spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
     } finally { spies.forEach(spy => spy.mockRestore()); }
   });
@@ -85,7 +85,7 @@ describe('default native Google adapter', () => {
   });
   test.each(['cancelled', 'noSavedCredentialFound'] as const)('maps response %s', async type => {
     native.presentExplicitSignIn.mockResolvedValue({ type, data: null });
-    await expect(run()).rejects.toEqual({ code: type === 'cancelled' ? 'cancelled' : 'unavailable' });
+    await expect(run()).rejects.toEqual({ code: type === 'cancelled' ? 'cancelled' : 'failed' });
   });
   test.each(['EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID', 'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID'])('requires %s', async key => {
     delete process.env[key];
@@ -95,21 +95,21 @@ describe('default native Google adapter', () => {
   });
   test.each(['', '   '])('rejects empty token %j', async token => {
     native.presentExplicitSignIn.mockResolvedValue(success(token));
-    await expect(run()).rejects.toEqual({ code: 'unavailable' });
+    await expect(run()).rejects.toEqual({ code: 'failed' });
   });
-  test('native initialization failure is unavailable and logs nothing', async () => {
+  test('native configure failure is retryable and logs nothing', async () => {
     const spies = [jest.spyOn(console, 'log'), jest.spyOn(console, 'warn'), jest.spyOn(console, 'error')];
     try {
       native.configure.mockImplementation(() => { throw Error('synthetic missing native module'); });
-      await expect(run()).rejects.toEqual({ code: 'unavailable' });
+      await expect(run()).rejects.toEqual({ code: 'failed' });
       spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
     } finally { spies.forEach(spy => spy.mockRestore()); }
   });
-  test('library rejection is unavailable and logs nothing', async () => {
+  test.each(['ONE_TAP_START_FAILED', 'IN_PROGRESS', 'unavailable'])('library rejection %s is retryable and logs nothing', async code => {
     const spies = [jest.spyOn(console, 'log'), jest.spyOn(console, 'warn'), jest.spyOn(console, 'error')];
     try {
-      native.presentExplicitSignIn.mockRejectedValue(Error('synthetic sensitive failure'));
-      await expect(run()).rejects.toEqual({ code: 'unavailable' });
+      native.presentExplicitSignIn.mockRejectedValue({ code });
+      await expect(run()).rejects.toEqual({ code: 'failed' });
       spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
     } finally { spies.forEach(spy => spy.mockRestore()); }
   });

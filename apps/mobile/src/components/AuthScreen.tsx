@@ -19,7 +19,7 @@ function Banner({ text, polite = false }: { text: string; polite?: boolean }) {
   </View>;
 }
 export function AuthScreen() {
-  const { state, notice, signIn, retry } = useAuth();
+  const { state, notice, signIn, retry, canRetry } = useAuth();
   const t = useTheme();
   const dark = useColorScheme() === 'dark';
   const insets = useSafeAreaInsets();
@@ -55,7 +55,7 @@ export function AuthScreen() {
       </View>
       <View style={{ minHeight: spacing['space/32'], flexGrow: 0.3 }} />
       <View style={{ paddingHorizontal: spacing['space/16'] }}>
-        {!progressing && <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={() => { if (provision) void retry(); else void signIn('google'); }} style={({ pressed }) => ({ minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing['space/24'], paddingVertical: spacing['space/12'], borderRadius: radius['radius/full'], borderWidth: provision || failed ? 0 : 1, borderColor: t['brand/primary'], backgroundColor: provision || failed ? t[pressed ? 'brand/primary-pressed' : 'brand/primary'] : undefined, opacity: disabled ? 0.4 : 1 })}>
+        {!progressing && <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={() => { if (canRetry) void retry(); else void signIn('google'); }} style={({ pressed }) => ({ minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing['space/24'], paddingVertical: spacing['space/12'], borderRadius: radius['radius/full'], borderWidth: provision || failed ? 0 : 1, borderColor: t['brand/primary'], backgroundColor: provision || failed ? t[pressed ? 'brand/primary-pressed' : 'brand/primary'] : undefined, opacity: disabled ? 0.4 : 1 })}>
           <Text style={{ ...typography.headline, textAlign: 'center', color: provision || failed ? t['brand/on-primary'] : t['brand/primary'] }}>{label}</Text>
         </Pressable>}
       </View>

@@ -8,7 +8,7 @@ let mockState: AuthState = 'signed_out';
 const mockRetry = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
 const mockSignIn = jest.fn<(provider: 'google') => Promise<void>>().mockResolvedValue(undefined);
 let mockNotice: Notice = null;
-jest.mock('../../features/auth/AuthProvider', () => ({ AuthProvider: ({ children }: React.PropsWithChildren) => children, useAuth: () => ({ state: mockState, notice: mockNotice, retry: mockRetry, signIn: mockSignIn }) }));
+jest.mock('../../features/auth/AuthProvider', () => ({ AuthProvider: ({ children }: React.PropsWithChildren) => children, useAuth: () => ({ state: mockState, notice: mockNotice, canRetry: mockState === 'account_provision_error' || mockNotice === 'failed', retry: mockRetry, signIn: mockSignIn }) }));
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('expo-image', () => ({ Image: 'Image' }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 59, bottom: 34 }) }));
@@ -47,7 +47,8 @@ test.each<[Notice, string, string]>([
  expect(screen.getByText(text).parent?.props.accessibilityLiveRegion).toBe(live);
  const button = screen.getByRole('button');
  expect(button.props.accessibilityState.disabled).toBe(notice === 'unavailable');
- if (notice !== 'unavailable') { await fireEvent.press(button); expect(mockSignIn).toHaveBeenCalledWith('google'); }
+ mockRetry.mockClear(); mockSignIn.mockClear();
+ if (notice !== 'unavailable') { await fireEvent.press(button); if (notice === 'failed') { expect(mockRetry).toHaveBeenCalled(); expect(mockSignIn).not.toHaveBeenCalled(); } else expect(mockSignIn).toHaveBeenCalledWith('google'); }
  await view.unmount();
 });
 test('provision retry is assertive and invokes retry', async () => {

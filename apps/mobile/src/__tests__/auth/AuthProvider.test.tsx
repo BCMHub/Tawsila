@@ -37,7 +37,7 @@ describe('session authority', () => {
   });
   it('empty and malformed tokens cannot open protected state', async () => {
     const f = fakeAuthClient(); await mount(f, { google: async () => ({ idToken: '', nonce: 'raw' }) }); await act(async () => { await auth.signIn('google'); }); expect(auth.notice).toBe('provider_failed');
-    f.client.auth.signInWithIdToken = jest.fn(async () => ({ data: { session: null }, error: Error('invalid') }));
+    f.client.auth.signInWithIdToken = jest.fn(async () => ({ data: { session: null }, error: { status: 400, message: 'invalid' } }));
     await mount(f); await act(async () => { await auth.signIn('google'); }); expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe('provider_failed');
   });
   it('stale termination is ignored; genuine termination uses local scope once', async () => {
@@ -155,11 +155,12 @@ describe('post-provider bounds and event snapshots', () => {
   it.each(['exchange', 'row'])('abandons a slow %s after provider completion', async phase => {
     const f = fakeAuthClient(); const gate = deferred<void>(); const original = f.client.auth.signInWithIdToken;
     f.client.auth.signInWithIdToken = async input => {if (phase === 'exchange') await gate.promise; return original(input);};
-    f.client.from = () => ({select: () => ({eq: () => ({maybeSingle: async () => {await gate.promise; return {data:{profile_completed_at:'complete'},error:null};}})})});
+    f.client.from = () => ({select: () => ({eq: () => ({maybeSingle: async () => {await gate.promise; return {data:{profile_completed_at:null},error:null};}})})});
     await mount(f); jest.useFakeTimers();
     try {let pending!:Promise<void>; await act(async () => {pending = auth.signIn('google');});
-      await act(async () => {jest.advanceTimersByTime(1001);}); expect(auth.state).toBe('signed_out');
-      await act(async () => {gate.resolve(); await pending;}); expect(auth.state).toBe('signed_out');
+      await act(async () => {jest.advanceTimersByTime(1001);}); expect(auth.state).toBe(phase === 'row' ? 'account_provision_error' : 'signed_out');
+      await act(async () => {gate.resolve(); await pending;}); expect(auth.state).toBe(phase === 'row' ? 'account_provision_error' : 'signed_out');
+      if (phase === 'row') { expect(auth.canRetry).toBe(true); expect(f.values.size).toBe(1); await act(async () => auth.retry()); expect(auth.state).toBe('needs_profile'); }
       if (phase === 'exchange') expect(f.values.size).toBe(0);
     } finally {jest.useRealTimers();}
   });
@@ -170,8 +171,8 @@ describe('post-provider bounds and event snapshots', () => {
     await mount(f); jest.useFakeTimers();
     try {let pending!:Promise<void>; await act(async () => {pending = auth.signIn('google');});
       await act(async () => {jest.advanceTimersByTime(600); a.resolve();});
-      await act(async () => {jest.advanceTimersByTime(401);}); expect(auth.state).toBe('signed_out');
-      await act(async () => {b.resolve(); await pending;}); expect(auth.state).toBe('signed_out');
+      await act(async () => {jest.advanceTimersByTime(401);}); expect(auth.state).toBe('account_provision_error');
+      await act(async () => {b.resolve(); await pending;}); expect(auth.state).toBe('account_provision_error');
     } finally {jest.useRealTimers();}
   });
   it.each(['TOKEN_REFRESHED', 'SIGNED_IN'])('%s emits no checking or duplicate snapshot', async event => {
@@ -204,4 +205,26 @@ it('next exchange recovers pending compensation before creating a session', asyn
     blocked = false; await act(async () => auth.signIn('google'));
     expect(calls).toBe(2); expect(clear).toHaveBeenCalledTimes(1); expect(auth.state).toBe('needs_profile'); expect(f.values.size).toBe(1);
   } finally {jest.useRealTimers();}
+});
+
+it.each([undefined, 503, 400])('exchange failure status %s preserves network classification', async status => {
+  const f = fakeAuthClient(); f.client.auth.signInWithIdToken = async () => ({data:{session:null},error:{status}});
+  await mount(f); await act(async () => auth.signIn('google'));
+  expect(auth.state).toBe('signed_out'); expect(auth.notice).toBe(status === 400 ? 'provider_failed' : 'offline');
+});
+it('late abandoned SIGNED_IN never opens protected state', async () => {
+  const f = fakeAuthClient(); const gate = deferred<void>(); const clearGate = deferred<void>();
+  const original = f.client.auth.signInWithIdToken; const clear = f.client.auth.signOut;
+  f.client.auth.signInWithIdToken = async input => {await gate.promise; const result = await original(input); f.emit('SIGNED_IN'); return result;};
+  f.client.auth.signOut = async input => {await clearGate.promise; return clear(input);};
+  const states: string[] = [];
+  function Watch() {const value = useAuth(); useEffect(() => {states.push(value.state);}, [value]); return <Probe />;}
+  await render(<AuthProvider client={f.client} providers={{google:async () => ({idToken:'fixture'})}} installGuard={guard} timeoutMs={20}><Watch /></AuthProvider>);
+  await waitFor(() => expect(auth.state).toBe('signed_out'));
+  let pending!:Promise<void>; await act(async () => {pending = auth.signIn('google');});
+  await waitFor(() => expect(auth.notice).toBe('failed'));
+  await act(async () => gate.resolve());
+  expect(states).not.toContain('needs_profile'); expect(states).not.toContain('ready_to_browse');
+  await act(async () => {clearGate.resolve(); await pending;});
+  expect(auth.state).toBe('signed_out'); expect(f.values.size).toBe(0);
 });

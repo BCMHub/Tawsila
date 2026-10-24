@@ -44,3 +44,17 @@ Raw output: .clh/evidence/TAW-8/spec-gate-4-raw.txt (Tawsila checkout, outside t
 Usage: 53,997 tokens (Codex reported)   Started/Ended: 2026-10-21 (see accounting-TAW-8.md)
 Verdict: PASS
 
+
+# Revision 5 (social sign-in): spec gate, 2026-10-24 (round counter restarted by the owner's requirements change; target about 3 rounds)
+
+Attempt: 12   Round: 1 (revision 5)
+Document: docs/superpowers/specs/2026-10-21-TAW-7-design.md
+Revision: d5cb0d0746253e840baee6eed88ce72ed6c37fbf:02d52947fdbe3fdb1725b924cd9b0d6976227fe3
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 (hash 632a7e1e9e25238e); Figma revision n/a (file 2j3vO1USLBA8XiRpQKCF3H; Welcome 14:2 empty, no social frames)
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=2 P2=0 P3=0 (session storage replacement could mix old and new chunks after an interrupted write; section 9 lacked automated cases required by AC8: replay, nonce mismatch, concurrent first sign-ins, returning sign-in). Fixes applied in round 2.
+Criteria mapping: AC1..AC13 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/spec-gate-r5-1-raw.txt
+Usage: 53,071 tokens (Codex reported)
+Verdict: FAIL
+

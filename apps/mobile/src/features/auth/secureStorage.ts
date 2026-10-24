@@ -26,7 +26,7 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
     return result;
   }
   function validate(key: string) {
-    if (!/^sb-[a-zA-Z0-9_-]+-auth-token(?:-code-verifier|-user)?$/.test(key)) throw new Error('Unknown session key');
+    if (!/^sb-[a-zA-Z0-9_-]+-auth-token(?:-code-verifier|-flows-code-verifier|-user)?$/.test(key)) throw new Error('Unknown session key');
   }
   const chunkKey = (key: string, bank: number, i: number) => `${key}.chunk.${bank}.${i}`;
   async function prune(key: string, keep?: Manifest) {

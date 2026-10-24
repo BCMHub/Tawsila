@@ -51,7 +51,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "test:integration": "jest --config jest.integration.config.js --runInBand"
   },
   "private": true,
   "jest": {

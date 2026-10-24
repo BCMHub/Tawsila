@@ -132,3 +132,10 @@ describe('secure session storage', () => {
     expect(s.data.size).toBe(0);
   });
 });
+
+test('SDK sign-out may read and remove its empty flow index', async () => {
+  const s = fake(); const a = adapter(s); const index = key + '-flows-code-verifier';
+  expect(await a.getItem(index)).toBeNull();
+  await a.setItem(index, '[]'); await a.removeItem(index);
+  expect(s.data.size).toBe(0);
+});

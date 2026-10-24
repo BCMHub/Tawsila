@@ -26,7 +26,7 @@ const Context = createContext<Value | null>(null);
 const queues = new WeakMap<AuthClient, Promise<unknown>>();
 async function localClear(client: AuthClient) {
   try { await client.auth.signOut({ scope: 'local' }); } catch { /* Verify storage even when transport throws. */ }
-  for (const suffix of ['', '-user', '-code-verifier']) {
+  for (const suffix of ['', '-user', '-code-verifier', '-flows-code-verifier']) {
     const key = client.sessionStorageKey + suffix;
     // removeItem also prunes orphan chunks when the manifest is already absent.
     await client.sessionStorage.getItem(key);
@@ -81,7 +81,7 @@ async function exchange(client: AuthClient, result: ProviderResult, active: () =
     const before = await client.auth.getSession();
     // This entry point only creates sessions from signed_out. Never overwrite a live session.
     if (before.error || before.data.session || !active()) return null;
-    const saved = await Promise.all(['', '-user', '-code-verifier'].map(async suffix => { const key = client.sessionStorageKey + suffix; return { key, value: await client.sessionStorage.getItem(key) }; }));
+    const saved = await Promise.all(['', '-user', '-code-verifier', '-flows-code-verifier'].map(async suffix => { const key = client.sessionStorageKey + suffix; return { key, value: await client.sessionStorage.getItem(key) }; }));
     if (!active()) return null;
     const response = await client.auth.signInWithIdToken({ provider: 'google', token: result.idToken, nonce: result.nonce });
     if (!active() && response.data.session) {
@@ -176,7 +176,10 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
           if (!active()) return;
           const code = (error as { code?: string })?.code;
           update('signed_out', code === 'cancelled' ? 'cancelled' : code === 'unavailable' ? 'unavailable' : 'provider_failed');
-        } finally { if (mounted) busy = false; if (active()) clearTimeout(timer); }
+        } finally {
+          // An abandoned attempt must not release a newer attempt's event guard.
+          if (active()) { busy = false; clearTimeout(timer); }
+        }
       },
     };
     async function initialize() {

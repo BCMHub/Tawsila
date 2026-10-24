@@ -34,9 +34,49 @@ async function localClear(client: AuthClient) {
     if (await client.sessionStorage.getItem(key) !== null) throw Error('Session cleanup failed');
   }
 }
+type Saved = { key: string; value: string | null }[];
+const pendingCompensations = new WeakMap<AuthClient, { token: string; saved: Saved }>();
+async function compensate(client: AuthClient, token: string, saved: Saved) {
+  pendingCompensations.set(client, { token, saved });
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const persisted = await client.sessionStorage.getItem(client.sessionStorageKey);
+      // Persisted newer credentials always veto cleanup, even if the SDK is stale.
+      const storedToken = persisted === null ? null : (JSON.parse(persisted) as Session).access_token;
+      if (storedToken && storedToken !== token) { pendingCompensations.delete(client); return false; }
+      let sdkToken: string | undefined;
+      try { const current = await client.auth.getSession(); if (!current.error) sdkToken = current.data.session?.access_token; } catch { /* Storage is an independent authority for compensation. */ }
+      // The SDK read may itself refresh or observe a concurrently installed session.
+      const latestPersisted = await client.sessionStorage.getItem(client.sessionStorageKey);
+      if (latestPersisted !== persisted) continue;
+      if (storedToken !== token && sdkToken && sdkToken !== token) { pendingCompensations.delete(client); return false; }
+      if (storedToken === token || sdkToken === token || persisted === null) {
+        await localClear(client);
+        for (const { key, value } of saved) if (value !== null) await client.sessionStorage.setItem(key, value);
+        pendingCompensations.delete(client);
+        return true;
+      }
+      pendingCompensations.delete(client);
+      return false;
+    } catch { /* Keep the marker until a subsequent mount or exchange can recover. */ }
+  }
+  throw Error('Pending session cleanup');
+}
+async function recoverCompensation(client: AuthClient) {
+  const pending = pendingCompensations.get(client);
+  return pending ? compensate(client, pending.token, pending.saved) : false;
+}
+async function recoverBeforeMount(client: AuthClient) {
+  if (!pendingCompensations.has(client)) return false;
+  const previous = queues.get(client) ?? Promise.resolve();
+  const task = previous.catch(() => {}).then(() => recoverCompensation(client));
+  queues.set(client, task);
+  return task;
+}
 async function exchange(client: AuthClient, result: ProviderResult, active: () => boolean) {
   const previous = queues.get(client) ?? Promise.resolve();
   const task = previous.catch(() => {}).then(async () => {
+    await recoverCompensation(client);
     if (!active()) return null;
     const before = await client.auth.getSession();
     // This entry point only creates sessions from signed_out. Never overwrite a live session.
@@ -45,11 +85,7 @@ async function exchange(client: AuthClient, result: ProviderResult, active: () =
     if (!active()) return null;
     const response = await client.auth.signInWithIdToken({ provider: 'google', token: result.idToken, nonce: result.nonce });
     if (!active() && response.data.session) {
-      const current = await client.auth.getSession();
-      if (!current.error && current.data.session?.access_token === response.data.session.access_token) {
-        await localClear(client);
-        for (const { key, value } of saved) if (value !== null) await client.sessionStorage.setItem(key, value);
-      }
+      await compensate(client, response.data.session.access_token, saved);
       return null;
     }
     if (response.error || !response.data.session) throw Error('Provider exchange failed');
@@ -65,17 +101,18 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
   useEffect(() => {
     let mounted = true, revision = 0, busy = false, terminating = false, initialized = false, ended = false;
     let currentState: AuthState = 'checking';
+    let cleanupRequired = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const update = (state: AuthState, notice: Notice = null) => { if (mounted) { currentState = state; setSnapshot({ state, notice }); } };
+    const update = (state: AuthState, notice: Notice = null) => { if (mounted) { currentState = state; setSnapshot(previous => previous.state === state && previous.notice === notice ? previous : { state, notice }); } };
     const begin = (fallback: AuthState) => {
       const id = ++revision;
       clearTimeout(timer);
       timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; update(fallback, 'failed'); } }, timeoutMs);
       return () => mounted && revision === id;
     };
-    async function derive() {
-      const active = begin('account_provision_error');
-      update('checking');
+    async function derive(silent = false, existingActive?: () => boolean) {
+      const active = existingActive ?? begin('account_provision_error');
+      if (!silent) update('checking');
       try {
         const result = await client.auth.getSession();
         if (!active()) return;
@@ -88,7 +125,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         const latest = await client.auth.getSession();
         if (!active()) return;
         if (latest.error) { update('account_provision_error', 'offline'); return; }
-        if (latest.data.session?.access_token !== token) { if (!latest.data.session) update('signed_out'); else await derive(); return; }
+        if (latest.data.session?.access_token !== token) { if (!latest.data.session) update('signed_out'); else await derive(silent, active); return; }
         update(row.error || !row.data ? 'account_provision_error' : row.data.profile_completed_at ? 'ready_to_browse' : 'needs_profile', row.error ? (temporary(row.error) ? 'offline' : 'failed') : null);
       } catch { if (active()) update('account_provision_error', 'offline'); }
       finally { if (active()) clearTimeout(timer); }
@@ -114,25 +151,27 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     const subscription = client.auth.onAuthStateChange(event => {
       // Defer SDK calls outside its synchronous event callback.
       if (event === 'SIGNED_OUT') void Promise.resolve().then(termination);
-      else if (initialized && !busy && mounted) void Promise.resolve().then(() => { if (mounted) void derive(); });
+      else if (initialized && !busy && mounted) void Promise.resolve().then(() => { if (mounted) void derive(true); });
     }).data.subscription;
     const foreground = (state: string) => { if (state === 'active') client.auth.startAutoRefresh?.(); else client.auth.stopAutoRefresh?.(); };
     foreground(AppState.currentState ?? 'inactive');
     const appSubscription = AppState.addEventListener('change', foreground);
     controller.current = {
-      retry: async () => { if (mounted && initialized && !busy) await derive(); },
+      retry: async () => { if (!mounted || busy) return; if (!initialized && cleanupRequired) await initialize(); else await derive(); },
       signIn: async provider => {
         if (!mounted || !initialized || busy || terminating || currentState !== 'signed_out') return;
         busy = true;
-        const active = begin('signed_out'); update('authenticating');
+        const id = ++revision;
+        let active = () => mounted && revision === id;
+        update('authenticating');
         try {
           const result = await providers[provider]();
           if (!active()) return;
           if (!result.idToken?.trim()) throw Error('Empty provider token');
+          active = begin('signed_out');
           await exchange(client, result, active);
           if (!active()) return;
-          clearTimeout(timer);
-          await derive();
+          await derive(false, active);
         } catch (error) {
           if (!active()) return;
           const code = (error as { code?: string })?.code;
@@ -140,21 +179,31 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         } finally { if (mounted) busy = false; if (active()) clearTimeout(timer); }
       },
     };
-    void (async () => {
-      let fresh = true;
-      try { fresh = await installGuard.isFreshInstall(); } catch { /* Fail toward sign-in. */ }
-      if (!mounted) return;
+    async function initialize() {
+      if (busy) return;
+      busy = true;
       try {
+        const recovered = await recoverBeforeMount(client);
+        let fresh = true;
+        try { fresh = await installGuard.isFreshInstall(); } catch { /* Fail toward sign-in. */ }
+        if (!mounted) return;
+        cleanupRequired = fresh;
         if (fresh) {
           await localClear(client);
           if (!mounted) return;
           await installGuard.markVerified?.();
-          if (mounted) { initialized = true; update('signed_out'); }
-        } else { initialized = true; await derive(); }
-      } catch { update('signed_out', 'failed'); }
-    })();
+        }
+        if (!mounted) return;
+        initialized = true;
+        cleanupRequired = false;
+        if (fresh || recovered) update('signed_out');
+        else await derive();
+      } catch { cleanupRequired = true; update('signed_out', 'failed'); }
+      finally { busy = false; }
+    }
+    void initialize();
     return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };
   }, [client, providers, installGuard, timeoutMs]);
-  return <Context.Provider value={{ ...snapshot, canRetry: snapshot.state === 'account_provision_error', signIn: async p => { await controller.current?.signIn(p); }, retry: async () => { await controller.current?.retry(); } }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ ...snapshot, canRetry: snapshot.state === 'account_provision_error' || (snapshot.state === 'signed_out' && snapshot.notice === 'failed'), signIn: async p => { await controller.current?.signIn(p); }, retry: async () => { await controller.current?.retry(); } }}>{children}</Context.Provider>;
 }
 export function useAuth() { const value = useContext(Context); if (!value) throw Error('useAuth requires AuthProvider'); return value; }

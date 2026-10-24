@@ -91,3 +91,7 @@ Raw output: .clh/evidence/TAW-8/spec-gate-r5-4-raw.txt
 Usage: 51,335 tokens (Codex reported)
 Verdict: PASS
 
+Spec approval (checklist A item 2; the combined approval line binding spec and plan is written after the plan gate)
+Approved: Sherif Ehab 2026-10-24T14:23:18Z https://app.notion.com/p/40094bb42447814cb3a8df4e524f88e2 authoringCard=TAW-8 implCard=TAW-7 spec=ebb6994b5bde5edf482cbad2c350445aa0c9a35d plan=pending authoringScopeDigest=n/a(manual) implCriteriaHash=e7606d0dd7d25cfab0c3bd12f5eade9008cd3846e07d518f87027d8d0eb60e1f figma=n/a
+Owner words: "approved" (reply to: reply "approved, spec ebb6994b" to approve the exact spec blob, 2026-10-24, Claude Code session). The spec file was not changed after the round-4 gate PASS (blob ebb6994b); any later edit voids this approval.
+

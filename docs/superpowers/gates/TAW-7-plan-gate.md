@@ -201,3 +201,7 @@ Raw output: .clh/evidence/TAW-8/plan-gate-r5-5-raw.txt
 Usage: 70,474 tokens (Codex reported)
 Verdict: PASS
 
+Combined approval of the exact documents (checklist A item 5; binds the spec and the plan)
+Approved: Sherif Ehab 2026-10-24T14:56:15Z https://app.notion.com/p/40094bb42447814cb3a8df4e524f88e2 authoringCard=TAW-8 implCard=TAW-7 spec=ebb6994b5bde5edf482cbad2c350445aa0c9a35d plan=aacfe9c9736abc0e547e087ce590ab349c259cf4 authoringScopeDigest=n/a(manual) implCriteriaHash=e7606d0dd7d25cfab0c3bd12f5eade9008cd3846e07d518f87027d8d0eb60e1f figma=n/a
+Owner words: "approved" (reply to: reply "approved, spec ebb6994b, plan aacfe9c9" to approve the exact spec and plan blobs, 2026-10-24, Claude Code session). Both documents are unchanged since their gate PASS (spec round 4, plan re-review attempt 20); any later edit to either voids this approval. Checklist A items 1-4 and 6 hold: lane line confirmed (TAW-7 Critical, TAW-8 Standard), spec gate PASS for the spec blob, plan gate PASS for the plan blob against that spec blob, criteria mappings exhaustive, no open stop condition, gate files, raw outputs and accounting stored outside the worktree in .clh/evidence/TAW-8/.
+

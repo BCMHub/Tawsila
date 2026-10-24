@@ -201,21 +201,21 @@ Promo codes are not required to qualify for Founding 1,000 Lifetime Pro.
 User:
 
 1. Installs Tawsila.
-2. Registers using a supported authentication method.
+2. Signs in with Google or Apple (Apple on iOS only). Signing in is required before browsing; there is no guest or anonymous access.
 3. Accepts Terms of Use and Privacy Policy.
 4. Creates their basic profile.
 5. Selects or confirms their community.
 6. Confirms they are at least 18 years old.
-7. Can browse available rides and explore the platform without completing phone OTP verification.
-8. Phone OTP verification becomes mandatory before the user submits their first ride request or publishes their first ride.
+7. After signing in and completing basic onboarding, can browse available rides and explore the platform without completing phone OTP verification.
+8. Phone OTP verification (WhatsApp first, with a controlled SMS fallback) becomes mandatory before the user submits their first ride request or publishes their first ride.
 9. Once verified, the user remains verified unless security rules require re-verification.
 
 Minimum profile information should include:
 
 - First and last name.
 - Profile photo.
-- Mobile number.
 - Basic location/community.
+- Mobile number, collected and verified only at the first ride request or publish (not at sign-in or onboarding).
 - Precise verification status, such as `Phone Verified`; do not use a generic `Verified` label unless the scope of verification is clear.
 
 Sensitive information must not automatically be visible to other users.
@@ -233,7 +233,7 @@ Phone OTP verification is intentionally deferred until the user attempts their f
 Users may complete the following before phone verification:
 
 - Install and open the app.
-- Register.
+- Sign in with Google or Apple.
 - Accept Terms of Use and Privacy Policy.
 - Create a basic profile.
 - Select or confirm their community.
@@ -792,9 +792,9 @@ The final backend technology should be confirmed separately within the technical
 
 ## Authentication
 
-MVP should support **mobile-number verification with OTP**, but verification is deferred until the user's first trust-sensitive action.
+MVP requires **sign-in with Google or Apple** (Apple on iOS only) before browsing. This is separate from **mobile-number verification with OTP** (WhatsApp first, with a controlled SMS fallback), which is deferred until the user's first trust-sensitive action.
 
-The user can browse, complete basic onboarding, and create a profile before OTP verification.
+After signing in, the user can browse, complete basic onboarding, and create a profile before OTP verification.
 
 OTP is required before:
 

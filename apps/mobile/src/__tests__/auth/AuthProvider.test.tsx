@@ -77,6 +77,30 @@ describe('session authority', () => {
     expect(auth.state).toBe('checking'); await waitFor(() => expect(auth.state).toBe('account_provision_error'));
     await act(async () => row.resolve({data:{profile_completed_at:'complete'},error:null})); expect(auth.state).toBe('account_provision_error'); expect(f.client.auth.signOut).not.toHaveBeenCalled(); await v.unmount();
   });
+  it('INITIAL_SESSION cannot replay a late row answer after the startup timeout', async () => {
+    const f = fakeAuthClient(stored);
+    const row = deferred<{ data: { profile_completed_at: null }; error: null }>();
+    const entered = deferred<void>();
+    const credentials = [...f.values.entries()];
+    let reads = 0;
+    f.client.from = () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => {
+      reads++; entered.resolve(); return row.promise;
+    } }) }) });
+    const view = await render(<AuthProvider client={f.client} providers={{ google: async () => ({ idToken: 'fixture' }) }} installGuard={guard} timeoutMs={30}><Probe /></AuthProvider>);
+    await act(async () => {
+      await entered.promise;
+      // The real SDK emits this subscription snapshot during initialization.
+      f.emit('INITIAL_SESSION');
+    });
+    await waitFor(() => expect(auth.state).toBe('account_provision_error'));
+    await act(async () => { row.resolve({ data: { profile_completed_at: null }, error: null }); });
+    expect(auth.state).toBe('account_provision_error');
+    expect(auth.canRetry).toBe(true);
+    expect([...f.values.entries()]).toEqual(credentials);
+    expect((await f.client.auth.getSession()).data.session).toEqual(stored);
+    expect(reads).toBe(1);
+    await view.unmount();
+  });
   it('a later tree waits for abandoned exchange compensation before creating its session', async () => {
     const f = fakeAuthClient(); const d = deferred<void>(); const original = f.client.auth.signInWithIdToken; let calls = 0;
     f.client.auth.signInWithIdToken = async input => { calls++; if (calls === 1) await d.promise; return original(input); };
@@ -222,9 +246,69 @@ it('late abandoned SIGNED_IN never opens protected state', async () => {
   await render(<AuthProvider client={f.client} providers={{google:async () => ({idToken:'fixture'})}} installGuard={guard} timeoutMs={20}><Watch /></AuthProvider>);
   await waitFor(() => expect(auth.state).toBe('signed_out'));
   let pending!:Promise<void>; await act(async () => {pending = auth.signIn('google');});
-  await waitFor(() => expect(auth.notice).toBe('failed'));
+  await waitFor(() => expect(auth.notice).toBe('provider_failed'));
   await act(async () => gate.resolve());
   expect(states).not.toContain('needs_profile'); expect(states).not.toContain('ready_to_browse');
   await act(async () => {clearGate.resolve(); await pending;});
   expect(auth.state).toBe('signed_out'); expect(f.values.size).toBe(0);
+});
+
+it('retry refuses an abandoned session until compensation succeeds', async () => {
+  const f = fakeAuthClient(); const gate = deferred<void>(); const original = f.client.auth.signInWithIdToken;
+  let blocked = true;
+  f.client.auth.signInWithIdToken = async input => { await gate.promise; return original(input); };
+  const clear = f.client.auth.signOut;
+  f.client.auth.signOut = async input => { if (blocked) throw Error('Keychain'); return clear(input); };
+  f.client.sessionStorage.removeItem = async key => { if (blocked) throw Error('Keychain'); f.values.delete(key); };
+  await mount(f); jest.useFakeTimers();
+  try {
+    let pending!: Promise<void>; await act(async () => { pending = auth.signIn('google'); });
+    await act(async () => { jest.advanceTimersByTime(1001); gate.resolve(); await pending; });
+    await act(async () => { f.emit('SIGNED_OUT'); f.emit('TOKEN_REFRESHED'); await auth.retry(); });
+    expect(auth.state).toBe('account_provision_error'); expect(auth.canRetry).toBe(true);
+    blocked = false; await act(async () => auth.retry());
+    expect(auth.state).toBe('signed_out'); expect(f.values.size).toBe(0);
+    await act(async () => auth.signIn('google')); expect(auth.state).toBe('needs_profile');
+    const count = jest.mocked(clear).mock.calls.length;
+    f.setSession(null); await act(async () => { f.emit('SIGNED_OUT'); f.emit('SIGNED_OUT'); });
+    expect(auth.state).toBe('signed_out'); expect(clear).toHaveBeenCalledTimes(count + 1);
+  } finally { jest.useRealTimers(); }
+});
+it('SIGNED_OUT during exchange is checked after settlement', async () => {
+  const f = fakeAuthClient(); const gate = deferred<void>();
+  f.client.auth.signInWithIdToken = async () => { await gate.promise; return { data: { session: null }, error: null }; };
+  await mount(f); let pending!: Promise<void>;
+  await act(async () => { pending = auth.signIn('google'); });
+  f.values.set(f.client.sessionStorageKey, JSON.stringify(stored));
+  await act(async () => f.emit('SIGNED_OUT'));
+  await act(async () => { gate.resolve(); await pending; });
+  expect(auth.state).toBe('signed_out'); expect(f.values.size).toBe(0); expect(f.client.auth.signOut).toHaveBeenCalledTimes(1);
+});
+it('uncommitted exchange timeout offers provider retry', async () => {
+  const f = fakeAuthClient(); const gate = deferred<void>(); const original = f.client.auth.signInWithIdToken;
+  f.client.auth.signInWithIdToken = async input => { await gate.promise; return original(input); };
+  await mount(f); jest.useFakeTimers();
+  try {
+    let pending!: Promise<void>; await act(async () => { pending = auth.signIn('google'); });
+    await act(async () => jest.advanceTimersByTime(1001));
+    expect(auth.notice).toBe('provider_failed'); expect(auth.canRetry).toBe(false);
+    await act(async () => { gate.resolve(); await pending; });
+  } finally { jest.useRealTimers(); }
+});
+
+it('local clear sweeps first-use orphans and uses one verification read per key', async () => {
+  const f = fakeAuthClient(); const data = new Map<string,string>(); let operations = 0;
+  const { createSecureStorage } = await import('../../features/auth/secureStorage');
+  const storage = createSecureStorage({
+    getItemAsync: async key => { operations++; return data.get(key) ?? null; },
+    setItemAsync: async (key,value) => { operations++; data.set(key,value); },
+    deleteItemAsync: async key => { operations++; data.delete(key); },
+  });
+  f.client.sessionStorage = storage;
+  for (const suffix of ['', '-user', '-code-verifier', '-flows-code-verifier']) data.set(`${f.client.sessionStorageKey}${suffix}.chunk.1.127`, 'orphan');
+  const view = await mount(f, undefined, {isFreshInstall:async () => true});
+  expect(data.size).toBe(0); expect(operations).toBe(4 * 258);
+  await view.unmount(); operations = 0;
+  await mount(f, undefined, {isFreshInstall:async () => true});
+  expect(data.size).toBe(0); expect(operations).toBe(4 * 3);
 });

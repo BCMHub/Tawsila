@@ -108,7 +108,29 @@ export function createSecureStorage(store: Store, options?: { chunkSize?: number
       });
     },
     removeItem(key: string): Promise<void> {
-      return serial(async () => { validate(key); await store.deleteItemAsync(key); await prune(key); });
+      return serial(async () => {
+        validate(key);
+        let manifest: Manifest | undefined;
+        const wasPruned = pruned.has(key);
+        if (wasPruned) {
+          try {
+            const raw = await store.getItemAsync(key);
+            if (raw !== null) {
+              const m = JSON.parse(raw);
+              if (!m || m.v !== 1 || ![0, 1].includes(m.bank) || !Number.isInteger(m.count) || m.count < 1 || m.count > SLOTS || !Number.isInteger(m.size) || m.size < 0 || typeof m.hash !== 'string') throw Error('Invalid manifest');
+              manifest = m;
+            }
+          } catch { pruned.delete(key); }
+        }
+        // Any partial deletion must force a full recovery scan on the next attempt.
+        const fast = wasPruned && pruned.has(key);
+        pruned.delete(key);
+        await store.deleteItemAsync(key);
+        if (fast) {
+          if (manifest) for (let i = 0; i < manifest.count; i++) await store.deleteItemAsync(chunkKey(key, manifest.bank, i));
+          pruned.add(key);
+        } else await prune(key);
+      });
     },
   };
 }

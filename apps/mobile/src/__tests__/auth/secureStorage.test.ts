@@ -167,3 +167,18 @@ test('3 KB write uses a bounded number of native operations', async () => {
   operations = 0; await a.setItem(key, 'y'.repeat(3000));
   expect(operations).toBeLessThanOrEqual(10);
 });
+
+test('pruned 3 KB removal costs only chunks, manifest and bounded reads', async () => {
+  const data = new Map<string,string>(); let operations = 0;
+  const a = createSecureStorage({
+    getItemAsync: async k => { operations++; return data.get(k) ?? null; },
+    setItemAsync: async (k,v) => { operations++; data.set(k,v); },
+    deleteItemAsync: async k => { operations++; data.delete(k); },
+  });
+  await a.setItem(key, 'x'.repeat(3000)); operations = 0;
+  await a.removeItem(key); expect(operations).toBeLessThanOrEqual(7); expect(data.size).toBe(0);
+});
+test('first removal sweeps dead-process orphans even without a manifest', async () => {
+  const s = fake(); s.data.set(`${key}.chunk.1.127`, 'orphan');
+  await adapter(s).removeItem(key); expect(s.data.size).toBe(0);
+});

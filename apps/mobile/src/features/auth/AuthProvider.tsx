@@ -25,13 +25,13 @@ type Value = { state: AuthState; canRetry: boolean; notice: Notice; signIn(p: Pr
 const Context = createContext<Value | null>(null);
 const exchangesInFlight = new WeakMap<AuthClient, number>();
 const exchangeBlocked = (client: AuthClient) => !!exchangesInFlight.get(client) || pendingCompensations.has(client);
+const settlementListeners = new WeakMap<AuthClient, Set<() => void>>();
 const queues = new WeakMap<AuthClient, Promise<unknown>>();
 async function localClear(client: AuthClient) {
   try { await client.auth.signOut({ scope: 'local' }); } catch { /* Verify storage even when transport throws. */ }
   for (const suffix of ['', '-user', '-code-verifier', '-flows-code-verifier']) {
     const key = client.sessionStorageKey + suffix;
     // removeItem also prunes orphan chunks when the manifest is already absent.
-    await client.sessionStorage.getItem(key);
     await client.sessionStorage.removeItem(key);
     if (await client.sessionStorage.getItem(key) !== null) throw Error('Session cleanup failed');
   }
@@ -96,7 +96,7 @@ async function exchange(client: AuthClient, result: ProviderResult, active: () =
     if (response.error) throw { code: temporary(response.error) ? 'offline' : 'failed' };
     if (!response.data.session) throw { code: 'failed' };
     return response.data.session;
-  }).finally(() => { exchangesInFlight.set(client, (exchangesInFlight.get(client) ?? 1) - 1); });
+  }).finally(() => { exchangesInFlight.set(client, (exchangesInFlight.get(client) ?? 1) - 1); settlementListeners.get(client)?.forEach(notify => notify()); });
   queues.set(client, task);
   return task;
 }
@@ -107,19 +107,21 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
   useEffect(() => {
     let mounted = true, revision = 0, busy = false, terminating = false, initialized = false, ended = false;
     let currentState: AuthState = 'checking';
-    let cleanupRequired = false;
+    let cleanupRequired = false, terminationDeferred = false, deriveDeferred = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const update = (state: AuthState, notice: Notice = null) => { if (mounted) { currentState = state; setSnapshot(previous => previous.state === state && previous.notice === notice ? previous : { state, notice }); } };
-    const begin = (fallback: AuthState | (() => AuthState)) => {
+    const begin = (fallback: AuthState | (() => AuthState), notice: () => Notice = () => 'failed') => {
       const id = ++revision;
       clearTimeout(timer);
-      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; update(typeof fallback === 'function' ? fallback() : fallback, 'failed'); } }, timeoutMs);
+      timer = setTimeout(() => { if (mounted && revision === id) { revision++; busy = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
       return () => mounted && revision === id;
     };
     async function derive(silent = false, existingActive?: () => boolean) {
       const active = existingActive ?? begin('account_provision_error');
       if (!silent) update('checking');
       try {
+        await recoverBeforeMount(client);
+        if (!active()) return;
         const result = await client.auth.getSession();
         if (!active()) return;
         if (result.error) { update('account_provision_error', temporary(result.error) ? 'offline' : 'failed'); return; }
@@ -137,7 +139,8 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       finally { if (active()) clearTimeout(timer); }
     }
     async function termination() {
-      if (!mounted || terminating || !initialized || busy || ended || exchangeBlocked(client)) return;
+      if (exchangeBlocked(client) || busy || !initialized) { terminationDeferred = true; return; }
+      if (!mounted || terminating || ended) return;
       terminating = true;
       try {
         const result = await client.auth.getSession();
@@ -154,16 +157,45 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       } catch { if (mounted) setSnapshot(s => ({ ...s, notice: 'offline' })); }
       finally { terminating = false; }
     }
+    async function flushDeferred() {
+      if (!mounted || !initialized || busy || exchangeBlocked(client)) return;
+      const terminate = terminationDeferred, rederive = deriveDeferred;
+      terminationDeferred = false; deriveDeferred = false;
+      if (terminate) await termination();
+      if (rederive && mounted && !busy && !exchangeBlocked(client)) await derive(true);
+    }
+    const notify = () => { void Promise.resolve().then(flushDeferred); };
+    const listeners = settlementListeners.get(client) ?? new Set<() => void>();
+    listeners.add(notify); settlementListeners.set(client, listeners);
     const subscription = client.auth.onAuthStateChange(event => {
+      // initialize() owns the initial session read. The SDK's subscription
+      // snapshot is not a change to replay after that read has timed out.
+      if (event === 'INITIAL_SESSION') return;
       // Defer SDK calls outside its synchronous event callback.
-      if (event === 'SIGNED_OUT') void Promise.resolve().then(termination);
-      else if (initialized && !busy && mounted && !exchangeBlocked(client)) void Promise.resolve().then(() => { if (mounted && !exchangeBlocked(client)) void derive(true); });
+      if (event === 'SIGNED_OUT') {
+        terminationDeferred = true;
+      } else {
+        deriveDeferred = true;
+      }
+      notify();
     }).data.subscription;
     const foreground = (state: string) => { if (state === 'active') client.auth.startAutoRefresh?.(); else client.auth.stopAutoRefresh?.(); };
     foreground(AppState.currentState ?? 'inactive');
     const appSubscription = AppState.addEventListener('change', foreground);
     controller.current = {
-      retry: async () => { if (!mounted || busy) return; if (!initialized && cleanupRequired) await initialize(); else await derive(); },
+      retry: async () => {
+        if (!mounted || busy) return;
+        if (!initialized && cleanupRequired) await initialize();
+        else {
+          busy = true;
+          try {
+            // A timed-out exchange can still install credentials before compensation.
+            await queues.get(client)?.catch(() => {});
+            if (mounted) await derive();
+          } finally { busy = false; }
+        }
+        await flushDeferred();
+      },
       signIn: async provider => {
         if (!mounted || !initialized || busy || terminating || currentState !== 'signed_out') return;
         busy = true;
@@ -175,7 +207,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
           if (!active()) return;
           if (!result.idToken?.trim()) throw Error('Empty provider token');
           let committed = false;
-          active = begin(() => committed ? 'account_provision_error' : 'signed_out');
+          active = begin(() => committed ? 'account_provision_error' : 'signed_out', () => committed ? 'failed' : 'provider_failed');
           committed = !!(await exchange(client, result, active));
           if (!active()) return;
           await derive(false, active);
@@ -186,6 +218,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         } finally {
           // An abandoned attempt must not release a newer attempt's event guard.
           if (active()) { busy = false; clearTimeout(timer); }
+          await flushDeferred();
         }
       },
     };
@@ -208,11 +241,11 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         cleanupRequired = false;
         if (fresh || recovered) update('signed_out');
         else await derive();
-      } catch { cleanupRequired = true; update('signed_out', 'failed'); }
-      finally { busy = false; }
+      } catch { cleanupRequired = true; update(pendingCompensations.has(client) ? 'account_provision_error' : 'signed_out', 'failed'); }
+      finally { busy = false; await flushDeferred(); }
     }
     void initialize();
-    return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };
+    return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; listeners.delete(notify); subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };
   }, [client, providers, installGuard, timeoutMs]);
   return <Context.Provider value={{ ...snapshot, canRetry: snapshot.state === 'account_provision_error' || (snapshot.state === 'signed_out' && snapshot.notice === 'failed'), signIn: async p => { await controller.current?.signIn(p); }, retry: async () => { await controller.current?.retry(); } }}>{children}</Context.Provider>;
 }

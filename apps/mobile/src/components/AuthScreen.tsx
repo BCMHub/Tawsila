@@ -48,7 +48,7 @@ export function AuthScreen() {
       </View>
       <View style={{ flexGrow: 1, minHeight: 280 }} />
       <View style={{ paddingHorizontal: spacing['space/24'], gap: spacing['space/16'] }}>
-        {message ? <Banner text={message} polite={notice === 'cancelled' || notice === 'offline'} /> : progressing ? <Text accessibilityLiveRegion="polite" style={{ ...typography.subheadline, color: t['label/primary'] }}>{a.progress}</Text> : a.benefits.map((benefit, index) => <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing['space/12'] }}>
+        {message ? <Banner text={message} polite={!provision && (notice === 'cancelled' || notice === 'offline')} /> : progressing ? <Text accessibilityLiveRegion="polite" style={{ ...typography.subheadline, color: t['label/primary'] }}>{a.progress}</Text> : a.benefits.map((benefit, index) => <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing['space/12'] }}>
           <View style={{ padding: spacing['space/8'], borderRadius: radius['radius/12'], backgroundColor: t['brand/tint'] }}><SymbolView name={(['mappin.circle', 'person.2', 'leaf'] as const)[index]} size={20} tintColor={t['brand/primary']} accessible={false} /></View>
           <Text style={{ ...typography.footnoteSemibold, color: t['label/primary'], flexShrink: 1, maxWidth: 120 }}>{benefit}</Text>
         </View>)}

@@ -177,3 +177,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-r5-3-raw.txt
 Usage: 44,757 tokens (Codex reported)
 Verdict: PASS
 
+Attempt: 19   Round: focused review of the owner-remediated lean plan (revision 5; one review as the owner instructed)
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: 0a730a658a14d385786ffe7e884420bf2c0bc89f:4769a7fde65584871c075922ef9ebfac8faef06c
+Spec revision (plan gate only): 0a730a6:ebb6994b5bde5edf482cbad2c350445aa0c9a35d (owner-approved)
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=4 P2=0 P3=0 (spike authorization circular with the READY gate; the abandonment boundary lets an in-flight token exchange change the SDK session, contrary to spec invariant 4; AC8 cases missing as explicit tasks: concurrent first sign-ins, replayed result, non-empty malformed token; the .env.example path outside the allowed paths). Owner findings: 7 of 9 resolved, P1-04 and P2-03 not resolved. Fixes applied after the review in a separate commit and NOT re-reviewed, per the owner's instruction not to start repetitive rounds.
+Criteria mapping: AC1..AC13 each mapped by the reviewer (exhaustive, no UNCOVERED)
+Raw output: .clh/evidence/TAW-8/plan-gate-r5-4-raw.txt
+Usage: 80,139 tokens (Codex reported)
+Verdict: FAIL (findings fixed after the review; the plan awaits the owner's decision on a second review or approval)
+

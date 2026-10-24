@@ -189,3 +189,15 @@ Raw output: .clh/evidence/TAW-8/plan-gate-r5-4-raw.txt
 Usage: 80,139 tokens (Codex reported)
 Verdict: FAIL (findings fixed after the review; the plan awaits the owner's decision on a second review or approval)
 
+Attempt: 20   Round: re-review of the fixed plan (revision 5; owner chose "option 1")
+Document: docs/superpowers/plans/2026-10-21-TAW-7.md
+Revision: aa49e12ff8a15e0d4bd45195baa52725cf27cae7:aacfe9c9736abc0e547e087ce590ab349c259cf4
+Spec revision (plan gate only): aa49e12:ebb6994b5bde5edf482cbad2c350445aa0c9a35d (owner-approved)
+Card binding: scope digest n/a (manual attended gate; no harness adapter); criteria snapshot AC1-AC13 revision 5 as amended (hash e7606d0dd7d25cfa); Figma revision n/a
+Author: Claude Sonnet 5.5   Reviewer: Codex gpt-6.1-sol (medium effort, read-only)
+Findings: P0=0 P1=0 P2=0 P3=0 (the four findings of attempt 19 resolved; all nine owner findings P1-01..P1-04 and P2-01..P2-05 rated RESOLVED)
+Criteria mapping: AC1->5,6,10,12,14... exhaustive, no UNCOVERED (see raw output)
+Raw output: .clh/evidence/TAW-8/plan-gate-r5-5-raw.txt
+Usage: 70,474 tokens (Codex reported)
+Verdict: PASS
+

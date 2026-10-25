@@ -4,6 +4,8 @@ import { strings } from '../../strings';
 import { jest, test, expect } from '@jest/globals';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import type { AuthState, Notice } from '../../features/auth/AuthProvider';
+import { OnboardingApiProvider } from '../../features/onboarding/OnboardingApiProvider';
+import type { OnboardingApi } from '../../features/onboarding/api';
 import { AuthScreen } from '../../components/AuthScreen';
 import RootLayout, { AuthRoutes } from '../../app/_layout';
 let mockState: AuthState = 'signed_out';
@@ -11,6 +13,8 @@ const mockRetry = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
 const mockSignIn = jest.fn<(provider: 'google') => Promise<void>>().mockResolvedValue(undefined);
 let mockNotice: Notice = null;
 jest.mock('../../features/auth/AuthProvider', () => ({ AuthProvider: ({ children }: React.PropsWithChildren) => children, useAuth: () => ({ state: mockState, notice: mockNotice, canRetry: mockState === 'account_provision_error' || mockNotice === 'failed', retry: mockRetry, signIn: mockSignIn }) }));
+// This suite checks the auth loading state; profile progress is covered by component tests.
+jest.mock('../../components/ProgressBar', () => ({ ProgressBar: () => null }));
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('expo-image', () => ({ Image: 'Image' }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 59, bottom: 34 }) }));
@@ -22,18 +26,19 @@ jest.mock('expo-router', () => {
 const states: AuthState[] = ['signed_out', 'authenticating', 'checking', 'account_provision_error', 'needs_profile', 'ready_to_browse'];
 test.each(states)('%s has its screen and protected route membership', async state => {
  mockState = state; mockNotice = null;
- const view = await render(<AuthScreen />);
+ const view = await render(<OnboardingApiProvider api={{} as OnboardingApi}><AuthScreen /></OnboardingApiProvider>);
  expect(screen.queryByRole('button', { name: 'Continue with Google' }) !== null).toBe(state === 'signed_out');
  expect(screen.queryByRole('button', { name: 'Try again' }) !== null).toBe(state === 'account_provision_error');
- expect(screen.queryByText('Almost there') !== null).toBe(state === 'needs_profile');
+ expect(screen.queryByText('Tell us about you') !== null).toBe(state === 'needs_profile');
  expect(screen.queryByRole('progressbar') !== null).toBe(state === 'checking');
  if (state === 'authenticating') expect(screen.queryAllByRole('button')).toHaveLength(0);
  if (state === 'authenticating') expect(screen.getByText('Signing in with Google…').props.accessibilityLiveRegion).toBe('polite');
- expect(screen.queryByText(/Apple/)).toBeNull(); expect(screen.queryByRole('textbox')).toBeNull();
- if (state === 'needs_profile') expect(screen.queryAllByRole('button')).toHaveLength(0);
+ expect(screen.queryByText(/Apple/)).toBeNull(); if (state === 'needs_profile') expect(screen.getAllByRole('textbox')).toHaveLength(2); else expect(screen.queryByRole('textbox')).toBeNull();
+ if (state === 'needs_profile') { expect(screen.getAllByRole('button')).toHaveLength(1); expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled(); }
  await view.unmount();
  const routes = await render(<AuthRoutes />);
  for (const route of ['(tabs)', 'debug']) expect(screen.queryByText(route) !== null).toBe(state === 'ready_to_browse');
+ expect(screen.queryByText('(verify)') !== null).toBe(state === 'ready_to_browse');
  expect(screen.queryByText('(onboarding)') !== null).toBe(state !== 'ready_to_browse');
  await routes.unmount();
 });

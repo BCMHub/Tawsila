@@ -21,7 +21,7 @@ export type AuthClient = {
 };
 export type AuthState = 'checking' | 'signed_out' | 'authenticating' | 'account_provision_error' | 'needs_profile' | 'ready_to_browse';
 export type Notice = 'cancelled' | 'offline' | 'failed' | 'provider_failed' | 'unavailable' | null;
-type Value = { state: AuthState; canRetry: boolean; notice: Notice; signIn(p: ProviderName): Promise<void>; retry(): Promise<void> };
+type Value = { state: AuthState; canRetry: boolean; notice: Notice; signIn(p: ProviderName): Promise<void>; retry(): Promise<void>; refresh(): Promise<void> };
 const Context = createContext<Value | null>(null);
 const exchangesInFlight = new WeakMap<AuthClient, number>();
 const exchangeBlocked = (client: AuthClient) => !!exchangesInFlight.get(client) || pendingCompensations.has(client);
@@ -103,7 +103,7 @@ async function exchange(client: AuthClient, result: ProviderResult, active: () =
 const temporary = (e: Failure) => !e.status || e.status >= 500;
 export function AuthProvider({ client, providers, installGuard, timeoutMs = 15000, children }: React.PropsWithChildren<{ client: AuthClient; providers: ProviderHandlers; installGuard: InstallGuard; timeoutMs?: number }>) {
   const [snapshot, setSnapshot] = useState<{ state: AuthState; notice: Notice }>({ state: 'checking', notice: null });
-  const controller = useRef<{ signIn(p: ProviderName): Promise<void>; retry(): Promise<void> } | null>(null);
+  const controller = useRef<{ signIn(p: ProviderName): Promise<void>; retry(): Promise<void>; refresh(): Promise<void> } | null>(null);
   useEffect(() => {
     let mounted = true, revision = 0, busy = false, terminating = false, initialized = false;
     // Guard ownership is independent of result revisions. A timeout releases only
@@ -112,6 +112,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     const acquire = () => { const owner = Symbol(); busyOwner = owner; busy = true; return owner; };
     const release = (owner: symbol | undefined) => { if (busyOwner === owner) { busyOwner = undefined; busy = false; } };
     let currentState: AuthState = 'checking';
+    let deriving: (() => boolean) | undefined;
     let cleanupRequired = false, terminationDeferred = false, deriveDeferred = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const update = (state: AuthState, notice: Notice = null) => { if (mounted) { currentState = state; setSnapshot(previous => previous.state === state && previous.notice === notice ? previous : { state, notice }); } };
@@ -119,11 +120,12 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       const id = ++revision;
       const owner = busyOwner;
       clearTimeout(timer);
-      timer = setTimeout(() => { if (mounted && revision === id) { revision++; release(owner); deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
+      timer = setTimeout(() => { if (mounted && revision === id) { revision++; release(owner); deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); notify(); } }, timeoutMs);
       return () => mounted && revision === id;
     };
     async function derive(silent = false, existingActive?: () => boolean) {
       const active = existingActive ?? begin('account_provision_error');
+      deriving = active;
       // This read covers SDK events queued by the operation that started it.
       deriveDeferred = false;
       if (!silent) update('checking');
@@ -143,7 +145,11 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
         if (latest.data.session?.access_token !== token) { if (!latest.data.session) update('signed_out'); else await derive(silent, active); return; }
         update(row.error || !row.data ? 'account_provision_error' : row.data.profile_completed_at ? 'ready_to_browse' : 'needs_profile', row.error ? (temporary(row.error) ? 'offline' : 'failed') : null);
       } catch { if (active()) update('account_provision_error', 'offline'); }
-      finally { if (active()) clearTimeout(timer); }
+      finally {
+        if (deriving === active) deriving = undefined;
+        if (active()) clearTimeout(timer);
+        await flushDeferred();
+      }
     }
     async function termination() {
       if (exchangeBlocked(client) || busy || !initialized) { terminationDeferred = true; return; }
@@ -170,7 +176,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       finally { terminating = false; await flushDeferred(); }
     }
     async function flushDeferred() {
-      if (!mounted || !initialized || busy || exchangeBlocked(client)) return;
+      if (!mounted || !initialized || busy || terminating || deriving?.() || exchangeBlocked(client)) return;
       const terminate = terminationDeferred, rederive = deriveDeferred;
       terminationDeferred = false; deriveDeferred = false;
       if (terminate) await termination();
@@ -196,6 +202,11 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     foreground(AppState.currentState ?? 'inactive');
     const appSubscription = AppState.addEventListener('change', foreground);
     controller.current = {
+      refresh: async () => {
+        if (!mounted || (currentState === 'signed_out' && !busy && !terminating)) return;
+        deriveDeferred = true;
+        await flushDeferred();
+      },
       retry: async () => {
         if (!mounted || busy || terminating) return;
         if (!initialized && cleanupRequired) await initialize();
@@ -264,6 +275,6 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
     void initialize();
     return () => { mounted = false; revision++; clearTimeout(timer); controller.current = null; listeners.delete(settled); subscription.unsubscribe(); appSubscription.remove(); client.auth.stopAutoRefresh?.(); };
   }, [client, providers, installGuard, timeoutMs]);
-  return <Context.Provider value={{ ...snapshot, canRetry: snapshot.state === 'account_provision_error' || (snapshot.state === 'signed_out' && snapshot.notice === 'failed'), signIn: async p => { await controller.current?.signIn(p); }, retry: async () => { await controller.current?.retry(); } }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ ...snapshot, canRetry: snapshot.state === 'account_provision_error' || (snapshot.state === 'signed_out' && snapshot.notice === 'failed'), signIn: async p => { await controller.current?.signIn(p); }, retry: async () => { await controller.current?.retry(); }, refresh: async () => { await controller.current?.refresh(); } }}>{children}</Context.Provider>;
 }
 export function useAuth() { const value = useContext(Context); if (!value) throw Error('useAuth requires AuthProvider'); return value; }

@@ -1,4 +1,17 @@
 export const strings = {
+  auth: {
+    brand: 'Tawsila', headline: 'Share the ride.', together: 'Go further, together.',
+    benefits: ['Meet people going your way', 'Share seats and split the cost', 'Less traffic, cleaner roads'],
+    google: 'Continue with Google', progress: 'Signing in with Google…',
+    cancelled: 'Sign-in was cancelled. You can try again.',
+    offline: "You're offline. Check your connection and try again.",
+    unavailable: "Google sign-in isn't available on this device.",
+    failed: 'Something went wrong with Google. Please try again.',
+    provision: "We couldn't finish setting up your account. Please try again.",
+    profileTitle: 'Almost there', profileBody: 'Profile setup comes next. You’ll complete your profile before browsing rides.',
+    configuration: 'Authentication configuration required',
+    configurationBody: 'Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY before using authentication.',
+  },
   tabs: ['Board', 'Trips', 'Messages', 'Profile'],
   offlineTitle: "You're offline",
   offlineBody: 'Check your connection and try again. Your drafts and saved trips are still here.',

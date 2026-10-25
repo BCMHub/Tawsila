@@ -114,3 +114,48 @@ select public.review_item('<user id>', 'car_owner', <revision shown>, 'rejected'
 ```
 
 A stale revision is refused with `stale_revision`: a decision on an older submission cannot approve a replacement. Reload and inspect the current item and vehicle before making a fresh decision. Do not update `verification_items` directly. A rejected user may submit a new key, producing a new pending revision; an approved user cannot replace their car in this implementation.
+
+## Car catalogue seed
+
+The one-time catalogue under `supabase/seed/catalogue/` adapts `abhionlyone/us-car-models-data` at the pinned commit below, under CC BY 4.0. See [NOTICE.md](seed/catalogue/NOTICE.md) for attribution, licence link and changes, and [COVERAGE.md](seed/catalogue/COVERAGE.md) for the fixed Egypt-market brand coverage. The separate `egypt-extension.csv` is proposed-unverified: the owner reviews it before real use. `types.csv` is also a separate unverified proposal. Brands and models are configuration the owner can change in the dashboard.
+
+Use Node v24.22.0, with no dependencies or network required by these scripts. From the repository root, rebuild from an independently obtained read-only copy of the pinned source (CSV data only):
+
+```sh
+. /Users/sherifehab/Developer/Tawsila/.clh/evidence/TAW-3/node24.env
+node -v # must print v24.22.0
+node supabase/seed/catalogue/build-catalogue.mjs --source /path/to/us-car-models-data --source-commit 79018e2dbcc03899bf3434d959b445644fb49b76 --out supabase/seed/catalogue/catalogue-base.csv
+. /Users/sherifehab/Developer/Tawsila/.clh/evidence/TAW-3/node24.env
+node -v # must print v24.22.0
+node supabase/seed/catalogue/coverage.mjs
+. /Users/sherifehab/Developer/Tawsila/.clh/evidence/TAW-3/node24.env
+node -v # must print v24.22.0
+node --test supabase/seed/catalogue/catalogue.test.mjs
+```
+
+`--source-commit` records the declared provenance in the build summary; it does not authenticate the input directory. Obtain the pinned revision before rebuilding. Files are read in sorted filename order and rows in file order, preserving the first display spelling for each normalized name. Invalid control characters or names over 80 characters abort with a file/row diagnostic; empty makes/models are dropped. No source program is executed. No year is included in the emitted catalogue or SQL.
+
+After migrations, apply manually to the LOCAL database only:
+
+```sh
+. /Users/sherifehab/Developer/Tawsila/.clh/evidence/TAW-3/node24.env
+node -v # must print v24.22.0
+set -o pipefail
+node supabase/seed/catalogue/load-catalogue.mjs | docker exec -i supabase_db_tawsila psql -U postgres -X -v ON_ERROR_STOP=1
+```
+
+The loader prints one transaction containing only inserts with `on conflict do nothing` for types, brands and models. Models resolve their parent by brand name. Repeating the command leaves existing records, including inactive entries, unchanged; it never reactivates or updates them. There are no automatic reset seeds; `[db.seed]` stays disabled. Nothing is loaded on the hosted project in this implementation.
+
+Check locally, then repeat the load and check that counts remain unchanged:
+
+```sh
+docker exec -i supabase_db_tawsila psql -U postgres -X -v ON_ERROR_STOP=1 <<'SQL'
+select count(*) as brands from public.car_brands;
+select count(*) as models from public.car_models;
+select count(*) as types from public.car_types;
+select count(*) as orphan_models from public.car_models m left join public.car_brands b on b.id = m.brand_id where b.id is null;
+select code from public.car_types where code = 'other';
+SQL
+```
+
+Generated input counts: 11,543 source rows, 66 base brands and 1,456 normalized base pairs; 156 extension rows; merged 85 brands and 1,583 models; six types including `other`. On a database with only the migration's `other` row, expect 85 brands, 1,583 models, six types and zero orphan models. Existing configuration or test fixtures can increase totals. The normalized base count is three below the raw 1,459 distinct pairs because case variants collapse. Coverage is 21 of 40 fixed-list brands before the extension and 40 of 40 after; model completeness is unverified.

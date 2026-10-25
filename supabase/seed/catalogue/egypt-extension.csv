@@ -1,0 +1,158 @@
+# Egypt-market extension (proposed by the author from general knowledge, NOT verified against any source). Status proposed-unverified: the owner reviews, edits and approves this file before any real use. Adding a row for a make or model the base dataset already has is harmless (merged by name).
+make,model,status
+Renault,Logan,proposed-unverified
+Renault,Sandero,proposed-unverified
+Renault,Duster,proposed-unverified
+Renault,Megane,proposed-unverified
+Renault,Symbol,proposed-unverified
+Renault,Kwid,proposed-unverified
+Renault,Captur,proposed-unverified
+Renault,Fluence,proposed-unverified
+Renault,Clio,proposed-unverified
+Peugeot,301,proposed-unverified
+Peugeot,308,proposed-unverified
+Peugeot,508,proposed-unverified
+Peugeot,208,proposed-unverified
+Peugeot,2008,proposed-unverified
+Peugeot,3008,proposed-unverified
+Peugeot,5008,proposed-unverified
+Peugeot,Partner,proposed-unverified
+Skoda,Octavia,proposed-unverified
+Skoda,Fabia,proposed-unverified
+Skoda,Rapid,proposed-unverified
+Skoda,Superb,proposed-unverified
+Skoda,Kodiaq,proposed-unverified
+Skoda,Karoq,proposed-unverified
+Skoda,Kamiq,proposed-unverified
+Opel,Astra,proposed-unverified
+Opel,Corsa,proposed-unverified
+Opel,Mokka,proposed-unverified
+Opel,Insignia,proposed-unverified
+Opel,Vectra,proposed-unverified
+Opel,Crossland,proposed-unverified
+MG,3,proposed-unverified
+MG,5,proposed-unverified
+MG,6,proposed-unverified
+MG,ZS,proposed-unverified
+MG,HS,proposed-unverified
+MG,RX5,proposed-unverified
+MG,RX8,proposed-unverified
+MG,GT,proposed-unverified
+MG,MG4,proposed-unverified
+Chery,Tiggo 4,proposed-unverified
+Chery,Tiggo 7,proposed-unverified
+Chery,Tiggo 8,proposed-unverified
+Chery,Arrizo 5,proposed-unverified
+Chery,Arrizo 6,proposed-unverified
+Chery,Arrizo 8,proposed-unverified
+Chery,QQ,proposed-unverified
+BYD,F0,proposed-unverified
+BYD,F3,proposed-unverified
+BYD,Qin,proposed-unverified
+BYD,Song Plus,proposed-unverified
+BYD,Tang,proposed-unverified
+BYD,Han,proposed-unverified
+BYD,Atto 3,proposed-unverified
+BYD,Seal,proposed-unverified
+BYD,Dolphin,proposed-unverified
+Geely,Emgrand,proposed-unverified
+Geely,Coolray,proposed-unverified
+Geely,Azkarra,proposed-unverified
+Geely,Okavango,proposed-unverified
+Geely,Tugella,proposed-unverified
+Haval,H6,proposed-unverified
+Haval,Jolion,proposed-unverified
+Haval,H9,proposed-unverified
+Haval,Dargo,proposed-unverified
+Jetour,X70,proposed-unverified
+Jetour,X90,proposed-unverified
+Jetour,Dashing,proposed-unverified
+Jetour,T2,proposed-unverified
+Changan,CS35,proposed-unverified
+Changan,CS75,proposed-unverified
+Changan,CS85,proposed-unverified
+Changan,Eado,proposed-unverified
+Changan,Alsvin,proposed-unverified
+Changan,Hunter,proposed-unverified
+Dongfeng,S30,proposed-unverified
+Dongfeng,H30,proposed-unverified
+Dongfeng,AX7,proposed-unverified
+Dongfeng,Glory 580,proposed-unverified
+JAC,S2,proposed-unverified
+JAC,S3,proposed-unverified
+JAC,S5,proposed-unverified
+JAC,J7,proposed-unverified
+JAC,JS4,proposed-unverified
+Great Wall,Wingle,proposed-unverified
+Great Wall,Poer,proposed-unverified
+Lada,Granta,proposed-unverified
+Lada,Vesta,proposed-unverified
+Lada,Niva,proposed-unverified
+Lada,Kalina,proposed-unverified
+Citroen,C3,proposed-unverified
+Citroen,C4,proposed-unverified
+Citroen,C-Elysee,proposed-unverified
+Citroen,C5 Aircross,proposed-unverified
+Citroen,Berlingo,proposed-unverified
+Seat,Ibiza,proposed-unverified
+Seat,Leon,proposed-unverified
+Seat,Ateca,proposed-unverified
+Seat,Arona,proposed-unverified
+Proton,Saga,proposed-unverified
+Proton,Persona,proposed-unverified
+Proton,X50,proposed-unverified
+Proton,X70,proposed-unverified
+Brilliance,H230,proposed-unverified
+Brilliance,H330,proposed-unverified
+Brilliance,V5,proposed-unverified
+Nissan,Sunny,proposed-unverified
+Nissan,Qashqai,proposed-unverified
+Nissan,Juke,proposed-unverified
+Nissan,Kicks,proposed-unverified
+Hyundai,Verna,proposed-unverified
+Hyundai,Accent,proposed-unverified
+Hyundai,Elantra,proposed-unverified
+Hyundai,Tucson,proposed-unverified
+Hyundai,Creta,proposed-unverified
+Kia,Cerato,proposed-unverified
+Kia,Rio,proposed-unverified
+Kia,Sportage,proposed-unverified
+Kia,Picanto,proposed-unverified
+Kia,Sorento,proposed-unverified
+Chevrolet,Optra,proposed-unverified
+Chevrolet,Aveo,proposed-unverified
+Chevrolet,Lanos,proposed-unverified
+Chevrolet,Cruze,proposed-unverified
+Chevrolet,Captiva,proposed-unverified
+Suzuki,Swift,proposed-unverified
+Suzuki,Dzire,proposed-unverified
+Suzuki,Ciaz,proposed-unverified
+Suzuki,Ertiga,proposed-unverified
+Suzuki,Vitara,proposed-unverified
+Mitsubishi,Lancer,proposed-unverified
+Mitsubishi,Attrage,proposed-unverified
+Mitsubishi,Eclipse Cross,proposed-unverified
+Mitsubishi,Outlander,proposed-unverified
+Mitsubishi,Pajero,proposed-unverified
+Daewoo,Lanos,proposed-unverified
+Daewoo,Matiz,proposed-unverified
+Daewoo,Nubira,proposed-unverified
+Fiat,Tipo,proposed-unverified
+Fiat,Punto,proposed-unverified
+Fiat,Linea,proposed-unverified
+Fiat,500,proposed-unverified
+Toyota,Corolla,proposed-unverified
+Toyota,Yaris,proposed-unverified
+Toyota,Camry,proposed-unverified
+Toyota,Fortuner,proposed-unverified
+Toyota,Hilux,proposed-unverified
+Toyota,Land Cruiser,proposed-unverified
+Honda,City,proposed-unverified
+Honda,Civic,proposed-unverified
+Honda,Accord,proposed-unverified
+Honda,CR-V,proposed-unverified
+Volkswagen,Jetta,proposed-unverified
+Volkswagen,Golf,proposed-unverified
+Volkswagen,Passat,proposed-unverified
+Volkswagen,Tiguan,proposed-unverified
+Volkswagen,Polo,proposed-unverified

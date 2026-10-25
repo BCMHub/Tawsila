@@ -16,5 +16,5 @@ values ('terms', 'test-v1', true), ('privacy', 'test-v1', true)
 on conflict (kind, version) do update set is_current = true;
 commit;
 \else
-\echo skipped: pass -v load_taw4_fixtures=1 to load the TAW-4 test fixtures
+\echo 1..0 # skipped: manual test fixture requires load_taw4_fixtures
 \endif

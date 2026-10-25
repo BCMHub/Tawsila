@@ -77,3 +77,18 @@ test('coverage identifies fixed-list presence before and after extension without
   assert.match(report, /proposed-unverified/);
   assert.doesNotMatch(report, /\b\d{4}\b/);
 });
+
+test('the loader excludes proposed-unverified rows unless the explicit flag is given', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const script = new URL('./load-catalogue.mjs', import.meta.url).pathname;
+  const plain = spawnSync(process.execPath, [script], { encoding: 'utf8' });
+  const flagged = spawnSync(process.execPath, [script, '--include-unverified'], { encoding: 'utf8' });
+  assert.equal(plain.status, 0);
+  assert.equal(flagged.status, 0);
+  assert.doesNotMatch(plain.stdout, /public\.car_types/);
+  assert.doesNotMatch(plain.stdout, /'Lada'.*2107|'2107'/);
+  assert.match(flagged.stdout, /public\.car_types/);
+  assert.match(flagged.stdout, /'2107'/);
+  assert.match(flagged.stderr, /proposed-unverified/);
+  assert.doesNotMatch(plain.stderr, /proposed-unverified/);
+});

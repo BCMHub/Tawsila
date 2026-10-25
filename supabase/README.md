@@ -143,8 +143,10 @@ After migrations, apply manually to the LOCAL database only:
 . /Users/sherifehab/Developer/Tawsila/.clh/evidence/TAW-3/node24.env
 node -v # must print v24.22.0
 set -o pipefail
-node supabase/seed/catalogue/load-catalogue.mjs | docker exec -i supabase_db_tawsila psql -U postgres -X -v ON_ERROR_STOP=1
+node supabase/seed/catalogue/load-catalogue.mjs --include-unverified | docker exec -i supabase_db_tawsila psql -U postgres -X -v ON_ERROR_STOP=1
 ```
+
+Without `--include-unverified` the loader emits only the attributed base dataset: the Egypt extension and `types.csv` are proposed-unverified and load only with this explicit flag, for local and development use until the owner approves them.
 
 The loader prints one transaction containing only inserts with `on conflict do nothing` for types, brands and models. Models resolve their parent by brand name. Repeating the command leaves existing records, including inactive entries, unchanged; it never reactivates or updates them. There are no automatic reset seeds; `[db.seed]` stays disabled. Nothing is loaded on the hosted project in this implementation.
 

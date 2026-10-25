@@ -2,7 +2,7 @@
 
 The extension is proposed-unverified and requires owner review before real use. Presence means a brand has at least one model; it does not establish complete market or model coverage. Matching ignores case and normalized whitespace; spelling aliases are not inferred.
 
-Base: 66 brands, 1456 models. Extension: 156 rows. Merged: 85 brands, 1583 models.
+Base: 66 brands, 1456 models. Extension: 158 rows. Merged: 85 brands, 1585 models.
 
 Fixed list: 40 brands. Before: 21 present, 19 missing. After: 40 present, 0 missing.
 

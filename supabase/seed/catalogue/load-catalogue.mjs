@@ -14,8 +14,11 @@ if (isMain(import.meta.url)) {
   try {
     const here = new URL('.', import.meta.url);
     const base = await readBase(new URL('catalogue-base.csv', here));
-    const extension = await readExtension(new URL('egypt-extension.csv', here));
-    const types = (await readTable(new URL('types.csv', here), ['code', 'name'])).map(([code, name]) => ({ code, name }));
+    // The Egypt extension and types.csv are proposed-unverified: they load only on an explicit local/dev opt-in.
+    const includeUnverified = process.argv.includes('--include-unverified');
+    const extension = includeUnverified ? await readExtension(new URL('egypt-extension.csv', here)) : [];
+    const types = includeUnverified ? (await readTable(new URL('types.csv', here), ['code', 'name'])).map(([code, name]) => ({ code, name })) : [];
+    if (includeUnverified) console.error('Including proposed-unverified rows (Egypt extension, types): LOCAL/DEV use only until the owner approves them.');
     process.stdout.write(emitSQL(mergePairs(base, extension), types));
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

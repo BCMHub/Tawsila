@@ -7,6 +7,7 @@ export type CarModel = CarBrand & { brand_id: string };
 export type CarType = CarBrand & { code: string };
 export type ProfileInput = { firstName: string; lastName: string; communityId: string; role: Role; ageConfirmed: boolean; termsVersion: string; privacyVersion: string };
 export type CarInput = CarSelection & { submissionKey: string; year: number; plate: string };
+export type SavedVehicle = { brand_id: string | null; brand_other: string | null; model_id: string | null; model_other: string | null; type_id: string; year: number; plate_number: string };
 export type VerificationStatus = 'pending' | 'approved' | 'rejected';
 export type SubmissionResult = { revision: number; status: VerificationStatus; superseded: boolean };
 export type Verification = { car_owner: { status: VerificationStatus; revision: number; reviewer_note: string | null } | null; has_car_details: boolean };
@@ -28,6 +29,8 @@ export interface OnboardingApi {
  listCarModels(brandId: string): Promise<CarModel[]>;
  listCarTypes(): Promise<CarType[]>;
  submitCar(input: CarInput): Promise<SubmissionResult>;
+ myProfile(): Promise<{ role: Role } | null>;
+ myVehicle(): Promise<SavedVehicle | null>;
  myVerification(): Promise<Verification>;
 }
 async function request<T>(run: () => PromiseLike<Response>): Promise<T> {
@@ -79,6 +82,8 @@ export function createOnboardingApi(client: OnboardingClient = adaptOnboardingCl
    if (!result || !Number.isInteger(result.revision) || result.revision < 1 || !['pending', 'approved', 'rejected'].includes(result.status) || typeof result.superseded !== 'boolean') throw new OnboardingError('unexpected_response', 'uncertain');
    return result;
   },
+  myProfile: async () => (await request<{ role: Role }[]>(() => client.from('profiles').select('role')))[0] ?? null,
+  myVehicle: async () => (await request<SavedVehicle[]>(() => client.from('vehicles').select('brand_id,brand_other,model_id,model_other,type_id,year,plate_number')))[0] ?? null,
   myVerification: () => request<Verification>(() => client.rpc('my_verification')),
  };
 }

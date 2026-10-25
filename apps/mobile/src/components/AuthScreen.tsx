@@ -5,20 +5,11 @@ import { SymbolView } from 'expo-symbols';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../features/auth/AuthProvider';
 import { OnboardingFlow } from '../features/onboarding/OnboardingFlow';
+import { Banner } from './Banner';
 import { LoadingState } from './States';
 import { radius, spacing, typography, useTheme } from '../theme';
 import { strings } from '../strings';
 
-function Banner({ text, polite = false }: { text: string; polite?: boolean }) {
-  const t = useTheme();
-  useEffect(() => {
-    if (Platform.OS === 'ios') AccessibilityInfo.announceForAccessibilityWithOptions(text, { queue: polite });
-  }, [text, polite]);
-  return <View accessible accessibilityRole={polite ? 'text' : 'alert'} accessibilityLabel={text} accessibilityLiveRegion={polite ? 'polite' : 'assertive'} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: spacing['space/12'], padding: spacing['space/16'], borderRadius: radius['radius/16'], borderWidth: 1, borderColor: t.separator, backgroundColor: t['bg/elevated'] }}>
-    <SymbolView name={polite ? 'info.circle' : 'exclamationmark.triangle'} size={20} tintColor={polite ? t['brand/primary'] : t['system/orange']} accessible={false} />
-    <Text style={{ ...typography.subheadline, color: t['label/primary'], flex: 1 }}>{text}</Text>
-  </View>;
-}
 export function AuthScreen() {
   const { state, notice, signIn, retry, canRetry } = useAuth();
   const t = useTheme();

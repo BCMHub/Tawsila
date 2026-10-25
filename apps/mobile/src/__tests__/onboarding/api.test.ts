@@ -68,3 +68,14 @@ test('5xx stays uncertain even if its message resembles a rejection', async () =
  const f = fake(); f.reply({ data: null, error: { message: 'invalid_car' }, status: 503 });
  await expect(f.api.submitCar(car)).rejects.toMatchObject({ message: 'uncertain', classification: 'uncertain' });
 });
+test('myProfile selects only the own role and supports no row', async () => {
+ const f = fake(); expect(await f.api.myProfile()).toBeNull();
+ f.reply({ data: [{ role: 'both' }], error: null }); expect(await f.api.myProfile()).toEqual({ role: 'both' });
+ expect(f.calls).toContainEqual(['from', 'profiles']); expect(f.calls).toContainEqual(['select', 'role']);
+});
+test('myVehicle selects saved car fields only and supports no row', async () => {
+ const f = fake(); expect(await f.api.myVehicle()).toBeNull();
+ const vehicle = { brand_id: null, brand_other: 'Synthetic', model_id: null, model_other: 'Fixture', type_id: 'type', year: 2000, plate_number: '1' };
+ f.reply({ data: [vehicle], error: null }); expect(await f.api.myVehicle()).toEqual(vehicle);
+ expect(f.calls).toContainEqual(['from', 'vehicles']); expect(f.calls).toContainEqual(['select', 'brand_id,brand_other,model_id,model_other,type_id,year,plate_number']);
+});

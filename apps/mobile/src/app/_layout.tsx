@@ -17,7 +17,7 @@ export function AuthRoutes() {
   const ready = state === 'ready_to_browse';
   return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t['bg/base'] } }}>
     <Stack.Protected guard={!ready}><Stack.Screen name="(onboarding)" /></Stack.Protected>
-    <Stack.Protected guard={ready}><Stack.Screen name="(tabs)" /><Stack.Screen name="debug" /></Stack.Protected>
+    <Stack.Protected guard={ready}><Stack.Screen name="(tabs)" /><Stack.Screen name="(verify)" /><Stack.Screen name="debug" /></Stack.Protected>
   </Stack>;
 }
 export default function RootLayout() {

@@ -38,6 +38,7 @@ test.each(states)('%s has its screen and protected route membership', async stat
  await view.unmount();
  const routes = await render(<AuthRoutes />);
  for (const route of ['(tabs)', 'debug']) expect(screen.queryByText(route) !== null).toBe(state === 'ready_to_browse');
+ expect(screen.queryByText('(verify)') !== null).toBe(state === 'ready_to_browse');
  expect(screen.queryByText('(onboarding)') !== null).toBe(state !== 'ready_to_browse');
  await routes.unmount();
 });

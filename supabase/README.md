@@ -159,3 +159,6 @@ SQL
 ```
 
 Generated input counts: 11,543 source rows, 66 base brands and 1,456 normalized base pairs; 156 extension rows; merged 85 brands and 1,583 models; six types including `other`. On a database with only the migration's `other` row, expect 85 brands, 1,583 models, six types and zero orphan models. Existing configuration or test fixtures can increase totals. The normalized base count is three below the raw 1,459 distinct pairs because case variants collapse. Coverage is 21 of 40 fixed-list brands before the extension and 40 of 40 after; model completeness is unverified.
+
+### Hands-on test fixtures (TAW-4, local stack only)
+`supabase/tests/seed/taw4-dev-fixtures.sql` adds three clearly named test communities and the current test Terms and Privacy versions (`test-v1`) so the onboarding screens can be tried by hand: `docker exec -i supabase_db_tawsila psql -U postgres -X -v load_taw4_fixtures=1 < supabase/tests/seed/taw4-dev-fixtures.sql`. It is idempotent, never runs by itself, and is not for the hosted project. Real communities and the real legal versions are the owner's content.

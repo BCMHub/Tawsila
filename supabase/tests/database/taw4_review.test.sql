@@ -158,7 +158,7 @@ reset role;
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a4000000-0000-4000-8000-000000000001","role":"authenticated"}';
 
-select lives_ok($test$select public.submit_car('b4000000-0000-4000-8000-000000000103','b4000000-0000-4000-8000-000000000003',null,'b4000000-0000-4000-8000-000000000006',null,'b4000000-0000-4000-8000-000000000009',2020,'ب ١-٢')$test$, 'current key replay after approval permitted');
+select is(public.submit_car('b4000000-0000-4000-8000-000000000103','b4000000-0000-4000-8000-000000000003',null,'b4000000-0000-4000-8000-000000000006',null,'b4000000-0000-4000-8000-000000000009',2020,'ب ١-٢'), '{"revision":3,"status":"approved","superseded":false}'::jsonb, 'current key replay returns current approved status');
 
 reset role;
 
@@ -186,29 +186,29 @@ select throws_ok($test$update public.verification_items set reviewer_note='Tampe
 
 select throws_ok($test$update public.verification_items set reviewed_revision=99$test$, '42501', null, 'client cannot update reviewed_revision');
 
-select throws_like($test$update public.verification_submissions set revision=99$test$, '%', 'authenticated cannot mutate history');
+select throws_ok($test$update public.verification_submissions set revision=99$test$, '42501', 'permission denied for table verification_submissions', 'authenticated cannot mutate history');
 
-select throws_like($test$delete from public.verification_submissions$test$, '%', 'authenticated cannot mutate history');
+select throws_ok($test$delete from public.verification_submissions$test$, '42501', 'permission denied for table verification_submissions', 'authenticated cannot mutate history');
 
 reset role;
 set local role service_role;
 set local "request.jwt.claims" = '{"sub":"a4000000-0000-4000-8000-000000000001","role":"service_role"}';
 
-select ok(has_table_privilege('service_role','public.verification_items','UPDATE'), 'service role reaches item trigger');
+select ok(not has_table_privilege('service_role','public.verification_items','UPDATE'), 'service role has no direct item update');
 
-select throws_like($test$update public.verification_items set status='rejected'$test$, '%', 'trigger blocks service role status');
+select throws_ok($test$update public.verification_items set status='rejected'$test$, '42501', 'permission denied for table verification_items', 'trigger blocks service role status');
 
-select ok(has_table_privilege('service_role','public.verification_items','UPDATE'), 'service role reaches item trigger');
+select ok(not has_table_privilege('service_role','public.verification_items','UPDATE'), 'service role has no direct item update');
 
-select throws_like($test$update public.verification_items set reviewer_note='Tamper'$test$, '%', 'trigger blocks service role reviewer_note');
+select throws_ok($test$update public.verification_items set reviewer_note='Tamper'$test$, '42501', 'permission denied for table verification_items', 'trigger blocks service role reviewer_note');
 
-select ok(has_table_privilege('service_role','public.verification_items','UPDATE'), 'service role reaches item trigger');
+select ok(not has_table_privilege('service_role','public.verification_items','UPDATE'), 'service role has no direct item update');
 
-select throws_like($test$update public.verification_items set reviewed_revision=99$test$, '%', 'trigger blocks service role reviewed_revision');
+select throws_ok($test$update public.verification_items set reviewed_revision=99$test$, '42501', 'permission denied for table verification_items', 'trigger blocks service role reviewed_revision');
 
-select throws_like($test$update public.verification_submissions set revision=99$test$, '%', 'service_role cannot mutate history');
+select throws_ok($test$update public.verification_submissions set revision=99$test$, '42501', 'permission denied for table verification_submissions', 'service_role cannot mutate history');
 
-select throws_like($test$delete from public.verification_submissions$test$, '%', 'service_role cannot mutate history');
+select throws_ok($test$delete from public.verification_submissions$test$, '42501', 'permission denied for table verification_submissions', 'service_role cannot mutate history');
 
 reset role;
 set local role authenticated;

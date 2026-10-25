@@ -61,9 +61,9 @@ The approved sign-in design is TAW-11, Figma section `174:365`. Approved deviati
 
 `communities`, `legal_documents`, `car_brands`, `car_models` and `car_types` are configurable lists readable by authenticated users. The migration supplies only the `other` car type; communities, legal versions and the catalogue are loaded separately. `legal_documents` allows at most one current version per kind.
 
-`profiles` holds names, community and role; append-only `consents` records age 18+ and the accepted Terms and Privacy versions. `vehicles` holds one current car per user. `verification_items` holds the current `car_owner` revision and decision, and immutable `verification_submissions` records every accepted key and revision. RLS limits these user tables to the caller's own rows. Clients have no direct write grants.
+`profiles` holds names, community and role; append-only `consents` records age 18+ and the accepted Terms and Privacy versions. `vehicles` holds one current car per user. `verification_items` holds the current `car_owner` revision and decision, and immutable `verification_submissions` records every accepted key and revision. RLS limits these user tables to the caller's own rows. Authenticated clients and the service role have no direct write grants on these five user tables; writes go through the security-definer RPCs.
 
-`complete_profile` validates all inputs and current legal versions, records the profile and three consents atomically, and sets `accounts.profile_completed_at` only if unset. Repeating the same inputs changes nothing. `set_role` retains existing car details and review state. `plate_normalized` and `plate_is_valid` implement the confirmed G4 rule. `submit_car` validates the car, serializes submissions using the item row lock and records a new pending revision. A repeated submission key returns its original pending result and whether it was superseded without changing any stored state, even after review. A new key after approval raises `already_approved`.
+`complete_profile` validates all inputs and current legal versions, records the profile and three consents atomically, and sets `accounts.profile_completed_at` only if unset. Repeating the same inputs changes nothing. `set_role` retains existing car details and review state. `plate_normalized` and `plate_is_valid` implement the confirmed G4 rule. `submit_car` validates the car, serializes submissions using the item row lock and records a new pending revision. A repeated submission key returns its recorded revision and whether it was superseded (with the current status when it is still the current revision) without changing any stored state, even after review. A new key after approval raises `already_approved`.
 
 `my_verification` returns only the car-owner status, revision, reviewer note and a boolean indicating car details exist. `can_request_rides` checks profile completion; `can_post_rides` requires the owner/both role and approval bound to the current revision. `review_item` is executable only by the service role (and the database owner); triggers block direct decision changes, including by the service role, and prevent changes to submission history.
 
@@ -73,6 +73,8 @@ Run the database checks from the repository root against the local stack:
 supabase db reset
 supabase test db
 ```
+
+The review suite’s single-session lock probe proves lock acquisition and item/history consistency, not scheduling between two backends. A real two-session car-submission check remains a verification gap; it could not be validated in the sandbox with Docker access denied. The separate first-signin concurrency script covers account creation only.
 
 Reset discards local test data and applies both migrations. The pgTAP suites include configuration access, profile/consent atomicity, car validation, replay, revision-bound review, eligibility and plate normalization.
 

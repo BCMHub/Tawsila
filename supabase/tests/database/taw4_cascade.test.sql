@@ -47,13 +47,13 @@ select jsonb_build_object(
 
 set local role service_role;
 select throws_ok($test$delete from public.consents where user_id = 'ac400000-0000-4000-8000-000000000001'$test$,
-  'P0001', 'immutable_record', 'service_role: direct consents delete refused while account exists');
+  '42501', 'permission denied for table consents', 'service_role: direct consents delete refused while account exists');
 select throws_ok($test$update public.consents set version = version where user_id = 'ac400000-0000-4000-8000-000000000001'$test$,
-  'P0001', 'immutable_record', 'service_role: direct consents update refused while account exists');
+  '42501', 'permission denied for table consents', 'service_role: direct consents update refused while account exists');
 select throws_ok($test$delete from public.verification_submissions where user_id = 'ac400000-0000-4000-8000-000000000001'$test$,
-  'P0001', 'immutable_record', 'service_role: direct verification_submissions delete refused while account exists');
+  '42501', 'permission denied for table verification_submissions', 'service_role: direct verification_submissions delete refused while account exists');
 select throws_ok($test$update public.verification_submissions set revision = revision where user_id = 'ac400000-0000-4000-8000-000000000001'$test$,
-  'P0001', 'immutable_record', 'service_role: direct verification_submissions update refused while account exists');
+  '42501', 'permission denied for table verification_submissions', 'service_role: direct verification_submissions update refused while account exists');
 reset role;
 
 set local role postgres;

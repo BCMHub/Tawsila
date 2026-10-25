@@ -223,7 +223,7 @@ it('binds owner approval to the current revision and clears rejection on resubmi
   const approved = await snapshot(f.id);
   await expect(f.api.submitCar(car())).rejects.toMatchObject({ code: 'already_approved' });
   expect(await snapshot(f.id)).toEqual(approved);
-  expect(await f.api.submitCar(first)).toEqual({ revision: 1, status: 'pending', superseded: false });
+  expect(await f.api.submitCar(first)).toEqual({ revision: 1, status: 'approved', superseded: false });
   expect(await snapshot(f.id)).toEqual(approved);
   // A separate owner exercises rejection independently of the approved car.
   const rejected = await fixture(); await owner(rejected); await rejected.api.submitCar(car());

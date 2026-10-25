@@ -39,7 +39,7 @@ async function request<T>(run: () => PromiseLike<Response>): Promise<T> {
  if (!response) throw new OnboardingError('uncertain', 'uncertain');
  if (response.error || (response.status !== undefined && (response.status === 0 || response.status >= 400))) {
   const code = codes.find(code => code === response.error?.message);
-  if (response.status !== undefined && response.status >= 500) throw new OnboardingError('uncertain', 'uncertain');
+  if (response.status !== undefined && (response.status >= 500 || [401, 408, 429].includes(response.status))) throw new OnboardingError('uncertain', 'uncertain');
   if (code) throw new OnboardingError(code, 'rejected');
   if (!response.status) throw new OnboardingError('uncertain', 'uncertain');
   throw new OnboardingError('rejected', 'rejected');

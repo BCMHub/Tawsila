@@ -27,7 +27,20 @@ beforeEach(() => {
   setRole: jest.fn<OnboardingApi['setRole']>().mockResolvedValue(undefined),
  } as unknown as OnboardingApi;
 });
-const mount = (child: React.ReactNode) => render(<OnboardingApiProvider api={api}>{child}</OnboardingApiProvider>);
+const mount = async (child: React.ReactNode) => {
+ const view = await render(<OnboardingApiProvider api={api}>{child}</OnboardingApiProvider>);
+ const theme = jest.requireActual<typeof import('../../theme')>('../../theme')[mockDark ? 'dark' : 'light'];
+ const hasThemeColor = (node: unknown): boolean => {
+  if (Array.isArray(node)) return node.some(hasThemeColor);
+  if (!node || typeof node !== 'object') return false;
+  const element = node as { props?: { style?: import('react-native').StyleProp<import('react-native').ViewStyle> }; children?: unknown };
+  const { StyleSheet } = jest.requireActual<typeof import('react-native')>('react-native');
+  const style = StyleSheet.flatten(element.props?.style);
+  return style?.backgroundColor === theme['bg/base'] || style?.backgroundColor === theme['bg/elevated'] || hasThemeColor(element.children);
+ };
+ expect(hasThemeColor(screen.toJSON())).toBe(true);
+ return view;
+};
 async function select(label: string, option: string) { await fireEvent.press(screen.getByRole('button', { name: new RegExp(`^${label},`) })); await fireEvent.press(screen.getByRole('radio', { name: option })); }
 async function filled() {
  await screen.findByRole('button', { name: 'Car brand, Select brand' });
@@ -118,7 +131,7 @@ test.each([false, true])('role switching awaits server and failure never navigat
  jest.mocked(api.myProfile).mockResolvedValue({ role: 'rider' }); jest.mocked(api.setRole).mockRejectedValueOnce(new Error('private detail'));
  await mount(<CarEntryPoints profile />); await fireEvent.press(await screen.findByRole('button', { name: 'I have a car' })); expect(router.push).not.toHaveBeenCalled(); expect(screen.getByRole('alert')).toBeTruthy(); expect(screen.queryByText('private detail')).toBeNull();
 });
-for (const dark of [false, true]) test.each(['pending', 'approved', 'rejected'] as const)('badge %s dark='+dark, async status => { mockDark = dark; await render(<StatusBadge status={status} />); expect(screen.getByText({ pending: 'Pending', approved: 'Verified', rejected: 'Declined' }[status])).toBeTruthy(); });
+for (const dark of [false, true]) test.each(['pending', 'approved', 'rejected'] as const)('badge %s dark='+dark, async status => { mockDark = dark; await render(<StatusBadge status={status} />); const theme = jest.requireActual<typeof import('../../theme')>('../../theme')[dark ? 'dark' : 'light']; expect(screen.getByText({ pending: 'Pending', approved: 'Verified', rejected: 'Declined' }[status])).toHaveStyle({ color: theme['label/primary'] }); });
 test.each([false, true])('uncertain submission freezes the original inputs until confirmed dark=%s', async dark => { mockDark = dark;
  jest.mocked(api.submitCar).mockRejectedValueOnce(new OnboardingError('uncertain', 'uncertain'));
  await mount(<CarDetails />); await filled(); await submit();
@@ -158,4 +171,15 @@ test.each([false, true])('a rider cannot see retained approval through the statu
  jest.mocked(api.myVerification).mockResolvedValue({ car_owner: { status: 'approved', revision: 1, reviewer_note: null }, has_car_details: true });
  await mount(<CarStatus />); await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/(tabs)'));
  expect(screen.queryByText('Verified')).toBeNull(); expect(screen.queryByText('You are approved')).toBeNull();
+});
+
+test.each(['٢٠٠٠', '۲۰۰۰', '2۰٠0'])('year %s submits ASCII numeric value', async year => {
+ await mount(<CarDetails />); await filled();
+ await fireEvent.changeText(screen.getByRole('textbox', { name: 'Year' }), year);
+ expect(screen.getByRole('button', { name: 'Submit for review' })).not.toBeDisabled();
+ await submit(); expect(api.submitCar).toHaveBeenCalledWith(expect.objectContaining({ year: 2000 }));
+});
+test.each(['۲۰۰', '۲۰۰۰۰', '۲۰O۰', '۱۹۷۹'])('invalid year %s stays disabled', async year => {
+ await mount(<CarDetails />); await filled(); await fireEvent.changeText(screen.getByRole('textbox', { name: 'Year' }), year);
+ expect(screen.getByRole('button', { name: 'Submit for review' })).toBeDisabled();
 });

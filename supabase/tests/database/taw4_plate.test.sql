@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(29);
+select plan(36);
 
 select is(current_setting('server_encoding'), 'UTF8', 'V11 UTF8 server encoding');
 
@@ -61,6 +61,13 @@ select is('بَ' ~ '^[ءآأؤإئابتثجحخدذرزسشصضطظعغفقكل
 
 select is('A' ~ '^[ءآأؤإئابتثجحخدذرزسشصضطظعغفقكلمنهويىة]{1,4}$', false, 'V11 explicit code points under database collation');
 
+select is(public.plate_normalized('۰۱۲۳۴۵۶۷۸۹'), '0123456789', 'Extended Arabic-Indic digits normalized');
+select ok(public.plate_is_valid('۱۲۳۴'), 'extended digits accepted');
+select ok(public.plate_is_valid('بـ-۱٢'), 'mixed digit sets normalized');
+select ok(public.plate_is_valid('۱۲ب'), 'extended digits before letters');
+select ok(not public.plate_is_valid('۱۲۳۴۵'), 'extended digits respect maximum');
+select ok(not public.plate_is_valid('بَ۱'), 'extended digits do not permit diacritics');
+select ok(not public.plate_is_valid('۱ب۲'), 'extended digits do not permit interleaving');
 reset role;
 select * from finish();
 rollback;

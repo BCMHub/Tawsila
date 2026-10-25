@@ -54,7 +54,7 @@ test.each(['consent_version_stale', 'account_missing', 'invalid_name', 'invalid_
  const f = fake(); f.reply({ data: null, error: { message: code }, status: 400 });
  await expect(f.api.submitCar(car)).rejects.toMatchObject({ code, classification: 'rejected', message: code });
 });
-test.each([undefined, 0, 500, 503])('transport status %s is uncertain and sanitized', async status => {
+test.each([undefined, 0, 401, 408, 429, 500, 503])('transport status %s is uncertain and sanitized', async status => {
  const f = fake(); f.reply({ data: null, error: { message: 'submitted synthetic value' }, status });
  await expect(f.api.submitCar(car)).rejects.toMatchObject({ code: 'uncertain', classification: 'uncertain', message: 'uncertain' });
 });
@@ -78,4 +78,9 @@ test('myVehicle selects saved car fields only and supports no row', async () => 
  const vehicle = { brand_id: null, brand_other: 'Synthetic', model_id: null, model_other: 'Fixture', type_id: 'type', year: 2000, plate_number: '1' };
  f.reply({ data: [vehicle], error: null }); expect(await f.api.myVehicle()).toEqual(vehicle);
  expect(f.calls).toContainEqual(['from', 'vehicles']); expect(f.calls).toContainEqual(['select', 'brand_id,brand_other,model_id,model_other,type_id,year,plate_number']);
+});
+
+test.each([401, 408, 429])('retryable HTTP %s overrides a server-like message', async status => {
+ const f = fake(); f.reply({ data: null, error: { message: 'invalid_car' }, status });
+ await expect(f.api.submitCar(car)).rejects.toMatchObject({ code: 'uncertain', classification: 'uncertain' });
 });

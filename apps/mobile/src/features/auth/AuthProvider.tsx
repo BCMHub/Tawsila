@@ -120,7 +120,7 @@ export function AuthProvider({ client, providers, installGuard, timeoutMs = 1500
       const id = ++revision;
       const owner = busyOwner;
       clearTimeout(timer);
-      timer = setTimeout(() => { if (mounted && revision === id) { revision++; release(owner); deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); } }, timeoutMs);
+      timer = setTimeout(() => { if (mounted && revision === id) { revision++; release(owner); deriveDeferred = false; update(typeof fallback === 'function' ? fallback() : fallback, notice()); notify(); } }, timeoutMs);
       return () => mounted && revision === id;
     };
     async function derive(silent = false, existingActive?: () => boolean) {

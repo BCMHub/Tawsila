@@ -5,7 +5,8 @@ import { OnboardingApiProvider } from '../../features/onboarding/OnboardingApiPr
 import { OnboardingError, type OnboardingApi } from '../../features/onboarding/api';
 const mockRefresh = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
 let mockDark = false;
-jest.mock('../../features/auth/AuthProvider', () => ({ useAuth: () => ({ refresh: mockRefresh }) }));
+let mockState = 'needs_profile';
+jest.mock('../../features/auth/AuthProvider', () => ({ useAuth: () => ({ refresh: mockRefresh, state: mockState }) }));
 jest.mock('../../features/onboarding/useSessionEmail', () => ({ useSessionEmail: () => 'demo@example.test' }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ top: 59, bottom: 34 }) }));
 jest.mock('expo-symbols', () => ({ SymbolView: 'SymbolView' }));
@@ -14,10 +15,10 @@ jest.mock('../../theme', () => { const actual = jest.requireActual<typeof import
 const legal = { terms: 't1', privacy: 'p1' };
 let api: OnboardingApi;
 beforeEach(() => {
- mockRefresh.mockClear(); mockDark = false;
+ mockRefresh.mockReset().mockResolvedValue(undefined); mockDark = false; mockState = 'needs_profile';
  api = { listCommunities: jest.fn<OnboardingApi['listCommunities']>().mockResolvedValue([{ id: 'area', name: 'Area A', active: true, sort_order: 0 }]), currentLegalVersions: jest.fn<OnboardingApi['currentLegalVersions']>().mockResolvedValue(legal), completeProfile: jest.fn<OnboardingApi['completeProfile']>().mockResolvedValue(undefined) } as unknown as OnboardingApi;
 });
-const start = () => render(<OnboardingApiProvider api={api}><OnboardingFlow /></OnboardingApiProvider>);
+const start = async () => { const view = await render(<OnboardingApiProvider api={api}><OnboardingFlow /></OnboardingApiProvider>); const theme = jest.requireActual<typeof import('../../theme')>('../../theme')[mockDark ? 'dark' : 'light']; expect(screen.getByText('Tell us about you')).toHaveStyle({ color: theme['label/primary'] }); return view; };
 const next = () => fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
 async function names() { await fireEvent.changeText(screen.getByRole('textbox', { name: 'First name' }), 'Sam'); await fireEvent.changeText(screen.getByRole('textbox', { name: 'Last name' }), 'Ali'); await next(); await waitFor(() => expect(screen.getAllByRole('checkbox')[0].props.accessibilityState.disabled).toBe(false)); }
 async function accept() { for (const row of screen.getAllByRole('checkbox')) await fireEvent.press(row); await next(); await screen.findByRole('button', { name: /^Community,/ }); }
@@ -92,4 +93,22 @@ test('fresh acceptance after drift submits only the new legal versions', async (
  await fireEvent.press(screen.getByRole('radio', { name: /Both/ })); await next(); await screen.findByText('Before you continue');
  await waitFor(() => expect(screen.getAllByRole('checkbox')[0]).not.toBeDisabled()); await accept(); await community(); await next();
  await waitFor(() => expect(mockRefresh).toHaveBeenCalledTimes(1)); expect(api.completeProfile).toHaveBeenCalledTimes(1); expect(jest.mocked(api.completeProfile).mock.calls[0][0]).toMatchObject({ termsVersion: 't2', privacyVersion: 'p2' });
+});
+
+test('completion stays locked when refresh resolves before auth state changes', async () => {
+ const view = await start(); await role(); await fireEvent.press(screen.getByRole('radio', { name: /Both/ })); await next();
+ await waitFor(() => expect(mockRefresh).toHaveBeenCalledTimes(1));
+ expect(screen.getByRole('button', { name: 'Saving your profile…' })).toBeDisabled();
+ await fireEvent.press(screen.getByRole('button', { name: 'Saving your profile…' }));
+ expect(api.completeProfile).toHaveBeenCalledTimes(1);
+ mockState = 'ready_to_browse';
+ await view.rerender(<OnboardingApiProvider api={api}><OnboardingFlow /></OnboardingApiProvider>);
+ expect(screen.queryByRole('button', { name: 'Saving your profile…' })).toBeNull();
+});
+test('derive failure releases the completion lock', async () => {
+ const view = await start(); await role(); await fireEvent.press(screen.getByRole('radio', { name: /Both/ })); await next();
+ await waitFor(() => expect(mockRefresh).toHaveBeenCalledTimes(1));
+ mockState = 'account_provision_error';
+ await view.rerender(<OnboardingApiProvider api={api}><OnboardingFlow /></OnboardingApiProvider>);
+ expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
 });

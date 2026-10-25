@@ -245,13 +245,13 @@ reset role;
 set local role service_role;
 set local "request.jwt.claims" = '{"sub":"a4000000-0000-4000-8000-000000000001","role":"service_role"}';
 
-select ok(has_table_privilege('service_role','public.verification_submissions','UPDATE'), 'history trigger tested with service table privilege UPDATE');
+select ok(not has_table_privilege('service_role','public.verification_submissions','UPDATE'), 'history service role denied UPDATE');
 
-select ok(has_table_privilege('service_role','public.verification_submissions','DELETE'), 'history trigger tested with service table privilege DELETE');
+select ok(not has_table_privilege('service_role','public.verification_submissions','DELETE'), 'history service role denied DELETE');
 
-select throws_like($test$update public.verification_submissions set revision=99$test$, '%', 'history immutable even for service role');
+select throws_ok($test$update public.verification_submissions set revision=99$test$, '42501', 'permission denied for table verification_submissions', 'history immutable even for service role');
 
-select throws_like($test$delete from public.verification_submissions$test$, '%', 'history immutable even for service role');
+select throws_ok($test$delete from public.verification_submissions$test$, '42501', 'permission denied for table verification_submissions', 'history immutable even for service role');
 
 reset role;
 

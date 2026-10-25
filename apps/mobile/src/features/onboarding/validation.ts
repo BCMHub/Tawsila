@@ -5,13 +5,17 @@ const length = (value: string) => Array.from(value).length;
 const arabic = 'ءآأؤإئابتثجحخدذرزسشصضطظعغفقكلمنهويىة';
 const namePattern = new RegExp(`^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz${arabic} '-]+$`);
 const platePattern = new RegExp(`^(?:[0123456789]{1,4}|[${arabic}]{1,4}[0123456789]{1,4}|[0123456789]{1,4}[${arabic}]{1,4})$`);
-export const normalizeName = trim;
+export const normalizeName = (value: string) => trim(value).replace(/’/g, "'");
+// Shared by G4 plates and the year field: both Arabic digit sets map to ASCII.
+export function normalizeDigits(value: string): string {
+ return value.replace(/[٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹]/g, digit => String('٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹'.indexOf(digit) % 10));
+}
 export function validateName(value: string): boolean {
  const normalized = normalizeName(value);
  return length(normalized) >= 1 && length(normalized) <= 50 && namePattern.test(normalized) && !normalized.includes('\n');
 }
 export function normalizePlate(value: string): string {
- return value.normalize('NFKC').replace(/[ \-ـ]/g, '').replace(/[٠١٢٣٤٥٦٧٨٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)));
+ return normalizeDigits(value.normalize('NFKC').replace(/[ \-ـ]/g, ''));
 }
 export function validatePlate(value: string): boolean {
  const normalized = normalizePlate(value);

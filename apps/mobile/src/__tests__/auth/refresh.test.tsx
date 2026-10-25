@@ -54,13 +54,30 @@ test('refresh during genuine termination never restores the old session', async 
 });
 test('concurrent refresh requests coalesce without overlapping derives', async () => {
  const s = await setup(); const d = deferred<void>(); s.gate(d.promise);
- await act(async () => { void auth.refresh(); }); const count = s.read.mock.calls.length;
- await act(async () => { await auth.refresh(); await auth.refresh(); }); expect(s.read).toHaveBeenCalledTimes(count);
+ await act(async () => { void auth.refresh(); }); expect(s.read).toHaveBeenCalledTimes(2);
+ await act(async () => { await auth.refresh(); await auth.refresh(); }); expect(s.read).toHaveBeenCalledTimes(2);
  s.complete(); await act(async () => { d.resolve(); }); await waitFor(() => expect(auth.state).toBe('ready_to_browse'));
- expect(s.read.mock.calls.length).toBeLessThanOrEqual(count + 1);
+ expect(s.read).toHaveBeenCalledTimes(3);
 });
 test('pending refresh and retained callback cannot update after unmount', async () => {
  const s = await setup(); const d = deferred<void>(); s.gate(d.promise); const refresh = auth.refresh;
- let pending!: Promise<void>; await act(async () => { pending = refresh(); }); await s.view.unmount(); const before = auth; const reads = s.read.mock.calls.length;
- s.complete(); d.resolve(); await pending; await refresh(); expect(auth).toBe(before); expect(s.read).toHaveBeenCalledTimes(reads);
+ let pending!: Promise<void>; await act(async () => { pending = refresh(); }); await s.view.unmount(); const reads = s.read.mock.calls.length;
+ s.complete(); d.resolve(); await pending; await refresh(); expect(s.read).toHaveBeenCalledTimes(reads);
+});
+
+test('deferred SIGNED_OUT is processed when a silent refresh times out', async () => {
+ const s = await setup(); const d = deferred<void>(); s.gate(d.promise);
+ jest.useFakeTimers();
+ try {
+  await act(async () => { void auth.refresh(); });
+  expect(s.read).toHaveBeenCalledTimes(2);
+  s.f.setSession(null);
+  await act(async () => { s.f.emit('SIGNED_OUT'); });
+  expect(auth.state).toBe('needs_profile');
+  await act(async () => { await jest.advanceTimersByTimeAsync(15000); });
+  expect(auth.state).toBe('signed_out');
+  expect(s.f.client.auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
+  await act(async () => { d.resolve(); });
+  expect(auth.state).toBe('signed_out');
+ } finally { jest.useRealTimers(); await s.view.unmount(); }
 });

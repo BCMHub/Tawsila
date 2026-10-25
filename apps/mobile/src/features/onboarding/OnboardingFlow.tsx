@@ -19,7 +19,7 @@ import { normalizeName, validateName } from './validation';
 type Legal = { terms: string; privacy: string };
 const sameLegal = (a: Legal | null, b: Legal) => a?.terms === b.terms && a?.privacy === b.privacy;
 export function OnboardingFlow() {
- const api = useOnboardingApi(); const { refresh } = useAuth(); const email = useSessionEmail();
+ const api = useOnboardingApi(); const { refresh, state: authState } = useAuth(); const email = useSessionEmail();
  const t = useTheme(); const insets = useSafeAreaInsets(); const s = strings.onboarding;
  const [step, setStep] = useState(1);
  const [first, setFirst] = useState(''); const [last, setLast] = useState('');
@@ -30,8 +30,14 @@ export function OnboardingFlow() {
  const [communities, setCommunities] = useState<Community[]>([]); const [community, setCommunity] = useState('');
  const [communityState, setCommunityState] = useState<'loading' | 'ready' | 'error'>('loading');
  const [role, setRole] = useState<Role>(); const [busy, setBusy] = useState(false);
+ const awaitingDerive = useRef(false);
  const sending = useRef(false); const alive = useRef(true); const retryInput = useRef<ProfileInput | null>(null);
  const [banner, setBanner] = useState(''); const [uncertain, setUncertain] = useState(false);
+ useEffect(() => {
+  if (awaitingDerive.current && authState !== 'needs_profile') {
+   awaitingDerive.current = false; sending.current = false; setBusy(false);
+  }
+ }, [authState]);
  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
  const updateLegal = useCallback((value: Legal) => {
   if (legalRef.current && !sameLegal(legalRef.current, value)) { setAge(false); setConsent(false); }
@@ -68,9 +74,10 @@ export function OnboardingFlow() {
    const input = retryInput.current ?? { firstName: normalizeName(first), lastName: normalizeName(last), communityId: community, role, ageConfirmed: true, termsVersion: current.terms, privacyVersion: current.privacy };
    retryInput.current = input;
    await api.completeProfile(input);
-   if (alive.current) { setUncertain(false); retryInput.current = null; await refresh(); }
+   if (alive.current) { setUncertain(false); retryInput.current = null; awaitingDerive.current = true; await refresh(); }
   } catch (error) {
    if (!alive.current) return;
+   awaitingDerive.current = false;
    if (error instanceof OnboardingError && error.code === 'consent_version_stale') { await drift(); }
    else if (!(error instanceof OnboardingError) || error.classification === 'uncertain') { setUncertain(true); setBanner(s.uncertain); }
    else {
@@ -78,7 +85,7 @@ export function OnboardingFlow() {
     if (error.code === 'invalid_name') { setTouched({ first: true, last: true }); goToStep(1); }
     if (error.code === 'invalid_community') { setCommunity(''); goToStep(3); }
    }
-  } finally { sending.current = false; if (alive.current) setBusy(false); }
+  } finally { if (!awaitingDerive.current) { sending.current = false; if (alive.current) setBusy(false); } }
  }
  const enabled = step === 1 ? validateName(first) && validateName(last) : step === 2 ? age && consent && !!legal && !legalBusy && !legalError : step === 3 ? !!community && communityState === 'ready' : !!role;
  const next = () => { if (!enabled || busy) return; setBanner(''); if (step === 4) void submit(); else goToStep(step + 1); };

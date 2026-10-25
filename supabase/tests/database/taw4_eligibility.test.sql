@@ -116,10 +116,8 @@ set local "request.jwt.claims" = '{"sub":"a4000000-0000-4000-8000-000000000001",
 select lives_ok($test$select public.set_role('car_owner')$test$, 'restore owner');
 
 reset role;
-set local role service_role;
-set local "request.jwt.claims" = '{"sub":"a4000000-0000-4000-8000-000000000001","role":"service_role"}';
 
--- Deliberately inconsistent service-role fixture: revision advances without a new decision.
+-- Deliberately inconsistent fixture built as the table owner (service_role has no write grant): revision advances without a new decision.
 -- Only revision changes, leaving the trigger-protected decision untouched.
 
 select lives_ok($test$update public.verification_items set revision=revision+1 where user_id='a4000000-0000-4000-8000-000000000001'$test$, 'build older-approved-revision fixture');

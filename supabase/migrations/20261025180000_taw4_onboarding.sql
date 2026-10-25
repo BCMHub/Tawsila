@@ -111,8 +111,12 @@ grant select on public.communities, public.legal_documents, public.car_brands,
   public.car_models, public.car_types, public.profiles, public.consents,
   public.vehicles, public.verification_items, public.verification_submissions to authenticated;
 grant all on public.communities, public.legal_documents, public.car_brands,
-  public.car_models, public.car_types, public.profiles, public.consents,
-  public.vehicles, public.verification_items, public.verification_submissions to service_role;
+  public.car_models, public.car_types to service_role;
+-- Bypass RLS does not authorize direct user-data writes, even with forged settings.
+revoke all on public.profiles, public.consents, public.vehicles,
+  public.verification_items, public.verification_submissions from service_role;
+grant select on public.profiles, public.consents, public.vehicles,
+  public.verification_items, public.verification_submissions to service_role;
 create policy communities_read on public.communities for select to authenticated using (true);
 create policy legal_documents_read on public.legal_documents for select to authenticated using (true);
 create policy car_brands_read on public.car_brands for select to authenticated using (true);
@@ -157,11 +161,12 @@ create trigger consents_immutable before update or delete on public.consents
 for each row execute function public.taw4_immutable();
 revoke all on function public.taw4_guard_review(), public.taw4_immutable() from public, anon, authenticated, service_role;
 
+-- G4 normalization includes both Arabic-Indic and Extended Arabic-Indic digits.
 create function public.plate_normalized(p text) returns text
 language sql immutable security definer set search_path = '' as $$
   select pg_catalog.translate(
     pg_catalog.translate(pg_catalog.normalize(p, 'NFKC'), ' -ـ', ''),
-    '٠١٢٣٤٥٦٧٨٩', '0123456789');
+    '٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹', '01234567890123456789');
 $$;
 create function public.plate_is_valid(p text) returns boolean
 language sql immutable security definer set search_path = '' as $$
@@ -174,8 +179,8 @@ create function public.complete_profile(
 ) returns void language plpgsql security definer set search_path = '' as $$
 declare
   v_user uuid := auth.uid();
-  v_first text := pg_catalog.btrim(p_first_name);
-  v_last text := pg_catalog.btrim(p_last_name);
+  v_first text := pg_catalog.replace(pg_catalog.btrim(p_first_name), '’', '''');
+  v_last text := pg_catalog.replace(pg_catalog.btrim(p_last_name), '’', '''');
 begin
   perform 1 from public.accounts where user_id = v_user for update;
   if not found then raise exception 'account_missing'; end if;
@@ -244,7 +249,7 @@ begin
   select revision into v_replay from public.verification_submissions
     where user_id = v_user and kind = 'car_owner' and submission_key = p_submission_key;
   if found then
-    return pg_catalog.jsonb_build_object('revision', v_replay, 'status', 'pending',
+    return pg_catalog.jsonb_build_object('revision', v_replay, 'status', case when v_item.revision = v_replay then v_item.status else 'pending' end,
       'superseded', v_item.revision > v_replay);
   end if;
   if not exists (select 1 from public.profiles where user_id = v_user and role in ('car_owner', 'both')) then
@@ -287,7 +292,7 @@ begin
     where user_id = v_user and kind = 'car_owner' and submission_key = p_submission_key;
   if found then
     perform pg_catalog.set_config('taw4.review_writer', v_guard, true);
-    return pg_catalog.jsonb_build_object('revision', v_replay, 'status', 'pending',
+    return pg_catalog.jsonb_build_object('revision', v_replay, 'status', case when v_item.revision = v_replay then v_item.status else 'pending' end,
       'superseded', v_item.revision > v_replay);
   end if;
   if v_item.status = 'approved' then raise exception 'already_approved'; end if;

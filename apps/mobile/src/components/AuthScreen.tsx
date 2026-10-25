@@ -43,14 +43,14 @@ export function AuthScreen() {
     <Image source={dark ? require('../../assets/images/welcome-bg-dark.png') : require('../../assets/images/welcome-bg-light.png')} style={StyleSheet.absoluteFill} contentFit="cover" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" />
     <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top, paddingBottom: insets.bottom, minHeight: '100%' }}>
       <View style={{ paddingHorizontal: spacing['space/24'], gap: spacing['space/24'] }}>
-        <Text style={{ ...typography.title1, color: t['brand/primary'] }}>{a.brand}</Text>
-        <Text accessibilityRole="header" style={{ ...typography.largeTitle, color: t['label/primary'] }}>{a.headline}{'\n'}<Text style={{ color: t['brand/primary'] }}>{a.together}</Text></Text>
+        <Text maxFontSizeMultiplier={2} style={{ ...typography.title1, color: t['brand/primary'] }}>{a.brand}</Text>
+        <Text maxFontSizeMultiplier={2} accessibilityRole="header" style={{ ...typography.largeTitle, color: t['label/primary'] }}>{a.headline}{'\n'}<Text style={{ color: t['brand/primary'] }}>{a.together}</Text></Text>
       </View>
       <View style={{ flexGrow: 1, minHeight: 280 }} />
       <View style={{ paddingHorizontal: spacing['space/24'], gap: spacing['space/16'] }}>
         {message ? <Banner text={message} polite={!provision && (notice === 'cancelled' || notice === 'offline')} /> : progressing ? <Text accessibilityLiveRegion="polite" style={{ ...typography.subheadline, color: t['label/primary'] }}>{a.progress}</Text> : a.benefits.map((benefit, index) => <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing['space/12'] }}>
           <View style={{ padding: spacing['space/8'], borderRadius: radius['radius/12'], backgroundColor: t['brand/tint'] }}><SymbolView name={(['mappin.circle', 'person.2', 'leaf'] as const)[index]} size={20} tintColor={t['brand/primary']} accessible={false} /></View>
-          <Text style={{ ...typography.footnoteSemibold, color: t['label/primary'], flexShrink: 1, maxWidth: 120 }}>{benefit}</Text>
+          <Text style={{ ...typography.footnoteSemibold, color: t['label/primary'], flex: 1, minWidth: 0 }}>{benefit}</Text>
         </View>)}
       </View>
       <View style={{ minHeight: spacing['space/32'], flexGrow: 0.3 }} />

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AccessibilityInfo, Platform, Pressable, ScrollView, Text, View, useColorScheme, StyleSheet } from 'react-native';
+import { AccessibilityInfo, Platform, Pressable, ScrollView, Text, View, useColorScheme, useWindowDimensions, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { SymbolView } from 'expo-symbols';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +23,7 @@ export function AuthScreen() {
   const t = useTheme();
   const dark = useColorScheme() === 'dark';
   const insets = useSafeAreaInsets();
+  const { fontScale } = useWindowDimensions();
   const a = strings.auth;
   const progressing = state === 'authenticating';
   useEffect(() => {
@@ -50,7 +51,7 @@ export function AuthScreen() {
       <View style={{ paddingHorizontal: spacing['space/24'], gap: spacing['space/16'] }}>
         {message ? <Banner text={message} polite={!provision && (notice === 'cancelled' || notice === 'offline')} /> : progressing ? <Text accessibilityLiveRegion="polite" style={{ ...typography.subheadline, color: t['label/primary'] }}>{a.progress}</Text> : a.benefits.map((benefit, index) => <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing['space/12'] }}>
           <View style={{ padding: spacing['space/8'], borderRadius: radius['radius/12'], backgroundColor: t['brand/tint'] }}><SymbolView name={(['mappin.circle', 'person.2', 'leaf'] as const)[index]} size={20} tintColor={t['brand/primary']} accessible={false} /></View>
-          <Text style={{ ...typography.footnoteSemibold, color: t['label/primary'], flex: 1, minWidth: 0 }}>{benefit}</Text>
+          <Text style={{ ...typography.footnoteSemibold, color: t['label/primary'], flexShrink: 1, maxWidth: 120 * fontScale }}>{benefit}</Text>
         </View>)}
       </View>
       <View style={{ minHeight: spacing['space/32'], flexGrow: 0.3 }} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 import { strings } from '../../strings';
 import { jest, test, expect } from '@jest/globals';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -68,13 +68,14 @@ test('missing configuration displays developer guidance', async () => {
  await view.unmount();
 });
 
-test('Welcome benefits use available width and titles keep whole words at large text sizes', async () => {
+test.each([1, 3])('Welcome benefits scale their width cap at font scale %s and titles keep whole words', async fontScale => {
+ const dimensions = jest.spyOn(jest.requireActual<typeof import('react-native')>('react-native'), 'useWindowDimensions').mockReturnValue({ width: 393, height: 852, scale: 3, fontScale } as ReturnType<typeof useWindowDimensions>);
  mockState = 'signed_out'; mockNotice = null;
  const view = await render(<AuthScreen />);
  for (const benefit of strings.auth.benefits) {
   const style = StyleSheet.flatten(screen.getByText(benefit).props.style);
-  expect(style.maxWidth).toBeUndefined();
-  expect(style.flex).toBe(1); expect(style.minWidth).toBe(0);
+  expect(style.maxWidth).toBe(120 * fontScale);
+  expect(style.flexShrink).toBe(1);
  }
  // Measured on the Simulator at the largest accessibility size: at 2 the longest headline line ("Go further,") still fits 345 pt with whole words; above it words break.
  for (const title of [screen.getByText(strings.auth.brand), screen.getByRole('header')]) {
@@ -83,4 +84,5 @@ test('Welcome benefits use available width and titles keep whole words at large 
   expect(title.props.allowFontScaling).not.toBe(false);
  }
  await view.unmount();
+ dimensions.mockRestore();
 });

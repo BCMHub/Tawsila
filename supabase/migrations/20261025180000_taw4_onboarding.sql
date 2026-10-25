@@ -83,7 +83,7 @@ create table public.verification_items (
   primary key (user_id, kind)
 );
 create table public.verification_submissions (
-  user_id uuid not null,
+  user_id uuid not null references public.accounts(user_id) on delete cascade,
   kind text not null check (kind = 'car_owner'),
   submission_key uuid not null,
   revision int not null check (revision > 0),
@@ -140,7 +140,15 @@ for each row execute function public.taw4_guard_review();
 create function public.taw4_immutable() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
-  raise exception 'immutable_record';
+  -- Cascades run after the parent account has been removed. Direct mutations
+  -- remain forbidden for every role, including the service role.
+  if tg_op = 'UPDATE' then
+    raise exception 'immutable_record';
+  end if;
+  if exists (select 1 from public.accounts where user_id = old.user_id) then
+    raise exception 'immutable_record';
+  end if;
+  return old;
 end;
 $$;
 create trigger verification_submissions_immutable before update or delete on public.verification_submissions

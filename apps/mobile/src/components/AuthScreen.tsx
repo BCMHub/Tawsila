@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { SymbolView } from 'expo-symbols';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../features/auth/AuthProvider';
+import { OnboardingFlow } from '../features/onboarding/OnboardingFlow';
 import { LoadingState } from './States';
 import { radius, spacing, typography, useTheme } from '../theme';
 import { strings } from '../strings';
@@ -31,10 +32,7 @@ export function AuthScreen() {
   }, [progressing, a.progress]);
   if (state === 'checking') return <LoadingState fill />;
   if (state === 'ready_to_browse') return null;
-  if (state === 'needs_profile') return <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing['space/24'], gap: spacing['space/16'], backgroundColor: t['bg/base'] }}>
-    <Text accessibilityRole="header" style={{ ...typography.title1, color: t['label/primary'] }}>{a.profileTitle}</Text>
-    <Text style={{ ...typography.body, color: t['label/secondary'] }}>{a.profileBody}</Text>
-  </ScrollView>;
+  if (state === 'needs_profile') return <OnboardingFlow />;
   const provision = state === 'account_provision_error';
   const failed = notice === 'provider_failed' || notice === 'failed';
   const message = provision ? a.provision : notice === 'cancelled' ? a.cancelled : notice === 'offline' ? a.offline : notice === 'unavailable' ? a.unavailable : failed ? a.failed : null;

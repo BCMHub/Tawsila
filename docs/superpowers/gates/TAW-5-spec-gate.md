@@ -63,3 +63,14 @@ Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see subag
 Raw output: not saved separately (summary above); stall rule reached: same finding open after two repairs, stop and ask the owner
 Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: FAIL
+
+Attempt: 7   Round: 7
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: de9dbd57a0c8b4adf0bde21c6d605024d4481aa4:fa69b44664ff57b7c32393c8505c2407e57c55b6
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decision option B (2026-10-26)
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=2 P2=0 P3=0 (F17 closed. New F18: request_closed mapped straight to G5 in section 5 line 104 and section 6 line 143 while section 5 line 108 requires a fresh is_phone_verified read first (true to G10). F19: section 15 says a challenge never leaves sent except via verify/finish, but start supersedes older sent challenges.)
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see subagent report)
+Raw output: summary above; stop-and-ask raised again with the owner
+Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: FAIL

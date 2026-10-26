@@ -1,64 +1,58 @@
-# ADR: Phone verification provider and flow for TAW-5
+# ADR: Phone verification flow for TAW-5 (project-owned OTP, WhatsApp delivery)
 
-Status: DRAFT for the TAW-5 spec gate (authoring card, branch spec/TAW-5). Not approved. Date: 2026-10-26.
+Status: DRAFT for the TAW-5 spec gate (authoring card, branch spec/TAW-5). Option B approved by the owner on 2026-10-26 ("go for option b"); the ADR and spec as a whole are not approved yet. Date: 2026-10-26.
 Binds: TAW-5 scope revision 3 (AC1 to AC12). Does not authorize implementation, external changes or spending.
 
 ## 1. Context
 
-TAW-5 requires a verified phone before a signed-in user's first ride offer or first ride request. Sign-up is Google (Apple later) and requests no phone (TAW-7). WhatsApp is the primary channel; the SMS fallback is deferred in the MVP. The owner has set up WhatsApp OTP on the hosted Supabase project `tawsila-dev`.
+TAW-5 requires a verified phone before a signed-in user's first ride offer or first ride request. Sign-up is Google (Apple later) and requests no phone (TAW-7). WhatsApp is the primary channel; the SMS fallback is deferred in the MVP. The owner set up WhatsApp delivery on the hosted Supabase project `tawsila-dev` (a Send SMS hook calling the WhatsApp Cloud API with the template `tawsila_otp`).
+
+Revision history: the first draft of this ADR chose the Supabase phone-change flow (`updateUser({ phone })` and `verifyOtp` type `phone_change`) with the Send SMS hook. Two spec-gate rounds found it could not satisfy AC4 as written: Supabase binds a code to the user, not to a session; the Admin API can confirm a phone without a code and a trigger on `auth.users` cannot tell the difference; and a pending phone number may be persisted in the SDK session payload. The owner chose the project-owned OTP (option B).
 
 ## 2. Evidence and its quality
 
 | ID | Fact | Source | Quality |
 |---|---|---|---|
-| E1 | The Send SMS hook is Enabled and points to the Edge Function `send-otp-hook`, which sends the code through the WhatsApp Cloud API with the approved template `tawsila_otp`; the Twilio fields are empty | Owner report, relayed from a Claude Cowork session, 2026-10-26 | Reported, not verified by the authoring session |
-| E2 | The Phone provider is Enabled (switched on 2026-10-26) and "Allow new users to sign up" is On; Email and Google are also enabled | Same | Reported, not verified |
+| E1 | A Send SMS hook (Edge Function `send-otp-hook`) sends codes through the WhatsApp Cloud API with the approved template `tawsila_otp`; Twilio fields are empty | Owner report, relayed from a Claude Cowork session, 2026-10-26 | Reported, not verified |
+| E2 | The Phone provider is Enabled; "Allow new users to sign up" was On and the owner switched it Off on 2026-10-26; no phone-only users exist under Authentication | Owner, this session | Reported, not verified |
 | E3 | The Edge Function is not in the Tawsila repository (no `supabase/functions`); local `supabase/config.toml` has `[auth.sms] enable_signup = false` and no hook | Repository, main 63d0293 | Verified |
-| E4 | `accounts` has `phone_e164` (E.164 check), `phone_verified`, a check "verified requires a phone", a partial unique index on verified phones, select-own RLS and no client write grants | Migration 20261024204100 | Verified |
-| E5 | The hook receives `user` (including `user.phone`) and `sms.otp` (six digits); requests are verified with the `standardwebhooks` library using the hook secret (the `v1,whsec_` prefix removed); an empty 200 means success | Supabase docs, Send SMS hook page | Documented |
-| E6 | A signed-in user changes or adds a phone with `updateUser({ phone })` and confirms with `verifyOtp` using type `phone_change`; the page states a 60-second verification window next to a 1-hour default expiry and a once-per-60-seconds request limit | Supabase docs, phone login page | Documented, internally ambiguous |
-| E7 | Not stated in the docs: whether `phone_confirmed_at` changes on `phone_change`, whether "Allow new users to sign up" or `shouldCreateUser` affects `phone_change`, what happens when the number belongs to another user, whether the hook is used for `phone_change` | Same pages | Gap |
+| E4 | `accounts` has `phone_e164` (E.164 check), `phone_verified`, a check "verified requires a phone", a partial unique index on verified phones, select-own RLS and no client write grants; `service_role` is not revoked | Migration 20261024204100 | Verified |
+| E5 | Supabase documents the phone-change flow with a user-bound code, an Admin API that can confirm a phone, and unclear behaviour for duplicates and `phone_confirmed_at` | Supabase docs | Documented, ambiguous |
+| E6 | Supabase access tokens carry a `session_id` claim and Edge Functions can authenticate the caller with `verify_jwt` and `auth.getUser` | Supabase docs / general knowledge | UNVERIFIED (spec V2) |
 
 ## 3. Decision
 
-1. **Channel:** WhatsApp only. Delivery is the existing Send SMS hook (`send-otp-hook`) calling the WhatsApp Cloud API with the template `tawsila_otp`. The native Twilio route is not used. The SMS fallback is out of scope (separate PROPOSED card).
-2. **Flow:** attach the phone to the already signed-in Google user with the documented phone-change flow (`updateUser({ phone })`, then `verifyOtp` with type `phone_change`). The phone sign-in endpoint (`signInWithOtp` with a phone) is not used by the app, because it can create a separate phone-only user, which TAW-7 forbids. If the verification items below show that the phone-change flow cannot meet TAW-5 AC4 to AC6, the fallback is a project-owned OTP table and Edge Function behind the same hook-free delivery path; that change returns to the owner as a scope decision.
-3. **Trust boundary:** `accounts.phone_verified` and `accounts.phone_e164` are set only by trusted server code, driven by the state Supabase Auth confirms after a successful OTP validation, never by a client value and never by a delivery receipt. The exact mechanism (database trigger on `auth.users` or a trusted function called by an Edge Function) is chosen in the spec from the verification results.
-4. **Phone sign-ups:** "Allow new users to sign up" for the Phone provider must be Off on tawsila-dev and on every future environment (owner action, recorded as a prerequisite). The Email provider stays off for sign-up as in `config.toml`.
-5. **Hook security:** the function verifies the standard-webhooks signature before reading the body, rejects unsigned or invalid requests, never logs the OTP or the full phone number, and reads secrets only from environment variables (Supabase secrets locally and hosted).
-6. **Repository:** the Edge Function moves under `supabase/functions/send-otp-hook` with tests and a local stub for sandbox use (AC11); this is implementation work of TAW-5 and is not done by this authoring card.
-7. **Delivery webhooks:** Meta delivery webhooks, if used, set status only (sent, delivered, failed for the UI state) and never `phone_verified`.
+1. **Channel:** WhatsApp only, through the WhatsApp Cloud API with the template `tawsila_otp`. The SMS fallback is out of scope (separate PROPOSED card).
+2. **Flow:** project-owned OTP. Two Edge Functions (`phone-otp-start`, `phone-otp-verify`) authenticate the caller, generate and hash a six-digit code, and call security-definer database functions that own the challenge table, expiry, attempt counter, rate limits and the only write path to `accounts.phone_verified`. The code is bound to `user_id` and the JWT `session_id`.
+3. **Trust boundary:** `accounts.phone_verified` and `accounts.phone_e164` are set only by `verify_phone_challenge` after a matching code. No trigger reads Supabase Auth phone state; the Admin API, the Phone provider and `updateUser` cannot verify a phone. The service-role key remains the trust root of server code (residual risk, owner decision O9).
+4. **Supabase Phone provider and Send SMS hook:** not used by the app. Phone sign-ups stay Off. The hosted `send-otp-hook` is neither changed nor deleted by TAW-5; switching the Phone provider and the hook Off is an optional owner action (O10).
+5. **Secrets:** only environment variables (`WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `PHONE_HASH_PEPPER`); the repository holds `.env.example` names only; tests use a sandbox stub.
+6. **Code and number handling:** the database never sees the plaintext code (HMAC with an environment pepper); the pending number lives in the challenge row, never in the Auth user or the SDK session storage.
+7. **Delivery webhooks:** Meta delivery webhooks, if used later, set status only and never `phone_verified`.
 
 ## 4. Options considered
 
 | Option | Result |
 |---|---|
-| Send SMS hook to WhatsApp Cloud API (current) | Chosen: already set up and approved by the owner, WhatsApp-first as decided |
-| Native Twilio phone provider | Rejected: the owner uses the hook, Twilio is empty and unused |
+| A. Supabase phone-change flow plus the existing hook | Rejected by the gate findings and the owner's choice: user-only binding, an Admin API bypass, SDK persistence of the pending phone |
+| B. Project-owned OTP, WhatsApp delivery | Chosen: satisfies AC4 literally, keeps all limits in our database, keeps the Phone provider off |
+| Native Twilio phone provider | Rejected: not used by the owner |
 | Phone sign-in endpoint for verification | Rejected: can create phone-only users, conflicts with TAW-7 |
-| Project-owned OTP service | Fallback only if the phone-change flow fails the verification items; costs more code and abuse controls |
 | SMS fallback | Deferred by the owner for the MVP |
 
-## 5. Verification items (to settle before the spec is approved or in TAW-5 task 0)
+Costs of B: more code (generation, hashing, expiry, attempts, resend, idempotency, tests) and the existing hook becomes unused. One-way door: the app no longer depends on Supabase phone verification; reverting means a new design.
 
-These need the hosted test project and a real WhatsApp message to the owner's own number. Running them is an external action that this card does not authorize; the owner decides when.
+## 5. Verification items
 
-- V1: with "Allow new users to sign up" Off for Phone, does `updateUser({ phone })` for a signed-in Google user still send the code through the hook and complete with `verifyOtp` type `phone_change`?
-- V2: after a successful `phone_change`, which `auth.users` columns change (`phone`, `phone_confirmed_at`) and when, and what does the hook payload contain for this flow?
-- V3: what error does Supabase return when the number already belongs to another auth user, and can the app map it to the non-disclosing outcome (AC6) without revealing the other account?
-- V4: the real OTP expiry and the 60-second wording: what is the effective validity and resend limit with the current project settings, and can they be set to the limits the spec chooses?
-- V5: what happens on a wrong code, an expired code and repeated attempts (error codes), so the UI states G4 to G6 map to real outcomes?
-- V6: the Edge Function's current behaviour: signature check present, no OTP or phone in logs, failure response when WhatsApp rejects the message (UI state G7).
-- V7: whether a code issued for one user can be confirmed by another user, without a session, or from a second session of the same user (AC4 binding).
-- V8: the real privileges of `anon`, `authenticated` and `service_role` on `auth.users`.
+Run only with owner authorization on `tawsila-dev` (the owner said the spike may happen today if needed; exact steps are confirmed first). They are listed as V1 to V6 in the spec, section 11: template delivery and provider errors; `session_id` claim and `getUser` behaviour; real grants; the phone sign-in endpoint creating no user; RPC access only through `service_role`; the content of the existing hook.
 
 ## 6. Consequences
 
-- The spec must define the server contract, the trusted function that sets `phone_verified`, the rate-limit and expiry values, the error-to-UI mapping and the tests, citing V1 to V6 results or listing each as an owner decision.
+- The spec defines the server contract, the limits, the error mapping, the privilege matrix and the tests.
 - Production prerequisites: the template `tawsila_otp` is reported approved (E1, not verified). Still unknown: Egypt rates, sender approval and the abuse-control budget; all are recorded as owner-tracked items before phone-gated ride functions are enabled in production, not built here.
 - TAW-5 Android delivery stays blocked until an Android sign-in card exists (TAW-7 is iOS only).
-- Known cost risk: every verification attempt sends a WhatsApp message; throttling is a requirement, not an option (AC5).
+- Cost risk: every code is a WhatsApp message; the limiter (per user, per phone, project-wide) is a requirement, not an option (AC5).
 
 ## 7. Not decided here
 
-The re-verification rules (owner approval required, AC8), the SMS fallback, Apple sign-in, Egypt legal checks, and any change to the hosted project.
+The re-verification rules (owner approval required, AC8), the SMS fallback, Apple sign-in, Egypt legal checks, phone number change, and any change to the hosted project.

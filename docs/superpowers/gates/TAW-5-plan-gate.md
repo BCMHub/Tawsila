@@ -77,3 +77,6 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
 Verdict: PASS
+
+Approved: Sherif Ehab 2026-10-26T21:16:23Z https://app.notion.com/p/40594bb42447816ab01dcbc5fb493ece authoringCard=TAW-25 implCard=TAW-5 spec=b05b97ee8cce41ae9521e3dc97dd82bbf2de2e9a plan=95d4fb675749d5f2952aaa4463c0d882d4b4b186 authoringScopeDigest=n/a(manual) implCriteriaHash=6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07 figma=section 214:1809 of file 2j3vO1USLBA8XiRpQKCF3H (no revision id recorded; design card DONE 2026-10-26)
+Approval notes: ADR blob 3e8a744d942b344666492a9cec5df435b0eb739e is bound with the spec. The owner's "approved" was given in reply to the request "approve these three blobs for the authoring PR"; it covers the authoring-card pull request only. Not authorized: implementation, hosted changes, WhatsApp messages, spending, merging. Open and undecided: O2, O9, O12, O11. The authoring scope digest is n/a(manual) (no harness card JSON exists for this manual card).

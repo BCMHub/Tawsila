@@ -19,3 +19,14 @@ Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see raw o
 Raw output: .clh/evidence/TAW-5/spec-gate-2-raw.txt (Tawsila checkout)
 Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: FAIL
+
+Attempt: 3   Round: 3
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: 2fe1bc805d4a90ec566b913148e9b528b2fbe6b9:7a00f292cd70bce84ade803ebc8e32e9a0b407b3
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decision option B (2026-10-26)
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=5 P2=0 P3=0 (P1: start and verify lacked a shared account lock; finish contract without expected identifiers; idempotency incomplete for all states; delivery uncertainty and recovery; phone validation versus the accounts constraint, where the reviewer's digit counts were wrong and the expression was aligned anyway)
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see raw output)
+Raw output: .clh/evidence/TAW-5/spec-gate-3-raw.txt (Tawsila checkout)
+Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: FAIL

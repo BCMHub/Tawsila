@@ -49,3 +49,18 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported (subagent about 105K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: PASS
+
+Amendment before approval (2026-10-27, owner-requested): production release gate, O2 decision record, readiness script and its contract tests, T8 V1 conditional on the owner-run override. The round 8 PASS is void for the amended plan.
+
+Round 9: 9e77885780ecef0ed9b05becf5e311d43920b847:8c2d89a3538b3cd58d94e549aab45055aa624a47 P1=3 (P-F17 readiness-script contract untested; P-F18 catalog assertions omitted phone_otp_settings RLS and the release-gate function; P-F19 T8 V1 needs the override or approved limits). FAIL.
+
+Attempt: 10   Round: 10
+Document: docs/superpowers/plans/2026-10-26-TAW-5.md
+Revision: d762923cdd555806523ade1a1edebbd140173eb8:d80aac72522391ef8e378d9c28680a5a747cccac
+Spec reviewed against: docs/superpowers/specs/2026-10-26-TAW-5-design.md blob a2eb35bd9f6b4a92da45b84e86ad430ec9e91828 (spec gate PASS, round 15); ADR blob 3e8a744d942b344666492a9cec5df435b0eb739e
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decisions of 2026-10-26 and 2026-10-27
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
+Verdict: PASS

@@ -87,3 +87,26 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported (subagent about 55K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: PASS
+
+Amendment after the owner's review decisions (2026-10-26): the spec and ADR were amended (administrator revocation and Arabic/RTL removed; five sends per user and per phone in a rolling 24 hours approved; response metadata; audit provider message id; session recheck; ride handoff section). The round 11 PASS is void for the amended documents. Rounds 12 to 14 follow.
+
+Attempt: 12   Round: 12
+Revision: 40e23aa8e7c58ef837309669c5196a33abad0b2c:3ccad1ed1e37da537beabdd5ee18997ebe3623e8 (ADR blob 67728af7e5e229cc4861ffa6208e76473620857e)
+Findings: P0=0 P1=1 P2=0 P3=0 (F24: the session recheck lacked an authorization point and concurrent-logout semantics)
+Verdict: FAIL
+
+Attempt: 13   Round: 13
+Revision: c3ddb66867cdf62651f129b95fee59e07d38a623:0c2c397dee24e00c2357927182e249163b02dc52 (ADR blob 1e147facd07694e7a1f0c98e463def0f30ae316e)
+Findings: P0=0 P1=1 P2=0 P3=0 (F25: early-return paths could skip the session check)
+Verdict: FAIL
+
+Attempt: 14   Round: 14
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: 57161dd2c3f9d3de39f3121a374e4584f3326752:fddd9170e453625d6aef86c097ea52f5eee14204
+Companion ADR blob: 1e147facd07694e7a1f0c98e463def0f30ae316e
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decisions of 2026-10-26
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported (subagent about 82K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: PASS

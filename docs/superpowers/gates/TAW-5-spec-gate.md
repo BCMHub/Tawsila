@@ -123,3 +123,18 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
 Verdict: PASS
+
+Owner wording correction (2026-10-27): approval of the five-send limit does not accept O12; O12 stays open, as does O9. The round 15 PASS is void for the corrected spec.
+
+Round 16: bcd12ad5a35fd22460149cecdba2a2b183fc0cac:399b0f5779eee6ec4a257b48ae11b6ab169ef71c P1=1 (F26: section 5 step 4 called the service-key trust boundary "accepted" while O9 is open). FAIL.
+
+Attempt: 17   Round: 17
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: 1072040866ece778d4709891996e364ad8efa6a8:b05b97ee8cce41ae9521e3dc97dd82bbf2de2e9a
+Companion ADR blob: 3e8a744d942b344666492a9cec5df435b0eb739e
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decisions of 2026-10-26 and 2026-10-27
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
+Verdict: PASS

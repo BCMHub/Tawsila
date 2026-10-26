@@ -74,3 +74,16 @@ Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see subag
 Raw output: summary above; stop-and-ask raised again with the owner
 Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: FAIL
+
+Attempts 8 to 10 (rounds 8, 9, 10), all FAIL, one P1 each time, each closed by the next repair: round 8 revision 12e72dd9aaec1daaa280869861d2c6ecc5b86456:37f93822c8a5be7fc07f74275f77f0c68654192a P1=2 (F20 response helper mutates and lacks a privilege row; F21 verify contract omitted already_verified); round 9 revision 62e436321bc0547cd8b3cafb9ef05a02b689439d:b96e2d08001b094611612ed7f0c33acac4790a7c P1=1 (F22 unavailable mapping); round 10 revision 1d471291ce494dbf60cb49d2a29346877c7d6099:b1a445720250d65e80c02d60c4b5f53fdc7add31 P1=1 (F23 diagram and table lacked the fresh read). The F18 and F19 findings of round 7 were closed in round 8. Raw output: subagent reports, summarized here; briefs in .clh/evidence/TAW-5/spec-gate-8..10-brief.md.
+
+Attempt: 11   Round: 11
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: 21f7848d7541019ece8be2344f89519e6a713476:3c2ae28aa097aa6547de334b7797a8adddf8c902
+Companion ADR blob: 85bcef84552ca644c38a1aa1eb8b8829922c58fe
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decision option B (2026-10-26)
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported (subagent about 55K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: PASS

@@ -41,3 +41,14 @@ Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see raw o
 Raw output: .clh/evidence/TAW-5/spec-gate-4-raw.txt (Tawsila checkout)
 Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: FAIL
+
+Attempt: 5   Round: 5
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: b01b3379ace421356338a26eb95c14daac669f9e:3181e1aad379ee0a28428b50f9e38434b6a6e859
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decision option B (2026-10-26)
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=1 P2=0 P3=0 (P1: F17 still open: already_recorded for a later lifecycle state could still be mapped to a successful send; section 10 and the finish contract disagreed on non-pending rows)
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see raw output in the subagent report)
+Raw output: .clh/evidence/TAW-5/spec-gate-5-raw.txt (Tawsila checkout)
+Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: FAIL

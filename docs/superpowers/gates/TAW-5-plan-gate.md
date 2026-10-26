@@ -64,3 +64,16 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
 Verdict: PASS
+
+Owner wording corrections (2026-10-27): O9 and O12 stay open; the plan header was bound to the corrected spec blob. The round 10 PASS is void for the corrected plan.
+
+Attempt: 11   Round: 11
+Document: docs/superpowers/plans/2026-10-26-TAW-5.md
+Revision: 177510ae821fab9d138b9c190f88f5f0f9a16038:95d4fb675749d5f2952aaa4463c0d882d4b4b186
+Spec reviewed against: docs/superpowers/specs/2026-10-26-TAW-5-design.md blob b05b97ee8cce41ae9521e3dc97dd82bbf2de2e9a (spec gate PASS, round 17); ADR blob 3e8a744d942b344666492a9cec5df435b0eb739e
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decisions of 2026-10-26 and 2026-10-27
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
+Verdict: PASS

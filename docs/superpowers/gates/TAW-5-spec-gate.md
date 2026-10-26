@@ -52,3 +52,14 @@ Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see raw o
 Raw output: .clh/evidence/TAW-5/spec-gate-5-raw.txt (Tawsila checkout)
 Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: FAIL
+
+Attempt: 6   Round: 6
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: ace30655fabe93a2e1ba31afbd6a591dd0c229cb:67213d0668dcc2abd07ce22b2c95ad263825dd48
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decision option B (2026-10-26)
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=1 P2=0 P3=0 (P1: F17 third round open; leftover text in section 5 line 106 and the pgTAP expectation in section 10 line 183 still say every non-pending completion returns stale, contradicting the already_recorded retry contract)
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED (see subagent report)
+Raw output: not saved separately (summary above); stall rule reached: same finding open after two repairs, stop and ask the owner
+Usage: not reported   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: FAIL

@@ -31,3 +31,21 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported (subagent about 70K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: PASS
+
+Amendment after the owner's review decisions (2026-10-26): the plan was amended (revocation and Arabic/RTL tasks removed; T0b and T8a added; limits read from phone_otp_limits(); response metadata, rolling window, session recheck and ride handoff tasks added). The round 3 PASS is void for the amended plan. Rounds 4 to 8 follow, against spec blob fddd9170e453625d6aef86c097ea52f5eee14204 and ADR blob 1e147facd07694e7a1f0c98e463def0f30ae316e.
+
+Round 4: 9b097a3369dd070b897a54cd0dc6548d1d24e4e0:355628e2498665dda5d058abfaaac11f4d1d85bf P1=2 (P-F10 session-race matrices not assigned; P-F11 T8a mislabeled read-only). FAIL.
+Round 5: 5e3cd61ebea6fce2d5a32dfd97e41f8b88d31d89:07145365aa2df94858c171a812d0a84417fc4237 P1=2 (P-F12 V4 must be behavioural; P-F13 no tests for CSPRNG and HMAC primitives). FAIL.
+Round 6: b70b5291100448773945a6ac8de7096b12ecd165:b601c89b16d5d40a380e780a2a71f24353cc95ea P1=2 (P-F14 no provider-call counting for same-request recovery; P-F15 no catalog assertions for RLS and search_path). FAIL.
+Round 7: 32cab4589dc3af944ef1842592b6271bf1879110:32ab95c14b5d788ec77bae175253a35285ec83a9 P1=1 (P-F16 no test that plaintext OTP never reaches the database and audit never stores number or code). FAIL.
+
+Attempt: 8   Round: 8
+Document: docs/superpowers/plans/2026-10-26-TAW-5.md
+Revision: 31120bd7512df12262e48eca322aa04b579d4a65:0af635dbb2618b5411ab53125d2088558022dcf4
+Spec reviewed against: docs/superpowers/specs/2026-10-26-TAW-5-design.md blob fddd9170e453625d6aef86c097ea52f5eee14204 (spec gate PASS, round 14); ADR blob 1e147facd07694e7a1f0c98e463def0f30ae316e
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decisions of 2026-10-26
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported (subagent about 105K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
+Verdict: PASS

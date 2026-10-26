@@ -110,3 +110,16 @@ Findings: P0=0 P1=0 P2=0 P3=0
 Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
 Usage: not reported (subagent about 82K tokens in the last round)   Started: 2026-10-26   Ended: 2026-10-26
 Verdict: PASS
+
+Amendment before approval (2026-10-27, owner-requested): production release gate (phone_otp_settings, phone_otp_release_gate_open), O2 decision record (decision NOT yet recorded; nothing recorded on the owner's behalf), production-readiness.sh and T10 NOT PRODUCTION-READY report, procedural controls named with their owner, race window stated with no duration guarantee. The round 14 PASS is void for the amended spec.
+
+Attempt: 15   Round: 15
+Document: docs/superpowers/specs/2026-10-26-TAW-5-design.md
+Revision: 7ee0b7ec4f4829f72846031db7b6e1b2c5cf9176:a2eb35bd9f6b4a92da45b84e86ad430ec9e91828
+Companion ADR blob: 3e8a744d942b344666492a9cec5df435b0eb739e
+Card binding: authoring scope revision 1; criteria snapshot AC1-AC12 (TAW-5 scope revision 3) sha256 6463dd06acd73b77db18360ae58549c51dfeaf3c40704546bc475afc1fd9aa07; Figma section 214:1809; owner decisions of 2026-10-26 and 2026-10-27
+Author: Claude Sonnet 5.5   Reviewer: Codex (model not reported by the subagent)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC12 each mapped, none UNCOVERED
+Usage: not reported   Started: 2026-10-27   Ended: 2026-10-27
+Verdict: PASS

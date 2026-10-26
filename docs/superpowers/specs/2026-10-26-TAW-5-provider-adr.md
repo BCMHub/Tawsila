@@ -30,7 +30,8 @@ Revision history: the first draft of this ADR chose the Supabase phone-change fl
 6. **Code and number handling:** the database never sees the plaintext code (HMAC with an environment pepper); the pending number lives in the challenge row, never in the Auth user or the SDK session storage.
 7. **Session validity:** JWT validity, user existence and active-session validity are different checks (E6). The functions use `verify_jwt`, then `auth.getUser`, then a database recheck (`phone_session_active`, a definer reader of `auth.sessions`) under the account lock, so the protocol does not depend on hosted Auth behaviour alone. The guarantee is session validity at that check, not for the rest of the transaction (spec section 2, authorization point).
 8. **Owner scope decisions (2026-10-26):** administrator revocation is deferred to a separate card; screens are English-only and Arabic and RTL are deferred to a separate card; five sends per user and five per phone number within a rolling 24 hours, failed deliveries count, no administrator reset in this scope. These approve no other numeric value (spec section 6).
-9. **Delivery webhooks:** Meta delivery webhooks, if used later, set status only and never `phone_verified`.
+9. **Release gate for unapproved limits:** the send point fails closed while any limit value is unapproved unless a database-owner override is set on a non-production environment; the decision record and the production-readiness check are in spec section 6. No technical control exists at deployment or feature enablement (no CI/CD); those remain procedural controls owned by the project owner.
+10. **Delivery webhooks:** Meta delivery webhooks, if used later, set status only and never `phone_verified`.
 
 ## 4. Options considered
 

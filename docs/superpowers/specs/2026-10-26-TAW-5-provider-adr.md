@@ -1,6 +1,6 @@
 # ADR: Phone verification flow for TAW-5 (project-owned OTP, WhatsApp delivery)
 
-Status: DRAFT for the TAW-5 spec gate (authoring card, branch spec/TAW-5). Option B approved by the owner on 2026-10-26 ("go for option b"); the ADR and spec as a whole are not approved yet. Date: 2026-10-26.
+Status: amended 2026-10-26 after the owner's review decisions; the technical gate history is in `docs/superpowers/gates/` and an amendment voids earlier gate PASS results until the gates are re-run. Option B was approved by the owner on 2026-10-26 ("go for option b"); the ADR and the spec as a whole are not owner-approved yet. Date: 2026-10-26.
 Binds: TAW-5 scope revision 3 (AC1 to AC12). Does not authorize implementation, external changes or spending.
 
 ## 1. Context
@@ -18,7 +18,7 @@ Revision history: the first draft of this ADR chose the Supabase phone-change fl
 | E3 | The Edge Function is not in the Tawsila repository (no `supabase/functions`); local `supabase/config.toml` has `[auth.sms] enable_signup = false` and no hook | Repository, main 63d0293 | Verified |
 | E4 | `accounts` has `phone_e164` (E.164 check), `phone_verified`, a check "verified requires a phone", a partial unique index on verified phones, select-own RLS and no client write grants; `service_role` is not revoked | Migration 20261024204100 | Verified |
 | E5 | Supabase documents the phone-change flow with a user-bound code, an Admin API that can confirm a phone, and unclear behaviour for duplicates and `phone_confirmed_at` | Supabase docs | Documented, ambiguous |
-| E6 | Supabase access tokens carry a `session_id` claim and Edge Functions can authenticate the caller with `verify_jwt` and `auth.getUser` | Supabase docs / general knowledge | UNVERIFIED (spec V2) |
+| E6 | Access tokens carry a `session_id` claim that is stable across refresh; `/auth/v1/user` rejects a revoked session (403 `session_not_found`) and a deleted user (403 `user_not_found`) while PostgREST accepts the unexpired JWT of a revoked session | Local runtime test on GoTrue v2.197.0 with a throwaway user, 2026-10-26 | Verified locally; UNVERIFIED on the hosted project (spec V2) |
 
 ## 3. Decision
 
@@ -28,7 +28,9 @@ Revision history: the first draft of this ADR chose the Supabase phone-change fl
 4. **Supabase Phone provider and Send SMS hook:** not used by the app. Phone sign-ups stay Off. The hosted `send-otp-hook` is neither changed nor deleted by TAW-5; switching the Phone provider and the hook Off is an optional owner action (O10).
 5. **Secrets:** only environment variables (`WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `PHONE_HASH_PEPPER`); the repository holds `.env.example` names only; tests use a sandbox stub.
 6. **Code and number handling:** the database never sees the plaintext code (HMAC with an environment pepper); the pending number lives in the challenge row, never in the Auth user or the SDK session storage.
-7. **Delivery webhooks:** Meta delivery webhooks, if used later, set status only and never `phone_verified`.
+7. **Session validity:** JWT validity, user existence and active-session validity are different checks (E6). The functions use `verify_jwt`, then `auth.getUser`, then a database recheck (`phone_session_active`, a definer reader of `auth.sessions`) under the account lock, so the protocol does not depend on hosted Auth behaviour alone.
+8. **Owner scope decisions (2026-10-26):** administrator revocation is deferred to a separate card; screens are English-only and Arabic and RTL are deferred to a separate card; five sends per user and five per phone number within a rolling 24 hours, failed deliveries count, no administrator reset in this scope. These approve no other numeric value (spec section 6).
+9. **Delivery webhooks:** Meta delivery webhooks, if used later, set status only and never `phone_verified`.
 
 ## 4. Options considered
 
@@ -55,4 +57,4 @@ Run only with owner authorization on `tawsila-dev` (the owner said the spike may
 
 ## 7. Not decided here
 
-The re-verification rules (owner approval required, AC8), the SMS fallback, Apple sign-in, Egypt legal checks, phone number change, and any change to the hosted project.
+Re-verification and administrator revocation (separate card), Arabic and RTL (separate card), the SMS fallback, Apple sign-in, Egypt legal checks, phone number change, and any change to the hosted project.

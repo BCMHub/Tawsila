@@ -49,11 +49,13 @@ These need the hosted test project and a real WhatsApp message to the owner's ow
 - V4: the real OTP expiry and the 60-second wording: what is the effective validity and resend limit with the current project settings, and can they be set to the limits the spec chooses?
 - V5: what happens on a wrong code, an expired code and repeated attempts (error codes), so the UI states G4 to G6 map to real outcomes?
 - V6: the Edge Function's current behaviour: signature check present, no OTP or phone in logs, failure response when WhatsApp rejects the message (UI state G7).
+- V7: whether a code issued for one user can be confirmed by another user, without a session, or from a second session of the same user (AC4 binding).
+- V8: the real privileges of `anon`, `authenticated` and `service_role` on `auth.users`.
 
 ## 6. Consequences
 
 - The spec must define the server contract, the trusted function that sets `phone_verified`, the rate-limit and expiry values, the error-to-UI mapping and the tests, citing V1 to V6 results or listing each as an owner decision.
-- Production prerequisites already met: the approved template `tawsila_otp`. Still unknown: Egypt rates, sender approval and abuse-control budget (recorded, not built here).
+- Production prerequisites: the template `tawsila_otp` is reported approved (E1, not verified). Still unknown: Egypt rates, sender approval and the abuse-control budget; all are recorded as owner-tracked items before phone-gated ride functions are enabled in production, not built here.
 - TAW-5 Android delivery stays blocked until an Android sign-in card exists (TAW-7 is iOS only).
 - Known cost risk: every verification attempt sends a WhatsApp message; throttling is a requirement, not an option (AC5).
 

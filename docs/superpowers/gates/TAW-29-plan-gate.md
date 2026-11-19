@@ -39,3 +39,6 @@ Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED (AC1 -
 Raw output: .clh/evidence/TAW-34/plan-gate-3-raw.txt (Tawsila checkout); brief plan-gate-3-brief.md
 Usage: 89,766 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
 Verdict: PASS
+
+Approved: owner (Sherif Ehab) 2026-11-19T18:30:30Z https://app.notion.com/p/41d94bb4244781daabadd87d50b187a6 authoringCard=TAW-34 implCard=TAW-29 spec=eb329e40e75d7b447a03a93d416207c3cec134ee plan=76c517dbe2bf42e6cdc39db692c6de4d3d346251 authoringScopeDigest=n/a(manual; no harness card JSON for this manually run card, TAW-5/TAW-8 precedent) implCriteriaHash=5990b1c27448ed74ec4f5e8b51005ab1e09881fe4c8b4416e62625096313ab0f figma=2j3vO1USLBA8XiRpQKCF3H sections 228:808, 228:809 (TAW-28 approved)
+Approval scope: the owner chose "Approve for the authoring PR" in the Claude Code session (real user turn), covering exactly these two blobs, the eight recorded design deviations (spec section 11.2) and the Proposals as Proposals. It authorises pushing spec/TAW-34, opening the pull request and the independent exact-commit review. It does not authorise merging, TAW-29 implementation, or any owner-run step (domain, universal link, hosted migrations, pg_cron on tawsila-dev).

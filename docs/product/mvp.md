@@ -388,11 +388,12 @@ If accepted:
 
 The MVP includes basic in-app 1-to-1 messaging between the accepted rider and car owner.
 
-Chat is available only after a ride request has been accepted. In the pilot (first release) it is minimal: text only, one-to-one, with report and block. No media, polls or location.
+Chat is available only after a ride request has been accepted. In the pilot (first release) it is minimal: text messages and in-chat ride offers, one-to-one, with report and block. No media, polls, location, ask-for-a-ride or group chat (decision D11, 19 Nov 2026).
 
 ### MVP chat capabilities
 
-- Text messages only.
+- Text messages.
+- Ride offers (pilot, D11): in an open ride chat, a driver can offer one of their upcoming rides on the pilot route (or post a new one). The other person accepts or declines. Accepting confirms a seat only if one is still free, with the same atomic capacity check as an approved request. No price is shown.
 - One-to-one conversation.
 - Conversation linked to a specific ride.
 - Push notification for new messages.
@@ -584,7 +585,7 @@ Even after acceptance, phone numbers should not be automatically disclosed becau
 
 Confirmed MVP decision:
 
-**Tawsila includes basic in-app 1-to-1 chat after a ride request is accepted.** In the pilot it is minimal: text only, no media, polls or location. WhatsApp is used only to share ride links, not to coordinate.
+**Tawsila includes basic in-app 1-to-1 chat after a ride request is accepted.** In the pilot it is minimal: text messages and in-chat ride offers; no media, polls, location or ask-for-a-ride. WhatsApp is used only to share ride links, not to coordinate.
 
 This provides:
 
@@ -728,8 +729,8 @@ These items are not blockers for the first internal technical slice unless the s
 The first release is a pilot. It covers the ride flow on one configurable route only:
 
 - **Route:** one configurable route. First candidate: 10th of Ramadan ↔ New Cairo, loaded as configuration data (not final).
-- **Ride flow:** post and discover rides (a ride can be repeated on weekdays), request a seat, accept or decline, cancel and expire, push notifications, minimal chat, completion confirmation and no-show, two-way rating, report and block, share a ride link to WhatsApp, and event logging for the pilot measures.
-- **Chat:** minimal in-app 1-to-1 text chat after a request is accepted. Phone numbers stay hidden. No media, polls or location. Report and block from chat. WhatsApp is used only to share ride links, not to coordinate.
+- **Ride flow:** post and discover rides (a ride can be repeated on weekdays), request a seat for one day or every weekday, accept or decline, cancel one day, chosen days or the whole ride, expire, push notifications, minimal chat, completion confirmation and no-show, two-way rating, report and block, share a ride link to WhatsApp, and event logging for the pilot measures.
+- **Chat:** minimal in-app 1-to-1 chat after a request is accepted: text messages and in-chat ride offers (D11). Phone numbers stay hidden. No media, polls, location or ask-for-a-ride. Report and block from chat. WhatsApp is used only to share ride links, not to coordinate.
 - **Ratings:** two-way. The rider rates the driver and the driver rates the rider. Written reviews are not included.
 - **Sign-in and verification:** Google sign-in (iOS), then phone verification by WhatsApp code before the first ride offer or request. Browsing is allowed before that.
 - **Platforms:** iPhone first. Android follows once the iPhone build is finalised. The public launch happens on both together.
@@ -1066,5 +1067,6 @@ Tawsila facilitates the connection but does not become the transportation provid
 | SMS fallback | Deferred; OTP is by WhatsApp code only |
 | Trip type | Open: daily commutes and/or intercity trips (60–120 km target not decided) |
 | Platforms | iPhone first; Android after the iPhone build is finalised; public launch on both together |
-| Pilot chat | Minimal: text only, 1-to-1, after acceptance, report and block; no media, polls or location |
+| Pilot chat | Minimal: text messages and in-chat ride offers, 1-to-1, after acceptance, report and block; no media, polls, location or ask-for-a-ride |
+| In-chat ride offers (D11) | In the pilot: in an open ride chat, a driver can offer one of their upcoming rides on the pilot route (or post a new one). The other person accepts or declines. Accepting confirms a seat only if one is still free, with the same atomic capacity check as an approved request. No price is shown (decided 19 Nov 2026) |
 | Development start | Only from approved `READY` cards |

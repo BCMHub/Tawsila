@@ -40,7 +40,7 @@ It is built for shared trips between places, one-off or repeated (regular commut
 6. **Travel.** The exact pickup point is shared only after acceptance. Phone numbers stay hidden; coordinate in the in-app chat.
 7. **Rate** each other after the ride. The rider rates the driver and the driver rates the rider. Ratings are not tied to any payment question.
 
-Later, riders will also be able to ask one person directly from a chat: **"+" → Ask for a ride** (and owners **Offer a ride**). This is not in the first release.
+In an open ride chat, an owner can also tap **"+" → Offer a ride** to offer one of their upcoming rides; the other person accepts or declines (decision D11, in the first release). Later, riders will also be able to ask one person directly: **"+" → Ask for a ride**. That is not in the first release.
 
 ## 4. The cost-sharing model (why it is non-commercial)
 
@@ -96,7 +96,7 @@ iOS (iPhone, 393 × 852), built on Apple's Human Interface Guidelines with a flo
 | **Post a trip or request** | Route and time, seats, audience and review, post a request, published, manage requests, request detail, pickup point, share with specific people |
 | **Regular trips** | My regular trips, new regular trip, schedule, seat manager, join all days or pick days |
 | **My trips** | Upcoming, trip detail, cancel, rate (two-way, with no payment question), past trips |
-| **Messages** | Inbox, chat, notifications, "+" menu (offer or ask for a ride; share location and poll are not in the first release), message requests (not in the first release) |
+| **Messages** | Inbox, chat, notifications, "+" menu (offer a ride; ask for a ride, share location and poll are not in the first release), message requests (not in the first release) |
 | **Profile and settings** | Profile, edit, verification, vehicles, report, privacy and location, safety, notifications and language, messages and visibility, help |
 | **Plans, ads and rewards** (long-term) | Plan and subscription, choose your plan, trial started, trial ending, ads and privacy, Board with ad, Rewards, shared trips, rewards terms, badges |
 | **States** | Empty, offline, loading, request declined, trip cancelled by owner |
@@ -188,9 +188,9 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 ### In (pilot MVP)
 
 - **One configurable route only.** First candidate: 10th of Ramadan ↔ New Cairo, loaded as configuration data (not final).
-- Post and discover rides (a ride can be repeated on weekdays), request a seat, accept or decline, cancel and expire.
+- Post and discover rides (a ride can be repeated on weekdays), request a seat for one day or every weekday, accept or decline, cancel one day, chosen days or the whole ride, and expire.
 - Push notifications.
-- Minimal in-app 1-to-1 text chat after a request is accepted. Phone numbers stay hidden. No media, polls or location. Report and block from chat.
+- Minimal in-app 1-to-1 chat after a request is accepted: text messages and in-chat ride offers (a driver offers one of their upcoming rides; a seat is confirmed only if still free; no price). Phone numbers stay hidden. No media, polls, location or ask-for-a-ride. Report and block from chat.
 - WhatsApp is used only to share a ride link, not to coordinate.
 - Completion confirmation and no-show handling.
 - Two-way rating: the rider rates the driver and the driver rates the rider. Written reviews are not included.
@@ -203,7 +203,7 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 
 - Subscriptions, ads, rewards and badges, Founding Lifetime Pro.
 - Seat diagram, tooltip tour, admin console, maps.
-- Full regular-trip management (schedules, seat manager, join all days or pick days). A posted ride can still be repeated on weekdays.
+- Full regular-trip management (schedules, seat manager). A posted ride can still be repeated on weekdays, and a rider can join one day or every weekday.
 - Live route map and live location tracking, area group chats, any in-app payment between users, Arabic right-to-left layouts (layouts are built to flip later), SMS fallback for phone verification.
 - Posting a standalone ride request as a rider (riders request a seat on a posted ride instead).
 
@@ -223,7 +223,7 @@ Subscriptions, ads, rewards and Founding Lifetime Pro remain the long-term model
 
 ## 13. Where the detail lives
 
-- **Figma:** "Tawsila – iOS App Design" (pages: Cover, Foundations, Components, Onboarding, Board & Join, Post a Trip, Regular Trips, My Trips, Messages, Profile & Safety, States, Tooltip Tour).
+- **Figma:** "Tawsila – iOS App Design" (pages: Cover, Foundations, Components, Onboarding, Board & Join, Post a Trip, Regular Trips, My Trips, Messages, Profile & Safety, States, Tooltip Tour, MVP (pilot screens, TAW-28)).
 - **BRD:** "Tawsila · Business Requirements Document (screen-level)" with every screen specified (purpose, entry and exit, content, behaviour, states, requirements), business rules BR-01 to BR-32, open decisions OD-01 to OD-24, and a traceability matrix.
 - **MVP definition:** [docs/product/mvp.md](docs/product/mvp.md)
 

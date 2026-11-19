@@ -8,7 +8,7 @@ Tawsila is a community-based carpooling platform that connects people who are al
 
 Tawsila does not provide transportation, employ drivers, determine ride fares, or collect ride payments.
 
-Tawsila charges users for access to the platform through a subscription model. Any contribution toward fuel, tolls, or other journey costs is agreed directly between the rider and the car owner outside the Tawsila platform.
+Tawsila's long-term model charges users for access to the platform through a subscription, with a Free plan that shows ads and rewards (see 1.5). Any contribution toward fuel, tolls, or other journey costs is agreed directly between the rider and the car owner outside the Tawsila platform. The first release is a pilot without subscriptions (see Pilot MVP, section 4).
 
 The MVP must prove that Tawsila can safely and conveniently connect trusted users and enable them to arrange a successful shared journey.
 
@@ -54,7 +54,7 @@ The platform should therefore be designed to support:
 
 - Community-based membership.
 - City or area-based origin and destination selection.
-- Journeys approximately within the initial target range of **60–120 km**, without technically preventing shorter journeys where appropriate.
+- Trip type is **open**: daily commutes and/or intercity trips are both being considered. The earlier target range of **60–120 km** is not decided. The platform must not technically prevent shorter or longer journeys where appropriate.
 
 Communities, cities/areas, origins, destinations, and available routes are dynamic, administratively configurable data rather than a fixed list embedded in the app. The exact communities and routes seeded for the pilot may be chosen later; their selection does not block implementation of the configurable location model.
 
@@ -99,6 +99,14 @@ Possible subscription benefits can later include:
 - Enhanced matching.
 - Additional trust or profile features.
 
+### Long-term model (not in the first release)
+
+- **Free plan** with ads. Ads never appear in chat, safety tools or ride agreements.
+- **Pro subscription:** no ads, higher or unlimited posting and request allowances, full trip history, priority support.
+- **Rewards:** monthly discounts on Pro, earned through shared rides (placeholder levels in the BRD and Figma design).
+- **Founding 1,000 Lifetime Pro** (see below).
+- Billed through Apple (App Store) and Google (Google Play).
+
 ### Tawsila does not:
 
 - Determine the price of a journey.
@@ -112,7 +120,7 @@ Car owners and riders may privately agree on sharing journey-related expenses.
 
 ### Launch-Phase Subscription Policy
 
-Tawsila's MVP architecture must support configurable subscription entitlements and usage counters from day one.
+Tawsila's MVP architecture must support configurable subscription entitlements and usage counters once subscriptions are introduced after the pilot. The pilot (first release) has no subscriptions or commercial limits, and its data model must not block adding them later.
 
 However, the initial launch objective is to build an active user base and create sufficient ride liquidity. Commercial limits must therefore not unnecessarily restrict early adoption.
 
@@ -122,11 +130,11 @@ During the launch and user-acquisition phase:
 - Free users have configurable limits on both ride requests as Joiners and ride posts as Car Owners. Pro provides higher or unlimited allowances for each activity. Exact limits and reset periods can be finalized before public monetization.
 - WhatsApp sharing and accepted-ride chat should not be commercially limited.
 - Users should be allowed to act as both a Joiner and a Car Owner under the same account.
-- Subscription entitlements and counters should still exist technically so commercial limits can be activated later without redesigning the application.
+- After the pilot, subscription entitlements and counters should exist technically so commercial limits can be activated without redesigning the application. The pilot has no subscriptions or commercial limits.
 
 ### Pro Subscription and Purchase Management
 
-The MVP includes a Pro subscription representing ongoing access to platform capabilities. Its primary benefit is higher or unlimited role-specific allowances: ride-post limits as a Car Owner and ride-request limits as a Joiner. Free users have configurable limits in both roles. Exact counts and reset periods may be finalized before public monetization.
+The public MVP (after the pilot) includes a Pro subscription representing ongoing access to platform capabilities. The first pilot release has no subscriptions. Its primary benefit is higher or unlimited role-specific allowances: ride-post limits as a Car Owner and ride-request limits as a Joiner. Free users have configurable limits in both roles. Exact counts and reset periods may be finalized before public monetization.
 
 For store-distributed apps, use Apple In-App Purchase / StoreKit on iOS and Google Play Billing on Android unless a confirmed store-policy exception applies. RevenueCat is the recommended cross-platform entitlement layer; the final vendor decision belongs in technical architecture. Do not build a custom subscription state engine without a documented reason.
 
@@ -160,7 +168,7 @@ A suitable launch concept is **Founding Member / Launch Access**, where free-tie
 
 Tawsila will include a launch reward called **Founding 1,000 Lifetime Pro**.
 
-The first 1,000 Pro users who reach **100 validated completed Tawsila rides** receive Lifetime Pro access.
+The first 1,000 Pro users who reach **100 validated completed Tawsila rides** receive Lifetime Pro access. The number of places (1,000) is under review and may be lower. This programme is not in the first release (pilot MVP).
 
 Qualification rules:
 
@@ -201,13 +209,13 @@ Promo codes are not required to qualify for Founding 1,000 Lifetime Pro.
 User:
 
 1. Installs Tawsila.
-2. Signs in with Google or Apple (Apple on iOS only). Signing in is required before browsing; there is no guest or anonymous access.
+2. Signs in with Google (first on iOS). Sign in with Apple is deferred; Android sign-in comes later. Signing in is required before browsing; there is no guest or anonymous access.
 3. Accepts Terms of Use and Privacy Policy.
 4. Creates their basic profile.
 5. Selects or confirms their community.
 6. Confirms they are at least 18 years old.
 7. After signing in and completing basic onboarding, can browse available rides and explore the platform without completing phone OTP verification.
-8. Phone OTP verification (WhatsApp first, with a controlled SMS fallback) becomes mandatory before the user submits their first ride request or publishes their first ride.
+8. Phone OTP verification by WhatsApp code (WhatsApp only; the SMS fallback is deferred) becomes mandatory before the user submits their first ride request or publishes their first ride.
 9. Once verified, the user remains verified unless security rules require re-verification.
 
 Minimum profile information should include:
@@ -233,7 +241,7 @@ Phone OTP verification is intentionally deferred until the user attempts their f
 Users may complete the following before phone verification:
 
 - Install and open the app.
-- Sign in with Google or Apple.
+- Sign in with Google.
 - Accept Terms of Use and Privacy Policy.
 - Create a basic profile.
 - Select or confirm their community.
@@ -320,6 +328,8 @@ Advanced route optimization is outside the MVP.
 
 ## Journey 5 — Create or Share a Ride Request
 
+Not in the first release (pilot MVP). In the pilot, riders request a seat on a posted ride (Journey 6).
+
 If a rider cannot find a suitable ride, the rider can create a ride request containing:
 
 - Origin.
@@ -378,7 +388,7 @@ If accepted:
 
 The MVP includes basic in-app 1-to-1 messaging between the accepted rider and car owner.
 
-Chat is available only after a ride request has been accepted.
+Chat is available only after a ride request has been accepted. In the pilot (first release) it is minimal: text only, one-to-one, with report and block. No media, polls or location.
 
 ### MVP chat capabilities
 
@@ -432,10 +442,10 @@ Terminal or review states include `CANCELLED`, `NO_SHOW`, `COMPLETION_REVIEW`, a
 
 Cancellation is available to the Car Owner and Joiner before completion and records actor, time, and reason. There are no financial penalties in the MVP. Ride requests expire when the ride departs, is cancelled or full, the Car Owner declines, or the requester cancels. A published ride is no longer available after departure, cancellation, or allocation of all seats.
 
-Ratings and reviews are outside the agreed MVP. Later versions may introduce:
+Two-way ratings are in the MVP. After a completed ride, the rider rates the driver and the driver rates the rider. Ratings are never tied to a payment question. Written reviews are outside the MVP. Later versions may introduce:
 
 - Reliability scores.
-- No-show records.
+- Public no-show history on profiles. (Operational no-show records on each ride are required in the pilot.)
 
 These are not required for the first MVP release unless later approved.
 
@@ -456,7 +466,7 @@ Initial report categories may include:
 - Spam.
 - Other.
 
-The report should create an internal case with a case ID for the **Trust & Safety team**, which owns moderation. At launch, the team must review evidence, record decisions, apply immediate restrictions where warranted for serious safety concerns, and notify users of an appropriate outcome. Admin tools must support warnings, temporary suspension, permanent bans, and restrictions on posting or requesting rides. Chat evidence may be reviewed only by authorized personnel where permitted by the applicable privacy rules and published policy.
+The report should create an internal case with a case ID for the **Trust & Safety team**, which owns moderation. At launch, the team must review evidence, record decisions, apply immediate restrictions where warranted for serious safety concerns, and notify users of an appropriate outcome. Admin tools must support warnings, temporary suspension, permanent bans, and restrictions on posting or requesting rides. During the pilot there is no admin console: the founder performs these actions directly in the database, and each action is recorded. Chat evidence may be reviewed only by authorized personnel where permitted by the applicable privacy rules and published policy.
 
 ---
 
@@ -483,7 +493,7 @@ WhatsApp sharing is an explicit MVP acquisition and marketing capability.
 Users can share:
 
 - A published ride.
-- A ride request.
+- A ride request (after the pilot; not in the first release).
 
 The shared message should contain:
 
@@ -517,8 +527,8 @@ WhatsApp is used for **sharing and acquisition**. In-app Tawsila chat is used fo
 ### Link state handling
 
 - Available ride/request: show it and allow the appropriate action.
-- Full ride: explain it is full and offer similar rides or creating a ride request.
-- Cancelled ride: explain it is unavailable and offer available rides or creating a request.
+- Full ride: explain it is full and offer similar rides (or, after the pilot, creating a ride request).
+- Cancelled ride: explain it is unavailable and offer available rides (or, after the pilot, creating a request).
 - Expired ride: explain it has departed/expired and offer current alternatives.
 - New user: allow install/open and basic onboarding, then return to the shared content if it remains valid.
 
@@ -538,7 +548,7 @@ The hardening recommendations resolve the default MVP behavior, while these laun
 - Whether vehicle ownership/registration needs private validation after local safety/legal review.
 - Retention periods, account-deletion exceptions, hosting/transfer review, and any other details required by Egypt-specific legal review.
 - The user contact channel and escalation coverage for urgent reports. The Trust & Safety team owns moderation.
-- Whether the first release includes a non-binding estimated cost-share guidance feature. Any future estimate must be clearly optional, informational, and not a Tawsila fare or required payment; users remain responsible for agreeing directly. Automated fuel/toll calculations are outside the current MVP scope pending an approved product card.
+- Decided 19 Nov 2026: Tawsila does not calculate, show or suggest a cost share, fare or price, in the first release or the MVP. Any change would need an approved product card and legal review, and must never become a fare or required payment.
 
 ## Identity
 
@@ -574,7 +584,7 @@ Even after acceptance, phone numbers should not be automatically disclosed becau
 
 Confirmed MVP decision:
 
-**Tawsila includes basic in-app 1-to-1 chat after a ride request is accepted.**
+**Tawsila includes basic in-app 1-to-1 chat after a ride request is accepted.** In the pilot it is minimal: text only, no media, polls or location. WhatsApp is used only to share ride links, not to coordinate.
 
 This provides:
 
@@ -598,7 +608,7 @@ Before a public pilot, the Trust & Safety team must have a basic case workflow: 
 
 Collect only data needed for account operation, matching, safety, subscription management, support, and fraud prevention. Define what is visible to the public, matched users, accepted participants, and authorized administrators. Do not expose phone numbers or exact home addresses to other users.
 
-Before public launch, define retention periods for accounts, chat, rides, reports, and safety records; account-deletion behavior; and which records are deleted, anonymized, or retained for a documented legal, fraud, or safety reason. Enforce sensitive access in backend authorization (including Supabase Row Level Security if Supabase is selected), not only in the mobile UI. Review data handling, hosting, and transfer arrangements for each production vendor, including backend, subscription, OTP, push, and analytics services.
+Before public launch, define retention periods for accounts, chat, rides, reports, and safety records; account-deletion behavior; and which records are deleted, anonymized, or retained for a documented legal, fraud, or safety reason. Enforce sensitive access in backend authorization (including Supabase Row Level Security; Supabase is the approved backend), not only in the mobile UI. Review data handling, hosting, and transfer arrangements for each production vendor, including backend, subscription, OTP, push, and analytics services.
 
 Obtain Egypt-specific privacy and regulatory legal review before privacy-sensitive implementation cards are treated as launch-ready.
 
@@ -669,11 +679,11 @@ To prevent scope creep, the following remain outside the MVP:
 - AI matching.
 - Corporate transport management.
 - Loyalty programmes.
-- Advanced ratings algorithms.
+- Advanced ratings algorithms and written reviews. Basic two-way ratings are in the MVP.
 - Wallets.
 - Escrow.
 - International expansion.
-- Advertising platform.
+- Ads (long-term model; not in the first release).
 - Advanced gamification.
 - Carbon-credit marketplace.
 - Complex referral programmes.
@@ -685,7 +695,7 @@ To prevent scope creep, the following remain outside the MVP:
 
 Features may be added later only through approved Notion product cards.
 
-The current MVP does not calculate ride expenses. If a later approved card adds optional cost-share guidance, it must be clearly identified as an estimate for information only; it must not become an official fare, payment request, guarantee, or arbitration mechanism.
+The MVP does not calculate ride expenses, and Tawsila does not show or suggest a cost share (decided 19 Nov 2026). Tawsila must never become an official fare, payment request, guarantee, or arbitration mechanism.
 
 ## MVP Scope Priority
 
@@ -695,34 +705,46 @@ The current MVP does not calculate ride expenses. If a later approved card adds 
 - Phone OTP before the first ride post or request.
 - Vehicle information before a Car Owner publishes.
 - Ride posting/discovery/request, accept/decline, server-protected seat allocation, cancellation, expiry, and completion confirmation/no-show handling.
-- Report, block, admin review, suspension/ban capability, and a basic moderation process.
+- Report, block, a basic moderation process, and suspension/ban capability. During the pilot the founder handles reports and suspensions directly in the database; there is no admin console.
 - Privacy notice, account deletion, and basic backend data access controls.
-- Subscription entitlement architecture, including configurable Free limits and higher Pro limits for both roles.
 
 ### Launch required for the public MVP
 
-- Basic accepted-ride text chat and push notifications.
-- WhatsApp sharing and deep links for rides and ride requests, including full/cancelled/expired states.
-- Store subscription purchase flow, Free Launch Access configuration, Pro entitlement, and Founding 1,000 progress/slot tracking.
-- Basic admin review of Founding 1,000 eligibility.
+- WhatsApp sharing and deep links for rides, including full/cancelled/expired states (rider ride requests are not in the first release).
+- Basic accepted-ride text chat and push notifications are part of the pilot (see Pilot MVP).
 
 These items are not blockers for the first internal technical slice unless the slice specifically depends on them.
 
-### Post-launch
+### Post-launch (after the pilot)
 
+- Store subscription purchase flow, Free Launch Access configuration, Pro entitlement, and Founding 1,000 progress/slot tracking with its basic admin review.
+- Subscription entitlement architecture, including configurable Free limits and higher Pro limits for both roles.
+- Advertising on the Free plan and rewards.
 - Government ID or selfie verification unless required by legal/safety review.
-- Advanced vehicle verification, ratings, reviews, reliability scores, maps, route optimization, live tracking, AI matching, rich/group chat, loyalty, advanced referrals/promotions, and corporate transport features.
+- Advanced vehicle verification, written reviews, reliability scores, maps, route optimization, live tracking, AI matching, rich/group chat, loyalty, advanced referrals/promotions, and corporate transport features.
+
+## Pilot MVP (first release)
+
+The first release is a pilot. It covers the ride flow on one configurable route only:
+
+- **Route:** one configurable route. First candidate: 10th of Ramadan ↔ New Cairo, loaded as configuration data (not final).
+- **Ride flow:** post and discover rides (a ride can be repeated on weekdays), request a seat, accept or decline, cancel and expire, push notifications, minimal chat, completion confirmation and no-show, two-way rating, report and block, share a ride link to WhatsApp, and event logging for the pilot measures.
+- **Chat:** minimal in-app 1-to-1 text chat after a request is accepted. Phone numbers stay hidden. No media, polls or location. Report and block from chat. WhatsApp is used only to share ride links, not to coordinate.
+- **Ratings:** two-way. The rider rates the driver and the driver rates the rider. Written reviews are not included.
+- **Sign-in and verification:** Google sign-in (iOS), then phone verification by WhatsApp code before the first ride offer or request. Browsing is allowed before that.
+- **Platforms:** iPhone first. Android follows once the iPhone build is finalised. The public launch happens on both together.
+- **Not in the first release:** subscriptions, ads, rewards and badges, Founding Lifetime Pro, seat diagram, tooltip tour, admin console, maps, SMS fallback, rider ride requests. Subscriptions, ads, rewards and Founding remain the long-term model. Payments between users are never part of Tawsila.
 
 ## Smallest First Pilot
 
-Begin with 1–2 communities and a small set of predefined routes loaded through the admin-configurable location model, for users aged 18+, with phone verification before first participation, and no ride payments or Tawsila-set fares. These pilot locations are seed data, not fixed application configuration. The pilot should validate:
+Begin with one predefined route (see Pilot MVP) loaded through the admin-configurable location model, for users aged 18+, with phone verification before first participation, and no ride payments or Tawsila-set fares. These pilot locations are seed data, not fixed application configuration. The pilot should validate:
 
 - Discover/post → request → accept → coordinate → ride → confirm completion.
 - Whether users understand that expense sharing is private between participants.
 - Whether WhatsApp sharing brings new users and whether in-app chat is sufficient.
 - Whether reporting and blocking work operationally and users return for repeat rides.
 
-Public launch remains gated on Egypt-specific privacy/legal review, store subscription setup and entitlement validation, and an operating safety/moderation process.
+Public launch remains gated on Egypt-specific privacy/legal review and an operating safety/moderation process. Store subscription setup and entitlement validation gate the introduction of subscriptions after the pilot.
 
 ---
 
@@ -764,8 +786,7 @@ The backend must support:
 - Communities.
 - Vehicles.
 - Rides.
-- Ride requests.
-- Ride-request sharing.
+- Ride requests (seat requests on a posted ride; rider-created ride requests and their sharing come after the pilot).
 - Chat conversations.
 - Chat messages.
 - Notifications.
@@ -775,6 +796,7 @@ The backend must support:
 - Explicit ride lifecycle, participant completion confirmations, cancellation/no-show/expiry states, and unique per-user ride participation records.
 - Atomic server-side seat allocation so concurrent acceptances cannot exceed vehicle capacity.
 - Account deletion and retention/anonymization rules for user data.
+- After the pilot (not in the first release), the subscription and Founding capabilities below:
 - Subscription status.
 - Subscription entitlements.
 - Store purchase state integration for Apple and Google, with RevenueCat recommended as an abstraction subject to technical architecture approval.
@@ -784,15 +806,15 @@ The backend must support:
 - Founding 1,000 progress and remaining-place tracking.
 - Lifetime Pro entitlement.
 - Transactional Founding 1,000 slot allocation and auditable qualification review.
-- Separate safety and anti-spam rate limits.
+- From the pilot onwards: separate safety and anti-spam rate limits.
 
-The final backend technology should be confirmed separately within the technical architecture work.
+The approved architecture (TAW-2) is React Native + Expo + TypeScript with a Supabase/PostgreSQL backend.
 
 ---
 
 ## Authentication
 
-MVP requires **sign-in with Google or Apple** (Apple on iOS only) before browsing. This is separate from **mobile-number verification with OTP** (WhatsApp first, with a controlled SMS fallback), which is deferred until the user's first trust-sensitive action.
+MVP requires **sign-in with Google** before browsing. Google sign-in comes first on iOS. Sign in with Apple is deferred, and Android sign-in comes later. This is separate from **mobile-number verification with OTP by WhatsApp code** (WhatsApp only; the SMS fallback is deferred), which is deferred until the user's first trust-sensitive action. No phone number is asked for at sign-up.
 
 After signing in, the user can browse, complete basic onboarding, and create a profile before OTP verification.
 
@@ -845,7 +867,7 @@ The MVP requires deep-link support.
 Deep links should allow shared WhatsApp content to open:
 
 - A specific ride.
-- A specific ride request.
+- A specific ride request (after the pilot; not in the first release).
 
 The link target must be validated against current server state and handle available, full, cancelled, and expired content. After install/registration, return to the original content when it is still valid.
 
@@ -861,7 +883,7 @@ The system must handle:
 
 Subscription payments are separate from ride arrangements.
 
-The MVP must support plan-based entitlements even if commercial usage restrictions are relaxed during launch.
+After the pilot, the MVP must support plan-based entitlements even if commercial usage restrictions are relaxed during launch. The pilot (first release) has no subscriptions or entitlements.
 
 The entitlement model should support configurable values for:
 
@@ -910,6 +932,8 @@ Those controls remain governed by the existing orchestration framework.
 # 8. Suggested MVP Product Build Sequence
 
 The sequence below is product guidance only. Execution and orchestration are controlled by the existing approved framework.
+
+The current card mapping is in the Tawsila Product Work Ledger (TAW-5, TAW-27 to TAW-32): https://app.notion.com/p/7ebe1308fe8f4e6baa74215d56138a42. The TAW-00x names below are the original suggestions, kept for reference.
 
 
 The first complete vertical slice should be:
@@ -986,7 +1010,7 @@ Tawsila facilitates the connection but does not become the transportation provid
 | Decision | MVP Position |
 |---|---|
 | Launch market | Egypt |
-| Business model | Subscription for access to Tawsila |
+| Business model | Subscription for access to Tawsila (long-term: Free plan with ads, Pro subscription, rewards; not in the first release) |
 | Ride payments | Outside Tawsila |
 | Ride fares | Agreed directly by rider and car owner |
 | Google Maps | Not included |
@@ -1002,7 +1026,7 @@ Tawsila facilitates the connection but does not become the transportation provid
 | Car Owner post limits | Configurable finite Free allowance; higher or unlimited Pro allowance |
 | WhatsApp sharing limits | Unlimited |
 | Chat limits | Unlimited after acceptance |
-| Subscription entitlements | Built into MVP architecture, with separate configurable Free/Pro limits for Joiner requests and Car Owner posts |
+| Subscription entitlements | Added after the pilot, with separate configurable Free/Pro limits for Joiner requests and Car Owner posts; none in the first release |
 | Commercial limits | Configurable and activatable later |
 | Safety/anti-spam limits | Active from launch |
 | User roles | Same user may act as Joiner and Car Owner |
@@ -1018,15 +1042,15 @@ Tawsila facilitates the connection but does not become the transportation provid
 | Ride completion | Confirmed by participants; planned time passing alone does not mark complete |
 | Cancellation / expiry | Supported with actor/time/reason and explicit unavailable ride/request states |
 | Ride cost | No fares, ride payments, reimbursement guarantees, enforcement, or ordinary cost-dispute arbitration by Tawsila |
-| Cost-share estimates | Not in current MVP; optional informational guidance requires an approved card and must never be represented as a fare |
-| Launch pilot | 1–2 communities and a small set of predefined routes, dynamically configured; seed selection later |
+| Cost-share estimates | None. Tawsila does not calculate, show or suggest a cost share (decided 19 Nov 2026) |
+| Launch pilot | One configurable route for the first release; first candidate 10th of Ramadan ↔ New Cairo (configuration data, not final) |
 | Moderation ownership | Trust & Safety team |
 | Moderation | Report/block and Trust & Safety review/suspend/ban capability required before public pilot |
 | Account deletion | Required for public pilot, with documented deletion/anonymization/retention behavior |
-| Ride completion | Each accepted Joiner is prompted first and the Car Owner must also confirm; ratings are outside MVP |
+| Ride completion | Each accepted Joiner is prompted first and the Car Owner must also confirm; two-way ratings are in the MVP; written reviews are outside |
 | Free/Pro limits | Separate configurable limits for Car Owner posts and Joiner requests; Free finite, Pro higher or unlimited; exact values later |
 | Launch access concept | Founding Member / Launch Access |
-| Founding 1,000 reward | First 1,000 Pro users completing 100 eligible rides receive Lifetime Pro |
+| Founding 1,000 reward | First 1,000 Pro users completing 100 eligible rides receive Lifetime Pro (number of places under review; may be lower; not in the first release) |
 | Eligible ride roles | Joiner, Car Owner, or combination of both |
 | Founding qualification | Completed legitimate rides only |
 | Founding award | `FOUNDER_ELIGIBLE` after 100 validated completed rides; active Pro at qualification; atomic allocation of up to 1,000 slots |
@@ -1038,4 +1062,9 @@ Tawsila facilitates the connection but does not become the transportation provid
 | Ride-hailing | Not included |
 | Community | First-class product/data entity |
 | Notion | Source of truth for implementation cards |
+| Sign-in | Google first on iOS; Sign in with Apple deferred; Android sign-in later |
+| SMS fallback | Deferred; OTP is by WhatsApp code only |
+| Trip type | Open: daily commutes and/or intercity trips (60–120 km target not decided) |
+| Platforms | iPhone first; Android after the iPhone build is finalised; public launch on both together |
+| Pilot chat | Minimal: text only, 1-to-1, after acceptance, report and block; no media, polls or location |
 | Development start | Only from approved `READY` cards |

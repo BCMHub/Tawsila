@@ -36,3 +36,14 @@ Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-34/spec-gate-3-raw.txt (Tawsila checkout); brief spec-gate-3-brief.md
 Usage: 71,062 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
 Verdict: FAIL
+
+Attempt: 4   Round: 4
+Document: docs/superpowers/specs/2026-11-19-TAW-29-design.md
+Revision: 26f9e957892966b8e464e5a0aff12e9bc7bdc88e:958e799b56ef46059428a9a7d29f962d1a41a47f
+Card binding: authoring card TAW-34 scope revision 1; criteria snapshot TAW-29 AC1-AC8 (scope revision 2) sha256 5990b1c27448ed74ec4f5e8b51005ab1e09881fe4c8b4416e62625096313ab0f; Figma file 2j3vO1USLBA8XiRpQKCF3H sections 228:808, 228:809
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.163.0 (default model; model name not reported)
+Findings: P0=0 P1=1 P2=0 P3=0 (P1 F19: car redaction tied to the withdrawn state, so a cancelled ride of an ineligible owner could show a pending car)
+Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-34/spec-gate-4-raw.txt (Tawsila checkout); brief spec-gate-4-brief.md
+Usage: 71,124 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
+Verdict: FAIL

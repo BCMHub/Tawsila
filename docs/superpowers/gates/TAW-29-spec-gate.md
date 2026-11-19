@@ -25,3 +25,14 @@ Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-34/spec-gate-2-raw.txt (Tawsila checkout); brief spec-gate-2-brief.md
 Usage: 70,934 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
 Verdict: FAIL
+
+Attempt: 3   Round: 3
+Document: docs/superpowers/specs/2026-11-19-TAW-29-design.md
+Revision: 9c84bf36e327af7e2e847ea80797f49961e37973:f6461f17d4f291cab50ce6f404de93ecc8a8a41d
+Card binding: authoring card TAW-34 scope revision 1; criteria snapshot TAW-29 AC1-AC8 (scope revision 2) sha256 5990b1c27448ed74ec4f5e8b51005ab1e09881fe4c8b4416e62625096313ab0f; Figma file 2j3vO1USLBA8XiRpQKCF3H sections 228:808, 228:809
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.163.0 (default model; model name not reported)
+Findings: P0=1 P1=2 P2=0 P3=0 (P0 F16: owner behavioural check missing for some functions. P1: F17 grouped function expectations contradict sections 5.1-5.3; F18 an approved car can be rejected by review_item and resubmitted, so an existing ride could show an unapproved car)
+Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-34/spec-gate-3-raw.txt (Tawsila checkout); brief spec-gate-3-brief.md
+Usage: 71,062 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
+Verdict: FAIL

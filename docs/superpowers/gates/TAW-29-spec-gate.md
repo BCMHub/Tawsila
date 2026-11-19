@@ -14,3 +14,14 @@ Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-34/spec-gate-1-raw.txt (Tawsila checkout); brief spec-gate-1-brief.md
 Usage: 57,466 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
 Verdict: FAIL
+
+Attempt: 2   Round: 2
+Document: docs/superpowers/specs/2026-11-19-TAW-29-design.md
+Revision: a94266c1a69363aeac4c707c6af577956bc74063:337615859ba741b04a61e83eb5c60142d1ee5d73
+Card binding: authoring card TAW-34 scope revision 1; criteria snapshot TAW-29 AC1-AC8 (scope revision 2) sha256 5990b1c27448ed74ec4f5e8b51005ab1e09881fe4c8b4416e62625096313ab0f; Figma file 2j3vO1USLBA8XiRpQKCF3H sections 228:808, 228:809
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.163.0 (default model; model name not reported)
+Findings: P0=1 P1=5 P2=0 P3=0 (P0 F10: owner-role behavioural checks and the Postgres 17 MAINTAIN privilege missing from the matrix. P1: F11 contact filter strips dots and slashes before the e-mail and link checks, and the digit-script claim is too broad; F12 DST UTC offsets reversed, and projection time for a skipped hour ambiguous; F13 time 24:00 accepted; F14 replay equality contradicts replayed flag; F15 installed-app link discarded during sign-in or onboarding)
+Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-34/spec-gate-2-raw.txt (Tawsila checkout); brief spec-gate-2-brief.md
+Usage: 70,934 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
+Verdict: FAIL

@@ -15,3 +15,15 @@ Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-34/plan-gate-1-raw.txt (Tawsila checkout); brief plan-gate-1-brief.md
 Usage: 63,190 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
 Verdict: FAIL
+
+Attempt: 2   Round: 2
+Document: docs/superpowers/plans/2026-11-19-TAW-29.md
+Revision: 409c0eb984f2f84f1835dd38deea3cdbafee0585:8e468ff4e1adb6f33c12f5813be23ba74098e23c
+Spec revision (plan gate only): 41dfb1db4d94a3bd19fbf8949950d34a47856af5:eb329e40e75d7b447a03a93d416207c3cec134ee
+Card binding: authoring card TAW-34 scope revision 1; criteria snapshot TAW-29 AC1-AC8 (scope revision 2) sha256 5990b1c27448ed74ec4f5e8b51005ab1e09881fe4c8b4416e62625096313ab0f; Figma file 2j3vO1USLBA8XiRpQKCF3H sections 228:808, 228:809
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.163.0 (default model; model name not reported)
+Findings: P0=0 P1=4 P2=0 P3=0 (P-F6 T2 and T7 checkpoints required tests whose implementation comes later; P-F7 the integration runner needs SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY injected, which .env does not supply; P-F8 the configuration probe without the variable was not isolated from dotenv; P-F9 behavioural probes on RLS tables do not change under a pure grant mutation)
+Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-34/plan-gate-2-raw.txt (Tawsila checkout); brief plan-gate-2-brief.md
+Usage: 68,909 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
+Verdict: FAIL

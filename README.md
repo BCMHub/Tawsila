@@ -2,9 +2,9 @@
 
 **Peer-to-peer, non-commercial carpooling for people travelling the same way.**
 
-Tawsila replaces the WhatsApp and Facebook groups people use today to find a shared ride. A car owner offers empty seats on a trip they were already going to make. People going the same way ask to join and share the cost. Nobody is hired and nobody profits: the app calculates a fixed, fair cost share and the two people settle it directly.
+Tawsila replaces the WhatsApp and Facebook groups people use today to find a shared ride. A car owner offers empty seats on a trip they were already going to make. People going the same way ask to join. Nobody is hired and nobody profits. Tawsila never sets, calculates, shows or collects a fare or price; riders and car owners agree any contribution to fuel and tolls privately.
 
-> Status: design phase (iOS app, Figma designs and a screen-level BRD). The designs use SAR amounts and Saudi place names as placeholders. Egyptian pounds, Egyptian cities and Arabic/RTL are planned (see Open decisions).
+> Status: early build (iOS first). Sign-in with Google and onboarding are built. The ride flow is planned (cards TAW-29 to TAW-32). The designs still use SAR amounts and Saudi place names as placeholders, which are being replaced with Egyptian pounds and Egyptian cities. Arabic/RTL is planned (see Open decisions).
 
 ---
 
@@ -12,59 +12,59 @@ Tawsila replaces the WhatsApp and Facebook groups people use today to find a sha
 
 - A **car owner** posts a journey they already planned: from, to, when, how many seats.
 - A **rider** browses trips from their own city, or posts a request for the ride they need.
-- The owner **approves every rider**. Either side can start a chat to agree the pickup.
-- Tawsila shows one **suggested cost share** per person. It is a guide calculated from fuel and tolls, it cannot be edited or negotiated, and the two people pay each other directly. Tawsila never touches the money.
-- Tawsila earns from an optional **Pro subscription**, not from rides.
+- The owner **approves every rider**. After acceptance, both sides can use the in-app chat to agree the pickup.
+- Riders and car owners agree any contribution to fuel and tolls **privately**. Tawsila never sets, calculates, shows or collects a fare or price, and no payment passes through the app.
+- Tawsila's long-term model is a **Free plan with ads**, a **Pro subscription** and rewards, not rides. None of this is in the first release (see section 5).
 
-It is built for long-distance trips between cities, one-off or repeated every week (regular commutes). It is not a taxi service and not Uber: posts are only shown to people in the same city.
+It is built for shared trips between places, one-off or repeated (regular commutes). The trip type is open: daily commutes and/or intercity trips are both being considered (see Open decisions). It is not a taxi service and not Uber: posts are only shown to people in the same city.
 
 ## 2. Who it is for
 
 | Role | What they do |
 | --- | --- |
-| **Owner** | Offers seats on a trip they are already making, approves riders, manages seats, picks the pickup point |
-| **Rider** | Finds a matching trip or posts a ride request, asks to join, rates the trip |
+| **Owner** | Offers seats on a trip they are already making, approves riders, picks the pickup point, rates riders after a ride |
+| **Rider** | Finds a matching trip or posts a ride request, asks to join, rates the driver after a ride |
 | **Both** | Most users do both, depending on the day |
 
 ## 3. How it works
 
-1. **Sign up** with a phone number, verify it, create a profile, and set a **home area** (the city and area you live in). Only the area name is public.
+1. **Sign in** with Google (iOS first). Create a profile and set a **home area** (the city and area you live in). Only the area name is public. You can browse before verifying your phone. Your phone number is verified with a WhatsApp code before your first ride offer or ride request.
 2. **Pick how you use Tawsila** (rider, owner or both) and add your car if you drive.
 3. **Find or post.**
    - Rider: open a trip on the Board, tap **Request seat**.
-   - Rider: no match? **Post a ride request** and share it with your area or specific people.
+   - Rider: no match? **Post a ride request** and share it with your area or specific people (not in the first release).
    - Owner: **Post a trip** (one-off or regular weekly) in three steps: route and time, seats, audience.
-   - Owner who sees a request: tap **Offer a ride**.
-4. **Owner approves** the request. Seats can be managed on a seat diagram, including seats taken outside the app.
-5. **Trip agreement.** Both sides confirm: the share is a fair split, there is no negotiation, and they settle directly.
-6. **Travel.** The exact pickup pin and phone number are shared only after acceptance.
-7. **Rate** the trip and say whether the suggested share was settled.
+   - Owner who sees a request: tap **Offer a ride** (not in the first release).
+4. **Owner approves** the request. The seat diagram and seat management tools are not in the first release.
+5. **Trip agreement.** Both sides confirm that any contribution to fuel and tolls is agreed privately between them. Tawsila sets no price and handles no money.
+6. **Travel.** The exact pickup point is shared only after acceptance. Phone numbers stay hidden; coordinate in the in-app chat.
+7. **Rate** each other after the ride. The rider rates the driver and the driver rates the rider. Ratings are not tied to any payment question.
 
-Riders can also ask one person directly from a chat: **"+" → Ask for a ride** (and owners **Offer a ride**).
+Later, riders will also be able to ask one person directly from a chat: **"+" → Ask for a ride** (and owners **Offer a ride**). This is not in the first release.
 
 ## 4. The cost-sharing model (why it is non-commercial)
 
-```
-Suggested share per person = (fuel cost of the trip + tolls) ÷ (people on board, driver included)
-```
-
-- **Locked.** Nobody can enter a price, bid, or counter. There are no price fields, "open to offers" toggles or counter offers.
-- **Inputs are controlled by Tawsila:** route distance, a vehicle preset (sedan, SUV, van), the published fuel price and a toll table.
-- **Recalculated** when seats change. It can fall as more people join, never rise for a rider who already agreed.
-- **No payments in the app.** No cards, wallets, fees, receipts, refunds or payouts. Riders and owners settle directly (for example in cash).
-- **Wording:** always "suggested share", never price, fare, earnings or fee.
+- **Private.** Riders and car owners agree any contribution to fuel and tolls directly with each other. Tawsila is not part of that agreement.
+- **Tawsila sets no price.** Tawsila never sets, calculates, shows or collects a fare or price. The app has no price fields, bids or counter offers, and it does not suggest a share.
+- **No payments in the app.** No cards, wallets, fees, receipts, refunds or payouts. Riders and owners settle any agreed amount directly (for example in cash).
+- **Wording:** do not use "price", "fare", "earnings" or "fee" for a ride's cost.
 
 The legal reasoning (Egyptian traffic rules and Law No. 87 of 2018) is the product owner's reading and **needs confirmation from a lawyer before launch**.
 
 ## 5. Business model
 
+This is the long-term model. **None of it is in the first release** (the pilot MVP, see section 11).
+
 - **Free plan:** the full core flow, with ads on the Board and My trips, and one active regular trip.
-- **Tawsila Pro:** no ads, unlimited regular trips, full trip history, priority support.
-- **Free trial:** 7 days by default (1 month for campaigns, 6 months for early members). Billed by Apple.
+- **Tawsila Pro:** no ads, higher or unlimited posting and request allowances, full trip history, priority support.
+- **Free trial:** 7 days by default (1 month for campaigns, 6 months for early members). Billed through Apple or Google.
+- **Founding Lifetime Pro:** the first 1,000 users who complete 100 validated rides and have an active Pro subscription when they qualify get Lifetime Pro. The number of places is under review and may be lower.
 - Safety features are never limited by plan. No boosted or sponsored trips.
 - Ads never appear in chat, safety tools or the trip agreement.
 
 ## 6. Rewards and badges
+
+Long-term model. **Not in the first release.**
 
 - **Monthly discount on Pro**, earned from **shared kilometres or number of rides**, whichever comes first (placeholder levels):
 
@@ -80,10 +80,10 @@ The legal reasoning (Egyptian traffic rules and Law No. 87 of 2018) is the produ
 ## 7. Trust, privacy and safety
 
 - **Owner approves each rider.** Verified badges, ratings and reliability history.
-- **Area-only visibility.** Only the area name is public; the exact pickup point and phone are shared after acceptance.
-- **Consent-based direct messages.** People who are not trip contacts can send one message or one ride offer as a request until accepted. Users choose who can message them and whether they are visible in their city.
-- **One-time location sharing** in chat (a snapshot, never live), approximate or exact according to the user's setting.
-- **Polls** in chat, **reporting and blocking**, emergency contacts, trip sharing and an emergency call shortcut.
+- **Area-only visibility.** Only the area name is public; the exact pickup point is shared after acceptance. Phone numbers stay hidden; people coordinate in the in-app chat.
+- **Consent-based direct messages.** People who are not trip contacts can send one message or one ride offer as a request until accepted (message requests are not in the first release). Users choose who can message them and whether they are visible in their city.
+- **One-time location sharing** in chat (not in the first release; a snapshot, never live), approximate or exact according to the user's setting.
+- **Polls** in chat (not in the first release), **reporting and blocking**, emergency contacts, trip sharing and an emergency call shortcut.
 
 ## 8. Screens (summary of the Figma design)
 
@@ -91,18 +91,18 @@ iOS (iPhone, 393 × 852), built on Apple's Human Interface Guidelines with a flo
 
 | Area | Screens |
 | --- | --- |
-| **Onboarding** | Launch, welcome, phone, verification code, profile, home area, role, add car, location and notification permissions |
-| **Board and join** | Nearby board (Offers / Requests), filters, trip detail with seat diagram, request a seat, request sent, request accepted, owner profile, trip agreement |
-| **Post a trip or request** | Route and time, seats and cost share, audience and review, post a request, published, manage requests, request detail, pickup point, share with specific people |
+| **Onboarding** | Launch, welcome, profile, home area, role, add car, location and notification permissions. (The phone and verification-code screens are shown at the first ride offer or request, not during onboarding.) |
+| **Board and join** | Nearby board (Offers / Requests), filters, trip detail (seat diagram not in the first release), request a seat, request sent, request accepted, owner profile, trip agreement |
+| **Post a trip or request** | Route and time, seats, audience and review, post a request, published, manage requests, request detail, pickup point, share with specific people |
 | **Regular trips** | My regular trips, new regular trip, schedule, seat manager, join all days or pick days |
-| **My trips** | Upcoming, trip detail, cancel, rate (with settled-share check), past trips |
-| **Messages** | Inbox, chat, notifications, "+" menu (share location, offer or ask for a ride, poll), message requests |
+| **My trips** | Upcoming, trip detail, cancel, rate (two-way, with no payment question), past trips |
+| **Messages** | Inbox, chat, notifications, "+" menu (offer or ask for a ride; share location and poll are not in the first release), message requests (not in the first release) |
 | **Profile and settings** | Profile, edit, verification, vehicles, report, privacy and location, safety, notifications and language, messages and visibility, help |
-| **Plans, ads and rewards** | Plan and subscription, choose your plan, trial started, trial ending, ads and privacy, Board with ad, Rewards, shared trips, rewards terms, badges |
+| **Plans, ads and rewards** (long-term) | Plan and subscription, choose your plan, trial started, trial ending, ads and privacy, Board with ad, Rewards, shared trips, rewards terms, badges |
 | **States** | Empty, offline, loading, request declined, trip cancelled by owner |
-| **Tooltip tour** | A nine-step first-time tour of the main areas |
+| **Tooltip tour** | A nine-step first-time tour of the main areas (not in the first release) |
 
-Design tokens: SF Pro, brand green `#0B4D3B`, light and dark modes, an Apple-style component set (buttons, tab bar, chips, cards, seat diagram, cost share guide, plan card, ad card, chat bubbles and more).
+Design tokens: SF Pro, brand green `#0B4D3B`, light and dark modes, an Apple-style component set (buttons, tab bar, chips, cards, seat diagram, plan card, ad card, chat bubbles and more).
 
 ## 9. Design concept
 
@@ -149,8 +149,7 @@ Tawsila should feel like a neighbourhood notice board that happens to be a good 
 - **Buttons:** Primary, Secondary, Outline, Destructive, Plain, each in Default and Disabled; a Small version for card actions. 52 pt tall, fully rounded.
 - **Floating tab bar:** Board · Trips · Messages · Profile, with the active tab in green.
 - **Nav bar:** Inline and Large title styles. **Segmented control:** 2 or 3 segments (Offers / Requests, Upcoming / Regular / Past).
-- **Post card:** avatar, name, verified badge, rating, route with times, date, seats left, tags, and the suggested share, in Offer and Request versions.
-- **Cost share guide:** a read-only card showing fuel and tolls, people on board, and the suggested share per person. It never has an input field.
+- **Post card:** avatar, name, verified badge, rating, route with times, date, seats left, tags, in Offer and Request versions.
 - **Seat diagram:** top view of Sedan, SUV or Van with free, taken and "your pick" seats.
 - **Chat:** message bubbles, ride cards (offer or request), one-time location message, poll, message-request banners.
 - **Plan card and ad card:** the Free and Pro plans, and the sponsored card shown on the Free plan.
@@ -159,7 +158,7 @@ Tawsila should feel like a neighbourhood notice board that happens to be a good 
 ### Do
 
 - Use the green only for actions, selected states and confirmations, so it stays a signal.
-- Keep money wording neutral: "suggested share", never price, fare, fee or earnings.
+- Keep money out of the app: Tawsila shows no price, fare, fee, earnings or cost share.
 - Separate surfaces by background and soft shadow; keep the paper background behind white cards.
 - Use native iOS patterns: bottom sheets for tools, system alerts for permissions, a floating tab bar.
 - Show trust everywhere decisions are made: verified badge, rating, area name, reliability.
@@ -174,7 +173,7 @@ Tawsila should feel like a neighbourhood notice board that happens to be a good 
 
 ### Imagery and tone
 
-No photography or stock art. People appear as initials avatars (with photo optional), the car as a seat diagram, and the route as text with a quiet map preview slot (the live map is out of phase 1). Success and empty states use a single flat icon in a tinted circle. Copy is short, warm and neighbourly, and avoids commercial wording.
+No photography or stock art. People appear as initials avatars (with photo optional), the car as a seat diagram, and the route as text with a quiet map preview slot (the live map is not in the first release). Success and empty states use a single flat icon in a tinted circle. Copy is short, warm and neighbourly, and avoids commercial wording.
 
 ### Layout rhythm
 
@@ -182,22 +181,43 @@ Large title, then a segmented control, then a vertical feed of white cards on wa
 
 ## 10. Concept under consideration: city communities
 
-To postpone paying for a maps API in the MVP, every user could join a **predefined city community** at registration (detected from their location and confirmed). Destinations would come from a **predefined list of places and stops**, with distances and tolls stored in a table, so the cost share needs no routing service. Matching "a car going near my destination" would use a stored "near" relation between places. Current screens would not change. Open questions: how fine communities should be (cities or neighbourhoods), whether a user can have a second community, and who maintains the place, distance and toll tables.
+To postpone paying for a maps API in the MVP, every user could join a **predefined city community** at registration (detected from their location and confirmed). Destinations would come from a **predefined list of places and stops**, so the app needs no routing service. Matching "a car going near my destination" would use a stored "near" relation between places. Current screens would not change. Open questions: how fine communities should be (cities or neighbourhoods), whether a user can have a second community, and who maintains the place table.
 
-## 11. Phase 1 scope
+## 11. First release: pilot MVP
 
-**In:** onboarding and profile, nearby board, posting trips and requests, owner approval, locked cost share, trip agreement, pickup points, seat diagram, regular trips, ratings, cancellations, direct messages with message requests, one-time location sharing, ride offers and polls, notifications, verification, safety and reporting, privacy settings, Free and Pro subscription with ads and trial, rewards and badges, tooltip tour.
+### In (pilot MVP)
 
-**Out:** live route map and live location tracking, area group chats, administrator web console, any in-app payment between users, Arabic right-to-left layouts (layouts are built to flip later).
+- **One configurable route only.** First candidate: 10th of Ramadan ↔ New Cairo, loaded as configuration data (not final).
+- Post and discover rides (a ride can be repeated on weekdays), request a seat, accept or decline, cancel and expire.
+- Push notifications.
+- Minimal in-app 1-to-1 text chat after a request is accepted. Phone numbers stay hidden. No media, polls or location. Report and block from chat.
+- WhatsApp is used only to share a ride link, not to coordinate.
+- Completion confirmation and no-show handling.
+- Two-way rating: the rider rates the driver and the driver rates the rider. Written reviews are not included.
+- Report and block.
+- Event logging for the pilot measures.
+- Sign-in with Google (iOS), profile, and phone verification by WhatsApp code before the first ride offer or request.
+- **Platforms:** iPhone first. Android follows once the iPhone build is finalised. The public launch happens on both together.
+
+### Out (not in the first release)
+
+- Subscriptions, ads, rewards and badges, Founding Lifetime Pro.
+- Seat diagram, tooltip tour, admin console, maps.
+- Full regular-trip management (schedules, seat manager, join all days or pick days). A posted ride can still be repeated on weekdays.
+- Live route map and live location tracking, area group chats, any in-app payment between users, Arabic right-to-left layouts (layouts are built to flip later), SMS fallback for phone verification.
+- Posting a standalone ride request as a rider (riders request a seat on a posted ride instead).
+
+Subscriptions, ads, rewards and Founding Lifetime Pro remain the long-term model. Payments between users are never part of Tawsila.
 
 ## 12. Open decisions
 
 - Legal confirmation of the non-commercial model in Egypt (cost share only, no fee, no in-app money, subscription revenue).
-- Fuel price and toll data: who maintains it and how often.
 - Pro price, trial lengths and currency (placeholder EGP 99 a month).
+- Founding Lifetime Pro: the number of places (1,000) is under review and may be lower.
 - Free plan limits (one active regular trip is a proposal).
 - Ad network, consent flow and local ad rules.
 - Egypt localisation: EGP, Egyptian cities and routes, emergency numbers, Arabic and right-to-left.
+- Trip type: daily commutes and/or intercity trips. The earlier 60–120 km target is not decided.
 - Apple subscription discounts for the rewards levels (promotional offers).
 - Rewards levels and limits (placeholders until real usage data exists).
 
@@ -209,7 +229,7 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 
 ## Run the app
 
-The mobile app lives in `apps/mobile` (Expo SDK 58, React Native, TypeScript). It includes Google sign-in on iOS, a Supabase account/session layer, four placeholder tabs (Board, Trips, Messages, Profile), light and dark themes, and shared loading, empty and error states. New accounts stop at the profile hand-off; ride logic is not implemented. iOS is the first target; Android is only checked by a bundle build at this stage.
+The mobile app lives in `apps/mobile` (Expo SDK 58, React Native, TypeScript). It includes Google sign-in on iOS, a Supabase account/session layer, four placeholder tabs (Board, Trips, Messages, Profile), light and dark themes, and shared loading, empty and error states. New accounts then complete onboarding (profile, consent, community and car-owner details, from TAW-4); ride logic is not implemented. iOS is the first target; Android is only checked by a bundle build at this stage.
 
 ### Prerequisites
 
@@ -257,7 +277,7 @@ Every change needs an approved Notion card. See [AGENTS.md](AGENTS.md).
 
 ## Sign-in and accounts
 
-TAW-7 revision 7 delivers Google sign-in on iOS with an SDK-authoritative Supabase session and a trigger-created `public.accounts` row. New accounts stop at `needs_profile`; tabs require the server-confirmed `profile_completed_at`. TAW-4 owns profile/consent and its trusted completion function. TAW-5 owns phone verification, ride gating and duplicate-phone handling. Clients can read only their own account and cannot write account fields.
+TAW-7 revision 7 delivers Google sign-in on iOS with an SDK-authoritative Supabase session and a trigger-created `public.accounts` row. New accounts start at `needs_profile`; tabs require the server-confirmed `profile_completed_at`. TAW-4 (merged) owns profile/consent and its trusted completion function. TAW-5 owns phone verification, ride gating and duplicate-phone handling. Clients can read only their own account and cannot write account fields.
 
 [Local setup and the account/session contract](supabase/README.md) cover Docker or Colima, `supabase start`, `supabase db reset`, `supabase test db`, the concurrency script, every variable in `apps/mobile/.env.example`, and the database-side test-only profile seed. Copy that example to an ignored `.env` using local stack settings. The team's Node environment file sets `EXPO_NO_DOTENV=1`; unset it to let Expo load `.env`. The owner already created a Free-tier hosted test project with Google enabled (Web client first, iOS client second, nonce checking ON). Keys remain in local environment files only; this batch does not use the hosted project.
 

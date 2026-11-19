@@ -58,3 +58,14 @@ Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-34/spec-gate-5-raw.txt (Tawsila checkout); brief spec-gate-5-brief.md
 Usage: 80,034 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
 Verdict: FAIL
+
+Attempt: 6   Round: 6
+Document: docs/superpowers/specs/2026-11-19-TAW-29-design.md
+Revision: 41dfb1db4d94a3bd19fbf8949950d34a47856af5:eb329e40e75d7b447a03a93d416207c3cec134ee
+Card binding: authoring card TAW-34 scope revision 1; criteria snapshot TAW-29 AC1-AC8 (scope revision 2) sha256 5990b1c27448ed74ec4f5e8b51005ab1e09881fe4c8b4416e62625096313ab0f; Figma file 2j3vO1USLBA8XiRpQKCF3H sections 228:808, 228:809
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.163.0 (default model; model name not reported)
+Findings: P0=0 P1=0 P2=0 P3=0
+Criteria mapping: exhaustive, AC1 to AC8 each mapped once, none UNCOVERED (AC1 -> 2, 5.1, 5.2, 6.1-6.3, 8.1, 11.4, 13, 14; AC2 -> 3.1, 6.3, 13; AC3 -> 3.2, 5.2, 11.1, 13; AC4 -> 3.2, 5.3, 7, 13; AC5 -> 2, 3.2, 4, 5.2, 8, 8.1, 13; AC6 -> 2, 5.3, 9, 11.1, 13, 16; AC7 -> 3.3, 5.2, 5.3, 10, 13, 14; AC8 -> 6.3, 6.4, 16)
+Raw output: .clh/evidence/TAW-34/spec-gate-6-raw.txt (Tawsila checkout); brief spec-gate-6-brief.md
+Usage: 69,082 tokens (reported by Codex CLI)   Started: 2026-11-19   Ended: 2026-11-19
+Verdict: PASS

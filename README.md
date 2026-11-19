@@ -188,7 +188,7 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 ### In (pilot MVP)
 
 - **One configurable route only.** First candidate: 10th of Ramadan ↔ New Cairo, loaded as configuration data (not final).
-- Post and discover rides (a ride can be repeated on weekdays), request a seat, accept or decline, cancel and expire.
+- Post and discover rides (a ride can be repeated on weekdays), request a seat for one day or every weekday, accept or decline, cancel one day, chosen days or the whole ride, and expire.
 - Push notifications.
 - Minimal in-app 1-to-1 chat after a request is accepted: text messages and in-chat ride offers (a driver offers one of their upcoming rides; a seat is confirmed only if still free; no price). Phone numbers stay hidden. No media, polls, location or ask-for-a-ride. Report and block from chat.
 - WhatsApp is used only to share a ride link, not to coordinate.
@@ -203,7 +203,7 @@ To postpone paying for a maps API in the MVP, every user could join a **predefin
 
 - Subscriptions, ads, rewards and badges, Founding Lifetime Pro.
 - Seat diagram, tooltip tour, admin console, maps.
-- Full regular-trip management (schedules, seat manager, join all days or pick days). A posted ride can still be repeated on weekdays.
+- Full regular-trip management (schedules, seat manager). A posted ride can still be repeated on weekdays, and a rider can join one day or every weekday.
 - Live route map and live location tracking, area group chats, any in-app payment between users, Arabic right-to-left layouts (layouts are built to flip later), SMS fallback for phone verification.
 - Posting a standalone ride request as a rider (riders request a seat on a posted ride instead).
 
@@ -223,7 +223,7 @@ Subscriptions, ads, rewards and Founding Lifetime Pro remain the long-term model
 
 ## 13. Where the detail lives
 
-- **Figma:** "Tawsila – iOS App Design" (pages: Cover, Foundations, Components, Onboarding, Board & Join, Post a Trip, Regular Trips, My Trips, Messages, Profile & Safety, States, Tooltip Tour).
+- **Figma:** "Tawsila – iOS App Design" (pages: Cover, Foundations, Components, Onboarding, Board & Join, Post a Trip, Regular Trips, My Trips, Messages, Profile & Safety, States, Tooltip Tour, MVP (pilot screens, TAW-28)).
 - **BRD:** "Tawsila · Business Requirements Document (screen-level)" with every screen specified (purpose, entry and exit, content, behaviour, states, requirements), business rules BR-01 to BR-32, open decisions OD-01 to OD-24, and a traceability matrix.
 - **MVP definition:** [docs/product/mvp.md](docs/product/mvp.md)
 

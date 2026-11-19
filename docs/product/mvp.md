@@ -729,7 +729,7 @@ These items are not blockers for the first internal technical slice unless the s
 The first release is a pilot. It covers the ride flow on one configurable route only:
 
 - **Route:** one configurable route. First candidate: 10th of Ramadan ↔ New Cairo, loaded as configuration data (not final).
-- **Ride flow:** post and discover rides (a ride can be repeated on weekdays), request a seat, accept or decline, cancel and expire, push notifications, minimal chat, completion confirmation and no-show, two-way rating, report and block, share a ride link to WhatsApp, and event logging for the pilot measures.
+- **Ride flow:** post and discover rides (a ride can be repeated on weekdays), request a seat for one day or every weekday, accept or decline, cancel one day, chosen days or the whole ride, expire, push notifications, minimal chat, completion confirmation and no-show, two-way rating, report and block, share a ride link to WhatsApp, and event logging for the pilot measures.
 - **Chat:** minimal in-app 1-to-1 chat after a request is accepted: text messages and in-chat ride offers (D11). Phone numbers stay hidden. No media, polls, location or ask-for-a-ride. Report and block from chat. WhatsApp is used only to share ride links, not to coordinate.
 - **Ratings:** two-way. The rider rates the driver and the driver rates the rider. Written reviews are not included.
 - **Sign-in and verification:** Google sign-in (iOS), then phone verification by WhatsApp code before the first ride offer or request. Browsing is allowed before that.

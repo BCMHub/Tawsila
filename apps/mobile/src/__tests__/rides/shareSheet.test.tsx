@@ -1,5 +1,6 @@
 import { afterEach, expect, jest, test } from '@jest/globals';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import { Linking, Share } from 'react-native';
 import { ShareRideSheet } from '../../features/rides/ShareRideSheet';
 import { PublishedRide } from '../../features/rides/PublishedRide';
@@ -23,4 +24,21 @@ test('both share mechanisms failing shows a sanitized error', async () => {
 });
 test('P2 Share on WhatsApp opens P3 with the exact generated message', async () => {
  await render(<PublishedRide rideId="ride" message={message} />); await fireEvent.press(screen.getByRole('button', { name: 'Share on WhatsApp' })); expect(screen.getByText(message)).toBeTruthy(); expect(screen.getByRole('button', { name: 'Open WhatsApp' })).toBeTruthy();
+});
+
+test('P2 Done dismisses the post flow to the Board', async () => {
+ const dismissTo = jest.spyOn(router, 'dismissTo').mockImplementation(() => {});
+ await render(<PublishedRide rideId="ride" />);
+ await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
+ expect(dismissTo).toHaveBeenCalledWith('/');
+});
+
+test('P2 View my ride dismisses to the Board before pushing the published ride', async () => {
+ const dismissTo = jest.spyOn(router, 'dismissTo').mockImplementation(() => {});
+ const push = jest.spyOn(router, 'push').mockImplementation(() => {});
+ await render(<PublishedRide rideId="ride" />);
+ await fireEvent.press(screen.getByRole('button', { name: 'View my ride' }));
+ expect(dismissTo).toHaveBeenCalledWith('/');
+ expect(push).toHaveBeenCalledWith({ pathname: '/ride/[id]', params: { id: 'ride', source: 'published' } });
+ expect(dismissTo.mock.invocationCallOrder[0]).toBeLessThan(push.mock.invocationCallOrder[0]);
 });

@@ -1,18 +1,20 @@
 import { router } from 'expo-router';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { useCallback, useEffect, useId, useRef, useState, type PropsWithChildren, type ReactNode } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Banner } from '../../components/Banner';
 import { ErrorState, LoadingState } from '../../components/States';
+import { ProgressBar } from '../../components/ProgressBar';
 import { TextField } from '../../components/TextField';
 import { strings } from '../../strings';
+import { spacing } from '../../theme';
 import { normalizeDigits } from '../onboarding/validation';
-import { CarButton } from '../verification/CarScreens';
 import { RidesError, type PublishGate, type PublishRideInput, type RideDirection, type RidesErrorCode } from './api';
 import { formatRideDate, formatRideTime } from './format';
 import { NotVerifiedRide } from './NotVerifiedRide';
 import type { PilotRoute, RideCar } from './rideConfig';
 import { initialSchedule, isRideWeekday, timeOptions, windowDates, type RideWindow } from './rideDates';
-import { RideCard, RideChoice, RidePicker, RideScreen, RideText, rideStyles } from './RideScreen';
+import { RideButton, RideDivider, RideIconTile, RideNotice, RideSymbol, RouteTimeline, type RideGlyph } from './RidePresentation';
+import { RideCard, RideChoice, RidePicker, RideScreen, RideSegments, RideText, rideStyles } from './RideScreen';
 import { useRidesApi } from './RidesApiProvider';
 import { PostRideDraftProvider, usePostRideDraft } from './usePostRideDraft';
 import { useRideResource } from './useRideResource';
@@ -24,7 +26,6 @@ const copy = strings.rides;
 const flexibilityOptions = [0, 5, 10, 15, 30];
 const pickupLimit = 80;
 const notesLimit = 200;
-const disabledAction = () => undefined;
 
 export function carApproval() {
   // Expo resolves this group-qualified path from the root.
@@ -43,8 +44,30 @@ function endpoints(route: PilotRoute, direction: RideDirection) {
   return direction === 'a_to_b' ? [route.fromName, route.toName] : [route.toName, route.fromName];
 }
 
-function ScheduleStep({ route, routes, window, onNext }: {
-  route: PilotRoute; routes: PilotRoute[]; window: RideWindow; onNext: () => void;
+function PostStepScreen({ step, onBack, footer, children }:
+  PropsWithChildren<{ step: 1 | 2 | 3; onBack: () => void; footer: ReactNode }>) {
+  return <RideScreen title={copy.post} onBack={onBack} footer={footer}
+    header={<View style={styles.progress}><ProgressBar step={step} /></View>}>
+    {children}
+  </RideScreen>;
+}
+
+function ScheduleRow({ label, value, spokenValue = value, icon, expanded, onPress }: {
+  label: string; value: string; spokenValue?: string; icon: RideGlyph; expanded: boolean; onPress: () => void;
+}) {
+  return <Pressable accessibilityRole="button" accessibilityLabel={`${label} · ${spokenValue}`}
+    accessibilityState={{ expanded }} onPress={onPress} style={styles.scheduleRow}>
+    <RideIconTile icon={icon} />
+    <View style={rideStyles.grow}>
+      <RideText kind="footnote" muted>{label}</RideText>
+      <RideText>{value}</RideText>
+    </View>
+    <RideSymbol name="forward" size={spacing['space/12']} color="label/secondary" />
+  </Pressable>;
+}
+
+function ScheduleStep({ route, routes, window, onNext, onBack }: {
+  route: PilotRoute; routes: PilotRoute[]; window: RideWindow; onNext: () => void; onBack: () => void;
 }) {
   const { draft, setRoute, setSchedule } = usePostRideDraft();
   const [selected, setSelected] = useState(() => routes.find(option => option.id === draft.route?.routeId) ?? route);
@@ -76,58 +99,59 @@ function ScheduleStep({ route, routes, window, onNext }: {
     onNext();
   }
 
-  return <>
-    <RideText kind="title1" header>{copy.routeAndTime}</RideText>
+  return <PostStepScreen step={1} onBack={onBack} footer={<RideButton label={copy.continue} onPress={next} />}>
     {routes.length > 1 && <RideChoice label={routeLabel} onPress={() => setPicker(picker === 'route' ? null : 'route')} />}
     {picker === 'route' && <RidePicker title={copy.route}>
       {routes.map(option => <RideChoice key={option.id} label={copy.routeName(option.fromName, option.toName)}
         radio selected={option.id === selected.id} onPress={() => { setSelected(option); setPicker(null); }} />)}
     </RidePicker>}
     <RideCard>
-      <View style={rideStyles.between}>
-        <View style={[rideStyles.grow, rideStyles.stack]}>
-          <RideText kind="footnote" muted>{copy.from}</RideText>
-          <RideText kind="headline">{from}</RideText>
-          <RideText kind="footnote" muted>{copy.to}</RideText>
-          <RideText kind="headline">{to}</RideText>
-        </View>
-        <CarButton label={copy.reverse} secondary onPress={() => setDirection(current => current === 'a_to_b' ? 'b_to_a' : 'a_to_b')} />
-      </View>
+      <RouteTimeline spacious from={{
+        name: from, label: copy.from,
+        action: <RideButton label={copy.reverse} icon="reverse" variant="tint" compact
+          onPress={() => setDirection(current => current === 'a_to_b' ? 'b_to_a' : 'a_to_b')} />,
+      }} to={{ name: to, label: copy.to }} />
     </RideCard>
-    <RideChoice label={`${copy.date} · ${dateLabel}`} onPress={() => setPicker(picker === 'date' ? null : 'date')} />
-    {picker === 'date' && <RidePicker title={copy.date}>
-      {dates.map(day => <RideChoice key={day} radio label={formatRideDate(day)} selected={day === schedule.date}
-        onPress={() => choose({ date: day })} />)}
-    </RidePicker>}
-    <RideChoice label={`${copy.leavesAt} · ${timeLabel}`} onPress={() => setPicker(picker === 'time' ? null : 'time')} />
-    {picker === 'time' && <RidePicker title={copy.leavesAt}>
-      {timeOptions.map(time => <RideChoice key={time} radio label={formatRideTime(time)} selected={time === schedule.time}
-        onPress={() => choose({ time })} />)}
-    </RidePicker>}
-    <RideChoice label={`${copy.flexibility} · ${flexLabel}`} onPress={() => setPicker(picker === 'flex' ? null : 'flex')} />
-    {picker === 'flex' && <RidePicker title={copy.flexibility}>
-      {flexibilityOptions.map(minutes => <RideChoice key={minutes} radio label={copy.minutes(minutes)}
-        selected={minutes === schedule.flexMinutes} onPress={() => choose({ flexMinutes: minutes })} />)}
-    </RidePicker>}
+    <RideCard>
+      <ScheduleRow label={copy.date} value={dateLabel.replace(' ', ', ')} spokenValue={dateLabel} icon="calendar" expanded={picker === 'date'}
+        onPress={() => setPicker(picker === 'date' ? null : 'date')} />
+      {picker === 'date' && <RidePicker title={copy.date}>
+        {dates.map(day => <RideChoice key={day} radio label={formatRideDate(day)} selected={day === schedule.date}
+          onPress={() => choose({ date: day })} />)}
+      </RidePicker>}
+      <RideDivider />
+      <ScheduleRow label={copy.leavesAt} value={timeLabel} icon="clock" expanded={picker === 'time'}
+        onPress={() => setPicker(picker === 'time' ? null : 'time')} />
+      {picker === 'time' && <RidePicker title={copy.leavesAt}>
+        {timeOptions.map(time => <RideChoice key={time} radio label={formatRideTime(time)} selected={time === schedule.time}
+          onPress={() => choose({ time })} />)}
+      </RidePicker>}
+      <RideDivider />
+      <ScheduleRow label={copy.flexibility} value={schedule.flexMinutes > 0 ? `± ${flexLabel}` : flexLabel} spokenValue={flexLabel} icon="clock" expanded={picker === 'flex'}
+        onPress={() => setPicker(picker === 'flex' ? null : 'flex')} />
+      {picker === 'flex' && <RidePicker title={copy.flexibility}>
+        {flexibilityOptions.map(minutes => <RideChoice key={minutes} radio label={copy.minutes(minutes)}
+          selected={minutes === schedule.flexMinutes} onPress={() => choose({ flexMinutes: minutes })} />)}
+      </RidePicker>}
+    </RideCard>
     <RideCard>
       <RideText kind="headline">{copy.repeat}</RideText>
-      <View style={rideStyles.row}>
-        {(['once', 'weekdays'] as const).map(repeat => <RideChoice key={repeat} radio label={repeatLabel(repeat)}
+      <RideSegments>
+        {(['once', 'weekdays'] as const).map(repeat => <RideChoice key={repeat} radio variant="segment" label={repeatLabel(repeat)}
           selected={schedule.repeat === repeat} onPress={() => selectRepeat(repeat)} />)}
-      </View>
+      </RideSegments>
       <RideText kind="footnote" muted>
         {routes.length === 1 ? `${copy.pilotRouteOnly(routeLabel)} ` : ''}{copy.repeatHelp}
       </RideText>
     </RideCard>
-    <CarButton label={copy.continue} onPress={next} />
-  </>;
+  </PostStepScreen>;
 }
 
 function hasPhonePattern(value: string) {
   return /[0-9]{7}/.test(normalizeDigits(value.normalize('NFKC')).replace(/[\s./()+ـ-]/g, ''));
 }
 
-function CarStep({ car, onNext }: { car: RideCar; onNext: () => void }) {
+function CarStep({ car, onNext, onBack }: { car: RideCar; onNext: () => void; onBack: () => void }) {
   const { draft, setCarDetails } = usePostRideDraft();
   const [seats, setSeats] = useState(() => Math.min(draft.carDetails?.seats ?? 1, car.passengerSeats));
   const [pickup, setPickup] = useState(draft.carDetails?.pickupNote ?? '');
@@ -139,47 +163,68 @@ function CarStep({ car, onNext }: { car: RideCar; onNext: () => void }) {
     onNext();
   }
 
-  return <>
-    <RideText kind="title1" header>{copy.carAndSeats}</RideText>
+  return <PostStepScreen step={2} onBack={onBack} footer={
+    <RideButton label={copy.continue} disabled={pickupHasPhone || notesHavePhone} onPress={next} />
+  }>
     <RideCard>
       <View style={rideStyles.between}>
-        <View style={[rideStyles.stack, rideStyles.grow]}>
-          <RideText kind="headline">{car.label}</RideText>
-          <RideText kind="footnote" muted>{copy.carCapacity(car.passengerSeats)}</RideText>
+        <RideIconTile icon="car" />
+        <View style={rideStyles.grow}>
+          <RideText kind="subheadlineSemibold">{car.label}</RideText>
+          <RideText kind="caption1" muted>
+            {car.typeName && `${car.typeName} · `}
+            <RideText kind="caption1" muted>{copy.carCapacity(car.passengerSeats)}</RideText>
+          </RideText>
         </View>
-        <CarButton label={copy.change} disabled secondary onPress={disabledAction} />
+        <RideButton label={copy.change} variant="text" compact disabled />
       </View>
-      <RideText kind="footnote" muted>{copy.changeCarHelp}</RideText>
+      <RideText kind="caption1" muted>{copy.changeCarHelp}</RideText>
     </RideCard>
     <RideCard>
-      <RideText kind="headline">{copy.seatsToOffer}</RideText>
-      <RideText kind="footnote" muted>{copy.seatsCapacity(car.passengerSeats)}</RideText>
       <View style={rideStyles.between}>
-        <CarButton label={copy.removeSeat} disabled={seats <= 1} secondary onPress={() => setSeats(current => Math.max(1, current - 1))} />
-        <RideText kind="title2">{seats}</RideText>
-        <CarButton label={copy.addSeat} disabled={seats >= car.passengerSeats} secondary
-          onPress={() => setSeats(current => Math.min(car.passengerSeats, current + 1))} />
+        <View style={rideStyles.grow}>
+          <RideText kind="headline">{copy.seatsToOffer}</RideText>
+          <RideText kind="footnote" muted>{copy.seatsCapacity(car.passengerSeats)}</RideText>
+        </View>
+        <View style={styles.stepper}>
+          <RideButton label={copy.removeSeat} icon="minus" iconOnly compact variant="tint" disabled={seats <= 1}
+            onPress={() => setSeats(current => Math.max(1, current - 1))} />
+          <RideText kind="title3">{seats}</RideText>
+          <RideButton label={copy.addSeat} icon="plus" iconOnly compact variant="tint" disabled={seats >= car.passengerSeats}
+            onPress={() => setSeats(current => Math.min(car.passengerSeats, current + 1))} />
+        </View>
       </View>
     </RideCard>
     <View style={rideStyles.stack}>
       <TextField label={copy.optionalPickup} value={pickup} maxLength={pickupLimit} onChangeText={value => setPickup(value.slice(0, pickupLimit))}
         error={pickupHasPhone ? copy.errors.contact_details_not_allowed : undefined} multiline />
-      <RideText kind="footnote" muted>{copy.counter(pickup.length, pickupLimit)}</RideText>
-      <RideText kind="footnote" muted>{copy.pickupHelp}</RideText>
+      <FieldHelp help={copy.pickupHelp} length={pickup.length} limit={pickupLimit} />
     </View>
     <View style={rideStyles.stack}>
       <TextField label={copy.optionalNotes} value={notes} maxLength={notesLimit} onChangeText={value => setNotes(value.slice(0, notesLimit))}
         error={notesHavePhone ? copy.errors.contact_details_not_allowed : undefined} multiline />
-      <RideText kind="footnote" muted>{copy.counter(notes.length, notesLimit)}</RideText>
-      <RideText kind="footnote" muted>{copy.contactHelp}</RideText>
+      <FieldHelp help={copy.contactHelp} length={notes.length} limit={notesLimit} />
     </View>
-    <CarButton label={copy.continue} disabled={pickupHasPhone || notesHavePhone} onPress={next} />
-  </>;
+  </PostStepScreen>;
 }
 
-function ReviewStep({ route, car, input, onBlocked }: {
+function FieldHelp({ help, length, limit }: { help: string; length: number; limit: number }) {
+  return <View style={styles.fieldHelp}>
+    <View style={rideStyles.grow}><RideText kind="footnote" muted>{help}</RideText></View>
+    <RideText kind="caption1" muted>{copy.counter(length, limit)}</RideText>
+  </View>;
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return <View style={styles.summaryRow}>
+    <RideText kind="subheadline" muted>{label}</RideText>
+    <View style={rideStyles.grow}><RideText kind="subheadlineSemibold" align="right">{value}</RideText></View>
+  </View>;
+}
+
+function ReviewStep({ route, car, input, onBlocked, onBack }: {
   route: PilotRoute; car: RideCar; input: Omit<PublishRideInput, 'requestId'>;
-  onBlocked: (gate: 'phone_unverified' | 'car_not_approved') => void;
+  onBlocked: (gate: 'phone_unverified' | 'car_not_approved') => void; onBack: () => void;
 }) {
   const api = useRidesApi();
   const { getOrCreateRequestId, clear } = usePostRideDraft();
@@ -211,32 +256,31 @@ function ReviewStep({ route, car, input, onBlocked }: {
     }
   }
 
-  return <>
-    <RideText kind="title1" header>{copy.review}</RideText>
-    <RideCard>
-      <RideText kind="title3">{from}</RideText>
-      <View style={rideStyles.row}>
-        <RideText kind="subheadlineSemibold">{formatRideDate(input.date)} · {formatRideTime(input.time)}</RideText>
-        {input.flexMinutes > 0 && <RideText kind="subheadline" muted>± {copy.minutes(input.flexMinutes)}</RideText>}
-      </View>
-      <RideText kind="title3">{to}</RideText>
-      <RideText kind="footnote" muted>{input.repeat === 'weekdays' ? copy.repeatSummary : copy.once}</RideText>
-    </RideCard>
-    <RideCard>
-      <View style={rideStyles.between}>
-        <RideText kind="headline">{copy.seatsOfferedLabel}</RideText>
-        <RideText>{copy.seatSummary(input.seats, car.passengerSeats)}</RideText>
-      </View>
-      {input.pickupNote && <><RideText kind="headline">{copy.pickup}</RideText><RideText>{input.pickupNote}</RideText></>}
-      {input.notes && <><RideText kind="headline">{copy.notes}</RideText><RideText>{input.notes}</RideText></>}
-    </RideCard>
-    <RideText kind="footnote" muted>{copy.postPrivacy}</RideText>
+  const schedule = [
+    formatRideDate(input.date), formatRideTime(input.time),
+    input.flexMinutes > 0 ? `± ${copy.minutes(input.flexMinutes)}` : null,
+  ].filter(Boolean).join(' · ');
+  return <PostStepScreen step={3} onBack={onBack} footer={<>
     {error && <Banner text={copy.errors[error]} tone="warning" />}
-    <CarButton label={error === 'uncertain' ? strings.retry : copy.publish} busy={busy} disabled={busy}
+    <RideButton label={error === 'uncertain' ? strings.retry : copy.publish} busy={busy} disabled={busy}
       onPress={() => void publish()} />
-    <CarButton label={copy.saveDraft} disabled secondary onPress={disabledAction} />
-    <RideText kind="footnote" muted>{copy.draftsHelp}</RideText>
-  </>;
+    <RideButton label={copy.saveDraft} disabled variant="text" compact />
+    <RideText kind="caption1" muted align="center">{copy.draftsHelp}</RideText>
+  </>}>
+    <RideCard>
+      <RideText kind="headline" header>{copy.review}</RideText>
+      <RouteTimeline from={{ name: from, caption: schedule }} to={{
+        name: to, caption: input.repeat === 'weekdays' ? copy.repeatSummary : copy.once,
+      }} />
+      <RideDivider />
+      <View style={rideStyles.stack}>
+        <SummaryRow label={copy.seatsOfferedLabel} value={copy.seatSummary(input.seats, car.passengerSeats)} />
+        {input.pickupNote && <SummaryRow label={copy.pickup} value={input.pickupNote} />}
+        {input.notes && <SummaryRow label={copy.notes} value={input.notes} />}
+      </View>
+    </RideCard>
+    <RideNotice icon="info">{copy.postPrivacy}</RideNotice>
+  </PostStepScreen>;
 }
 
 type PostProps = { route: PilotRoute; routes?: PilotRoute[]; car: RideCar; window: RideWindow };
@@ -249,15 +293,13 @@ type RoutedPostProps = PostProps & {
 
 function PostRideForm({ step, route, routes = [route], car, window, onNext, onBack, onBlocked, missingDraft }: RoutedPostProps) {
   const { draft } = usePostRideDraft();
-  if (step !== 'schedule' && (!draft.route || !draft.schedule)) return missingDraft;
-  if (step === 'review' && !draft.carDetails) return missingDraft;
+  if (step === 'schedule') return <ScheduleStep route={route} routes={routes} window={window} onNext={onNext} onBack={onBack} />;
+  if (!draft.route || !draft.schedule) return missingDraft;
+  if (step === 'car') return <CarStep car={car} onNext={onNext} onBack={onBack} />;
+  if (!draft.carDetails) return missingDraft;
   const selected = routes.find(option => option.id === draft.route?.routeId) ?? route;
-  return <RideScreen title={copy.post} onBack={onBack}>
-    {step === 'schedule' && <ScheduleStep route={route} routes={routes} window={window} onNext={onNext} />}
-    {step === 'car' && <CarStep car={car} onNext={onNext} />}
-    {step === 'review' && draft.route && draft.schedule && draft.carDetails &&
-      <ReviewStep route={selected} car={car} input={{ ...draft.route, ...draft.schedule, ...draft.carDetails }} onBlocked={onBlocked} />}
-  </RideScreen>;
+  return <ReviewStep route={selected} car={car} input={{ ...draft.route, ...draft.schedule, ...draft.carDetails }}
+    onBack={onBack} onBlocked={onBlocked} />;
 }
 
 function StandalonePostRide({ route, routes, car, window }: PostProps) {
@@ -298,3 +340,11 @@ function CarApprovalRedirect() {
   useEffect(carApproval, []);
   return <RideScreen title={copy.post}><LoadingState /></RideScreen>;
 }
+
+const styles = StyleSheet.create({
+  progress: { paddingHorizontal: spacing['space/16'], paddingTop: spacing['space/4'] },
+  scheduleRow: { flexDirection: 'row', alignItems: 'center', minHeight: 52, gap: spacing['space/12'] },
+  stepper: { flexDirection: 'row', alignItems: 'center', gap: spacing['space/12'] },
+  fieldHelp: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing['space/8'] },
+  summaryRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing['space/12'] },
+});

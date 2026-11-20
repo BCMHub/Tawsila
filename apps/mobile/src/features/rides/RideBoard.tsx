@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
-import { FlatList, Platform, Pressable, View } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
 import { strings } from '../../strings';
@@ -12,7 +11,8 @@ import type { RideDirection, RideProjection } from './api';
 import { formatPostedAt, formatRideDate, formatRideTime } from './format';
 import { loadPilotRoutes, type PilotRoute } from './rideConfig';
 import { addRideDays, rideWindow, windowDates } from './rideDates';
-import { RideCard, RideChip, RideChoice, RidePicker, RideText, rideStyles } from './RideScreen';
+import { RideCard, RideChoice, RidePicker, RideSegments, RideText, rideStyles } from './RideScreen';
+import { RideAvatar, RideBadge, RideButton, RideSymbol, RouteTimeline } from './RidePresentation';
 import { useRidesApi } from './RidesApiProvider';
 import { useRideResource } from './useRideResource';
 
@@ -30,34 +30,42 @@ type BoardProps = {
 function BoardCard({ ride }: { ride: RideProjection }) {
   const date = formatRideDate(ride.ride_date);
   const time = formatRideTime(ride.departure_time);
-  return <RideCard>
-    <View style={rideStyles.row}>
-      <RideChip>{ride.owner_initials}</RideChip>
+  return <RideCard raised>
+    <View style={styles.owner}>
+      <RideAvatar>{ride.owner_initials}</RideAvatar>
       <View style={rideStyles.grow}>
-        <RideText kind="headline">{ride.owner_display}</RideText>
+        <View style={rideStyles.row}>
+          <RideText kind="subheadlineSemibold">{ride.owner_display}</RideText>
+          {ride.owner_phone_verified && <RideBadge icon="verified" tone="accent">{copy.phoneVerified}</RideBadge>}
+        </View>
         <RideText kind="footnote" muted>{copy.noRatings}</RideText>
       </View>
-      {ride.owner_phone_verified && <RideChip>{copy.phoneVerified}</RideChip>}
     </View>
     <Pressable accessibilityRole="button" accessibilityLabel={copy.openRide(ride.from_name, ride.to_name, date, time)}
       onPress={() => router.push({ pathname: '/ride/[id]', params: { id: ride.ride_id } })}
       style={rideStyles.stack}>
-      <RideText kind="headline">{ride.from_name}</RideText>
-      <RideText kind="subheadline" muted>{ride.pickup_note ?? copy.pickupByAgreement}</RideText>
-      <RideText kind="headline">{ride.to_name}</RideText>
-      <View style={rideStyles.row}>
-        {ride.to_area && <RideText kind="subheadline" muted>{ride.to_area}</RideText>}
-        <RideText kind="subheadline" muted>{copy.aboutMinutes(ride.duration_minutes)}</RideText>
+      <RouteTimeline
+        from={{ name: ride.from_name, caption: <>
+          {copy.leavesAtTime(time)}{' · '}<RideText kind="footnote" muted>{ride.pickup_note ?? copy.pickupByAgreement}</RideText>
+        </> }}
+        to={{ name: ride.to_name, caption: <>
+          {ride.to_area && `${ride.to_area} · `}
+          <RideText kind="footnote" muted>{copy.aboutMinutes(ride.duration_minutes)}</RideText>
+        </> }} />
+      <View style={rideStyles.between}>
+        <View style={[rideStyles.row, rideStyles.grow]}>
+          <RideSymbol name="calendar" color="label/secondary" />
+          <RideText kind="subheadline">{date} · {time}</RideText>
+        </View>
+        <RideText kind="subheadlineSemibold" color="brand/primary">{copy.seatsLeft(ride.seats_left)}</RideText>
       </View>
-      <RideText kind="subheadlineSemibold">{date} · {time}</RideText>
     </Pressable>
-    <View style={rideStyles.row}>
-      <RideChip>{copy.seatsLeft(ride.seats_left)}</RideChip>
-      <RideChip>{ride.repeat === 'weekdays' ? copy.weekdays : copy.once}</RideChip>
-    </View>
+    <RideBadge icon={ride.repeat === 'weekdays' ? 'repeat' : 'calendar'}>
+      {ride.repeat === 'weekdays' ? copy.weekdays : copy.once}
+    </RideBadge>
     <View style={rideStyles.between}>
-      <RideText kind="footnote" muted>{formatPostedAt(ride.created_at)}</RideText>
-      <CarButton label={copy.requestSeat} disabled secondary onPress={() => undefined} />
+      <RideText kind="caption1" muted>{formatPostedAt(ride.created_at)}</RideText>
+      <RideButton label={copy.requestSeat} disabled compact />
     </View>
   </RideCard>;
 }
@@ -124,39 +132,47 @@ export function RideBoard({ route, routes = [route], initialDirection = 'a_to_b'
     if (routes.length === 1) router.push('/post');
     else router.push({ pathname: '/post', params: { routeId: selectedRoute.id } });
   }
-  const header = <View style={rideStyles.content}>
+  const routePill = <View style={[styles.routePill, { backgroundColor: t['bg/elevated'], borderColor: t.separator }]}>
+    <RideSymbol name="pin" />
+    <View style={styles.shrink}><RideText kind="footnoteSemibold">{routeLabel}</RideText></View>
+    <RideSymbol name="down" size={spacing['space/12']} color="label/secondary" />
+  </View>;
+  const header = <>
+    <View style={styles.header}>
       <View style={rideStyles.between}>
         {routes.length > 1
-          ? <RideChoice label={routeLabel} onPress={() => setPicker(current => current === 'route' ? null : 'route')} />
-          : <RideChip>{routeLabel}</RideChip>}
-        <Pressable accessibilityRole="button" accessibilityLabel={copy.notifications} accessibilityState={{ disabled: true }}
-          disabled style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-          <SymbolView name={{ ios: 'bell', android: 'notifications', web: 'notifications' }} size={24}
-            tintColor={t['label/tertiary']} accessible={false} />
-        </Pressable>
+          ? <Pressable accessibilityRole="button" accessibilityLabel={routeLabel}
+            accessibilityState={{ expanded: picker === 'route' }} style={styles.shrink}
+            onPress={() => setPicker(current => current === 'route' ? null : 'route')}>{routePill}</Pressable>
+          : routePill}
+        <RideButton label={copy.notifications} icon="bell" iconOnly variant="surface" disabled />
       </View>
       <RideText kind="largeTitle" header>{copy.title}</RideText>
       {picker === 'route' && <RidePicker title={copy.route}>
         {routes.map(option => <RideChoice key={option.id} label={copy.routeName(option.fromName, option.toName)}
           radio selected={option.id === selectedRoute.id} onPress={() => { setHasRefreshed(false); setSelectedRoute(option); setPicker(null); }} />)}
       </RidePicker>}
-      <View style={rideStyles.row}>
-        <RideChoice label={copy.toDestination(selectedRoute.toName)} selected={direction === 'a_to_b'} onPress={() => { setHasRefreshed(false); setDirection('a_to_b'); }} />
-        <RideChoice label={copy.toDestination(selectedRoute.fromName)} selected={direction === 'b_to_a'} onPress={() => { setHasRefreshed(false); setDirection('b_to_a'); }} />
-      </View>
-      <View style={rideStyles.row}>
-        <RideChoice label={copy.all} selected={!day} onPress={() => chooseDay('all')} />
-        <RideChoice label={copy.today} selected={selection === 'today'} onPress={() => chooseDay('today')} />
-        <RideChoice label={copy.tomorrow} selected={selection === 'tomorrow'} onPress={() => chooseDay('tomorrow')} />
-        <RideChoice label={day && selection === day ? formatRideDate(day) : copy.pickDate} accessibilityLabel={copy.pickDate}
+      <RideSegments>
+        <RideChoice variant="segment" label={copy.toDestination(selectedRoute.toName)} selected={direction === 'a_to_b'}
+          onPress={() => { setHasRefreshed(false); setDirection('a_to_b'); }} />
+        <RideChoice variant="segment" label={copy.toDestination(selectedRoute.fromName)} selected={direction === 'b_to_a'}
+          onPress={() => { setHasRefreshed(false); setDirection('b_to_a'); }} />
+      </RideSegments>
+      {(result.status !== 'ready' || hasRides || day || picker === 'date') && <View style={rideStyles.row}>
+        <RideChoice variant="pill" label={copy.all} selected={!day} onPress={() => chooseDay('all')} />
+        <RideChoice variant="pill" label={copy.today} selected={selection === 'today'} onPress={() => chooseDay('today')} />
+        <RideChoice variant="pill" label={copy.tomorrow} selected={selection === 'tomorrow'} onPress={() => chooseDay('tomorrow')} />
+        <RideChoice variant="pill" label={day && selection === day ? formatRideDate(day) : copy.pickDate} accessibilityLabel={copy.pickDate}
           selected={day !== null && selection === day} onPress={() => setPicker(current => current === 'date' ? null : 'date')} />
-      </View>
+      </View>}
       {picker === 'date' && <RidePicker title={copy.pickDate}>
         {windowDates(window).map(date => <RideChoice key={date} radio label={formatRideDate(date)} selected={date === day}
           onPress={() => chooseDay(date)} />)}
       </RidePicker>}
-      {carEntries ?? <CarButton label={strings.verification.approval} secondary onPress={() => router.push('/(verify)/status')} />}
-  </View>;
+    </View>
+    {carEntries ? <View style={styles.carEntries}>{carEntries}</View> :
+      <CarButton label={strings.verification.approval} secondary onPress={() => router.push('/(verify)/status')} />}
+  </>;
 
   const empty = result.status === 'loading' ? <LoadingState /> :
     result.status === 'error' ? <ErrorState onRetry={retry} /> :
@@ -166,7 +182,7 @@ export function RideBoard({ route, routes = [route], initialDirection = 'a_to_b'
 
   return <SafeAreaView edges={['top']} style={[rideStyles.grow, { backgroundColor: t['bg/base'] }]}>
     <FlatList testID="rides-list" data={rows} keyExtractor={ride => ride.ride_id}
-      renderItem={({ item }) => <View style={{ paddingHorizontal: spacing['space/16'], paddingBottom: spacing['space/16'] }}>
+      renderItem={({ item }) => <View style={{ paddingHorizontal: spacing['space/16'], paddingBottom: spacing['space/12'] }}>
         <BoardCard ride={item} />
       </View>}
       ListHeaderComponent={header} ListEmptyComponent={empty}
@@ -182,7 +198,7 @@ export function RideBoard({ route, routes = [route], initialDirection = 'a_to_b'
     {hasRides && <SafeAreaView edges={Platform.OS === 'android' ? [] : ['bottom']}
       style={{ position: 'absolute', end: spacing['space/16'], bottom: spacing['space/24'] }}>
       <View style={{ ...elevation.card, borderRadius: radius['radius/full'], backgroundColor: t['brand/primary'] }}>
-        <CarButton label={copy.post} onPress={post} />
+        <RideButton label={copy.post} icon="plus" onPress={post} />
       </View>
     </SafeAreaView>}
   </SafeAreaView>;
@@ -207,3 +223,16 @@ export function RideBoardRoute() {
       <EmptyState fill title={copy.routesUnavailable} body={copy.routesUnavailableBody} />}
   </SafeAreaView>;
 }
+
+const styles = StyleSheet.create({
+  owner: { flexDirection: 'row', alignItems: 'center', gap: spacing['space/12'] },
+  header: { paddingHorizontal: spacing['space/16'], paddingBottom: spacing['space/16'], gap: spacing['space/12'] },
+  // CarEntryPoints supplies its own padding, including when it has no visible action.
+  carEntries: { marginVertical: -spacing['space/16'] },
+  shrink: { flexShrink: 1 },
+  routePill: {
+    flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: spacing['space/4'],
+    borderWidth: 1, borderRadius: radius['radius/full'],
+    paddingHorizontal: spacing['space/8'], paddingVertical: spacing['space/8'],
+  },
+});

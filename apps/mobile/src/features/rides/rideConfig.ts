@@ -1,7 +1,7 @@
 import { getSupabase } from '../../lib/supabase';
 
 export type PilotRoute = { id: string; fromName: string; toName: string };
-export type RideCar = { label: string; passengerSeats: number };
+export type RideCar = { label: string; typeName?: string; passengerSeats: number };
 
 export async function loadPilotRoutes(): Promise<PilotRoute[]> {
   const { data, error } = await getSupabase().from('routes')
@@ -27,7 +27,8 @@ export async function loadRideCar(): Promise<RideCar> {
   if (error || !data?.type) throw new Error('car_unavailable');
   const names = data.brand ? [data.brand.name, data.model?.name].filter(Boolean).join(' ') : '';
   return {
-    label: names ? `${names} · ${data.type.name}` : data.type.name,
+    label: names || data.type.name,
+    typeName: names ? data.type.name : undefined,
     passengerSeats: data.type.passenger_seats,
   };
 }

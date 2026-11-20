@@ -23,10 +23,13 @@ select set_eq(
 select is((select count(*) from information_schema.columns c join taw29_expected_tables t on t.name = c.table_name
   where c.table_schema = 'public' and c.column_name ~* '(price|fare|cost|amount|currency|egp)'), 0::bigint,
   'schema:no_price:columns no TAW-29 table column has a price-like name');
-select is((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+select ok((select count(*)=15 and count(distinct p.proname)=15
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+  join taw29_expected_functions f on f.name = p.proname where n.nspname = 'public')
+  and (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
   join taw29_expected_functions f on f.name = p.proname
   cross join lateral unnest(coalesce(p.proargnames, array[]::text[])) arg(name)
-  where n.nspname = 'public' and arg.name ~* '(price|fare|cost|amount|currency|egp)'), 0::bigint,
+  where n.nspname = 'public' and arg.name ~* '(price|fare|cost|amount|currency|egp)')=0,
   'no_price:function-arguments no TAW-29 function argument has a price-like name');
 
 select * from finish();

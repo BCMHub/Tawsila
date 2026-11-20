@@ -46,6 +46,8 @@ begin
   return jsonb_build_object('state',result_state,'value',result,'message',result_message,'rows',affected);
 end
 $fn$;
+-- Retain producing-call outcomes so empty side-effect scans cannot pass alone.
+create temp table taw29_probe_results(id text primary key, passed boolean not null);
 create function pg_temp.check_probe(description text, role_name text, statement text,
   expected_state text default '00000', expected_value text default null,
   isolate_table text default null, keep_changes boolean default false) returns text
@@ -55,6 +57,8 @@ begin
   observed := pg_temp.observe(role_name,statement,isolate_table,keep_changes);
   passed := observed->>'state'=expected_state and
     (expected_value is null or coalesce(observed->>(case when expected_state='00000' then 'value' else 'message' end)=expected_value,false));
+  insert into taw29_probe_results values (split_part(description,' ',1),coalesce(passed,false))
+    on conflict (id) do update set passed=excluded.passed;
   return ok(passed,description) || case when passed then '' else E'\n' || diag(observed::text) end;
 end
 $fn$;
@@ -464,25 +468,28 @@ begin
     ('a29e1000-0000-4000-8000-000000000104','a29e1000-0000-4000-8000-000000000101','a29e1000-0000-4000-8000-000000000102',50,true),('a29e1000-0000-4000-8000-000000000105','a29e1000-0000-4000-8000-000000000102','a29e1000-0000-4000-8000-000000000101',50,false),('a29e1000-0000-4000-8000-000000000106','a29e1000-0000-4000-8000-000000000101','a29e1000-0000-4000-8000-000000000103',50,true);
   insert into public.car_types(id,code,name,passenger_seats) values ('a29e1000-0000-4000-8000-000000000107','taw29-privileges','Privilege car',4);
   insert into auth.users(id) values ('a29e1000-0000-4000-8000-000000000001'),('a29e1000-0000-4000-8000-000000000002'),('a29e1000-0000-4000-8000-000000000003'),('a29e1000-0000-4000-8000-000000000004'),('a29e1000-0000-4000-8000-000000000005');
-  insert into public.communities(id,name) values ('a29e1000-0000-4000-8000-000000000110','Privilege community');
+  insert into public.communities(id,name,active) values ('a29e1000-0000-4000-8000-000000000110','Privilege community',true);
+  update public.legal_documents set is_current=false where is_current;
+  insert into public.legal_documents(kind,version,is_current) values
+    ('terms','taw29-privileges-v1',true),('privacy','taw29-privileges-v1',true);
 end $fixture$$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:no-active-weekdays no pre-existing active weekdays series remains', 'owner', $sql$select count(*) from public.ride_series where status='active' and repeat='weekdays'$sql$, '00000', '0');
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000001","role":"authenticated"}';
-select pg_temp.check_probe('schema:struct:privileges:profile-1 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,(select version from public.legal_documents where kind='terms' and is_current),(select version from public.legal_documents where kind='privacy' and is_current))$sql$, '00000', null, null, true);
+select pg_temp.check_probe('schema:struct:privileges:profile-1 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,'taw29-privileges-v1','taw29-privileges-v1')$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:car-1 operation succeeds', 'owner', $sql$select public.submit_car('a29e1000-0000-4000-8000-000000000200',null,'Privilege',null,'Car','a29e1000-0000-4000-8000-000000000107',2020,'ب123')$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:approve-1 operation succeeds', 'owner', $sql$select public.review_item('a29e1000-0000-4000-8000-000000000001','car_owner',1,'approved',null)$sql$, '00000', null, null, true);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000002","role":"authenticated"}';
-select pg_temp.check_probe('schema:struct:privileges:profile-2 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,(select version from public.legal_documents where kind='terms' and is_current),(select version from public.legal_documents where kind='privacy' and is_current))$sql$, '00000', null, null, true);
+select pg_temp.check_probe('schema:struct:privileges:profile-2 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,'taw29-privileges-v1','taw29-privileges-v1')$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:car-2 operation succeeds', 'owner', $sql$select public.submit_car('a29e1000-0000-4000-8000-000000000201',null,'Privilege',null,'Car','a29e1000-0000-4000-8000-000000000107',2020,'ب124')$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:approve-2 operation succeeds', 'owner', $sql$select public.review_item('a29e1000-0000-4000-8000-000000000002','car_owner',1,'approved',null)$sql$, '00000', null, null, true);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000003","role":"authenticated"}';
-select pg_temp.check_probe('schema:struct:privileges:profile-3 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,(select version from public.legal_documents where kind='terms' and is_current),(select version from public.legal_documents where kind='privacy' and is_current))$sql$, '00000', null, null, true);
+select pg_temp.check_probe('schema:struct:privileges:profile-3 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,'taw29-privileges-v1','taw29-privileges-v1')$sql$, '00000', null, null, true);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000004","role":"authenticated"}';
-select pg_temp.check_probe('schema:struct:privileges:profile-4 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,(select version from public.legal_documents where kind='terms' and is_current),(select version from public.legal_documents where kind='privacy' and is_current))$sql$, '00000', null, null, true);
+select pg_temp.check_probe('schema:struct:privileges:profile-4 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,'taw29-privileges-v1','taw29-privileges-v1')$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:car-4 operation succeeds', 'owner', $sql$select public.submit_car('a29e1000-0000-4000-8000-000000000203',null,'Privilege',null,'Car','a29e1000-0000-4000-8000-000000000107',2020,'ب126')$sql$, '00000', null, null, true);
 select pg_temp.check_probe('schema:struct:privileges:approve-4 operation succeeds', 'owner', $sql$select public.review_item('a29e1000-0000-4000-8000-000000000004','car_owner',1,'approved',null)$sql$, '00000', null, null, true);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000005","role":"authenticated"}';
-select pg_temp.check_probe('schema:struct:privileges:profile-5 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,(select version from public.legal_documents where kind='terms' and is_current),(select version from public.legal_documents where kind='privacy' and is_current))$sql$, '00000', null, null, true);
+select pg_temp.check_probe('schema:struct:privileges:profile-5 operation succeeds', 'owner', $sql$select public.complete_profile('Privilege','Fixture','a29e1000-0000-4000-8000-000000000110','car_owner',true,'taw29-privileges-v1','taw29-privileges-v1')$sql$, '00000', null, null, true);
 set local "request.jwt.claims" = '{}';
 select pg_temp.check_probe('schema:struct:privileges:account-states operation succeeds', 'owner', $sql$with updated as (update public.accounts set phone_e164='+20100000100'||right(user_id::text,1), phone_verified=true where user_id in ('a29e1000-0000-4000-8000-000000000001','a29e1000-0000-4000-8000-000000000003','a29e1000-0000-4000-8000-000000000004') returning user_id) select count(*) from updated$sql$, '00000', '3', null, true);
 select pg_temp.check_probe('schema:struct:privileges:incomplete operation succeeds', 'owner', $sql$with updated as (update public.accounts set profile_completed_at=null where user_id='a29e1000-0000-4000-8000-000000000004' returning user_id) select count(*) from updated$sql$, '00000', '1', null, true);
@@ -1025,6 +1032,8 @@ begin
   exception when sqlstate 'PZ001' then null;
     when others then error_text := sqlstate||': '||sqlerrm;
   end;
+  insert into taw29_probe_results values (split_part(description,' ',1),coalesce(passed,false))
+    on conflict (id) do update set passed=excluded.passed;
   return ok(coalesce(passed,false),description)||case when passed then '' else E'\n'||diag(coalesce(error_text,observed::text,'no observation')) end;
 end $fn$;
 -- The spec leaves taw29_log_view's SQL signature open. Bind its documented
@@ -1058,7 +1067,7 @@ select pg_temp.check_probe('bypass:publish_ride:owner:outcome expected outcome',
 select pg_temp.check_probe('bypass:list_rides:owner:outcome expected outcome', 'owner', $sql$select public.list_rides('a29e1000-0000-4000-8000-000000000104','a_to_b',null,null,null,30)$sql$, 'P0001', 'not_authenticated', null, false);
 select pg_temp.check_probe('bypass:get_ride:owner:outcome expected outcome', 'owner', $sql$select public.get_ride('a29e1000-0000-4000-8000-000000000109','list')$sql$, 'P0001', 'not_authenticated', null, false);
 select pg_temp.check_probe('bypass:resolve_shared_ride:owner:outcome expected outcome', 'owner', $sql$select public.resolve_shared_ride('A29E1000')$sql$, 'P0001', 'not_authenticated', null, false);
-select pg_temp.check_probe('bypass:client-functions:owner:no-writes no ride or event side effects', 'owner', $sql$select ((select count(*) from public.ride_series where owner_id::text like 'a29e1000-%')=1 and (select count(*) from public.rides where owner_id::text like 'a29e1000-%')=1 and (select count(*) from public.pilot_events where user_id::text like 'a29e1000-%')=0)::text$sql$, '00000', 'true');
+select pg_temp.check_probe('bypass:client-functions:owner:no-writes no ride or event side effects', 'owner', $sql$select ((select count(*)=7 and bool_and(passed) from taw29_probe_results where id in ('bypass:is_phone_verified:owner:outcome','bypass:can_publish:owner:outcome','bypass:require_phone_verified:owner:outcome','bypass:publish_ride:owner:outcome','bypass:list_rides:owner:outcome','bypass:get_ride:owner:outcome','bypass:resolve_shared_ride:owner:outcome')) and (select count(*) from public.ride_series where owner_id::text like 'a29e1000-%')=1 and (select count(*) from public.rides where owner_id::text like 'a29e1000-%')=1 and (select count(*) from public.pilot_events where user_id::text like 'a29e1000-%')=0)::text$sql$, '00000', 'true');
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000001","role":"authenticated"}';
 select pg_temp.check_pure('bypass:is_phone_verified:authenticated:fixture-1 value and no side effect','authenticated',$sql$select public.is_phone_verified()$sql$,'true');
 select pg_temp.check_pure('bypass:can_publish:authenticated:fixture-1 value and no side effect','authenticated',$sql$select public.can_publish()$sql$,'ok');
@@ -1102,11 +1111,11 @@ select pg_temp.check_probe('bypass:publish_ride:authenticated:created expected o
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000002","role":"authenticated"}';
 select pg_temp.check_probe('bypass:publish_ride:authenticated:phone_unverified expected outcome', 'authenticated', $sql$select public.publish_ride('a29e1000-0000-4000-8000-000000000303','a29e1000-0000-4000-8000-000000000104','b_to_a',(now() at time zone 'Africa/Cairo')::date+1,'10:00',0,1,null,null,'once')$sql$, 'P0001', 'phone_unverified', null, false);
 set local "request.jwt.claims" = '{}';
-select pg_temp.check_probe('bypass:publish_ride:authenticated:phone_unverified-no-rows expected outcome', 'owner', $sql$select (not exists(select 1 from public.ride_series where request_id='a29e1000-0000-4000-8000-000000000303') and not exists(select 1 from public.rides where owner_id='a29e1000-0000-4000-8000-000000000002') and not exists(select 1 from public.pilot_events where user_id='a29e1000-0000-4000-8000-000000000002'))::text$sql$, '00000', 'true', null, false);
+select pg_temp.check_probe('bypass:publish_ride:authenticated:phone_unverified-no-rows expected outcome', 'owner', $sql$select ((select passed from taw29_probe_results where id='bypass:publish_ride:authenticated:phone_unverified') and not exists(select 1 from public.ride_series where request_id='a29e1000-0000-4000-8000-000000000303') and not exists(select 1 from public.rides where owner_id='a29e1000-0000-4000-8000-000000000002') and not exists(select 1 from public.pilot_events where user_id='a29e1000-0000-4000-8000-000000000002'))::text$sql$, '00000', 'true', null, false);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000003","role":"authenticated"}';
 select pg_temp.check_probe('bypass:publish_ride:authenticated:car_not_approved expected outcome', 'authenticated', $sql$select public.publish_ride('a29e1000-0000-4000-8000-000000000304','a29e1000-0000-4000-8000-000000000104','b_to_a',(now() at time zone 'Africa/Cairo')::date+1,'10:00',0,1,null,null,'once')$sql$, 'P0001', 'car_not_approved', null, false);
 set local "request.jwt.claims" = '{}';
-select pg_temp.check_probe('bypass:publish_ride:authenticated:car_not_approved-no-rows expected outcome', 'owner', $sql$select (not exists(select 1 from public.ride_series where request_id='a29e1000-0000-4000-8000-000000000304') and not exists(select 1 from public.rides where owner_id='a29e1000-0000-4000-8000-000000000003') and not exists(select 1 from public.pilot_events where user_id='a29e1000-0000-4000-8000-000000000003'))::text$sql$, '00000', 'true', null, false);
+select pg_temp.check_probe('bypass:publish_ride:authenticated:car_not_approved-no-rows expected outcome', 'owner', $sql$select ((select passed from taw29_probe_results where id='bypass:publish_ride:authenticated:car_not_approved') and not exists(select 1 from public.ride_series where request_id='a29e1000-0000-4000-8000-000000000304') and not exists(select 1 from public.rides where owner_id='a29e1000-0000-4000-8000-000000000003') and not exists(select 1 from public.pilot_events where user_id='a29e1000-0000-4000-8000-000000000003'))::text$sql$, '00000', 'true', null, false);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000001","role":"authenticated"}';
 select pg_temp.check_probe('bypass:list_rides:authenticated:completed-1 expected outcome', 'authenticated', $sql$select exists(select 1 from public.list_rides('a29e1000-0000-4000-8000-000000000104','a_to_b',null,null,null,30) r where r->>'ride_id'='a29e1000-0000-4000-8000-000000000109')::text$sql$, '00000', 'true', null, false);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000002","role":"authenticated"}';
@@ -1122,11 +1131,11 @@ select pg_temp.check_probe('bypass:resolve_shared_ride:authenticated:incomplete 
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000001","role":"authenticated"}';
 select pg_temp.check_probe('bypass:get_ride:authenticated:own-projection expected outcome', 'authenticated', $sql$select (public.get_ride('a29e1000-0000-4000-8000-000000000109','list') @> jsonb_build_object('state','available','ride_id','a29e1000-0000-4000-8000-000000000109'))::text$sql$, '00000', 'true', null, true);
 set local "request.jwt.claims" = '{}';
-select pg_temp.check_probe('bypass:get_ride:authenticated:own-no-event expected outcome', 'owner', $sql$select count(*) from public.pilot_events where event_type='ride_viewed' and ride_id='a29e1000-0000-4000-8000-000000000109' and user_id='a29e1000-0000-4000-8000-000000000001'$sql$, '00000', '0', null, false);
+select pg_temp.check_probe('bypass:get_ride:authenticated:own-no-event expected outcome', 'owner', $sql$select ((select passed from taw29_probe_results where id='bypass:get_ride:authenticated:own-projection') and (select count(*)=0 from public.pilot_events where event_type='ride_viewed' and ride_id='a29e1000-0000-4000-8000-000000000109' and user_id='a29e1000-0000-4000-8000-000000000001'))::text$sql$, '00000', 'true', null, false);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000001","role":"authenticated"}';
 select pg_temp.check_probe('bypass:resolve_shared_ride:authenticated:own-projection expected outcome', 'authenticated', $sql$select (public.resolve_shared_ride('A29E1000') @> jsonb_build_object('state','available','ride',jsonb_build_object('ride_id','a29e1000-0000-4000-8000-000000000109')))::text$sql$, '00000', 'true', null, true);
 set local "request.jwt.claims" = '{}';
-select pg_temp.check_probe('bypass:resolve_shared_ride:authenticated:own-no-event expected outcome', 'owner', $sql$select count(*) from public.pilot_events where event_type='ride_viewed' and ride_id='a29e1000-0000-4000-8000-000000000109' and user_id='a29e1000-0000-4000-8000-000000000001'$sql$, '00000', '0', null, false);
+select pg_temp.check_probe('bypass:resolve_shared_ride:authenticated:own-no-event expected outcome', 'owner', $sql$select ((select passed from taw29_probe_results where id='bypass:resolve_shared_ride:authenticated:own-projection') and (select count(*)=0 from public.pilot_events where event_type='ride_viewed' and ride_id='a29e1000-0000-4000-8000-000000000109' and user_id='a29e1000-0000-4000-8000-000000000001'))::text$sql$, '00000', 'true', null, false);
 set local "request.jwt.claims" = '{"sub":"a29e1000-0000-4000-8000-000000000003","role":"authenticated"}';
 select pg_temp.check_probe('bypass:get_ride:authenticated:projection expected outcome', 'authenticated', $sql$select (public.get_ride('a29e1000-0000-4000-8000-000000000109','list') @> jsonb_build_object('state','available','ride_id','a29e1000-0000-4000-8000-000000000109'))::text$sql$, '00000', 'true', null, true);
 select pg_temp.check_probe('bypass:get_ride:authenticated:repeat expected outcome', 'authenticated', $sql$select (public.get_ride('a29e1000-0000-4000-8000-000000000109','list') @> jsonb_build_object('state','available','ride_id','a29e1000-0000-4000-8000-000000000109'))::text$sql$, '00000', 'true', null, true);

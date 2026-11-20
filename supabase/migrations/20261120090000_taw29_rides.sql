@@ -115,6 +115,6 @@ grant all on public.car_types to service_role;
 create policy places_read on public.places for select to authenticated using (active);
 create policy routes_read on public.routes for select to authenticated using (
   active
-  and exists (select 1 from public.places a where a.id = place_a_id and a.active)
-  and exists (select 1 from public.places b where b.id = place_b_id and b.active)
+  and exists (select 1 from public.places a where a.id = routes.place_a_id and a.active)
+  and exists (select 1 from public.places b where b.id = routes.place_b_id and b.active)
 );

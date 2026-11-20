@@ -1,4 +1,4 @@
-import { beforeEach, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, expect, jest, test } from '@jest/globals';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { RideBoard } from '../../features/rides/RideBoard';
 import { RidesApiProvider } from '../../features/rides/RidesApiProvider';
@@ -8,8 +8,13 @@ const mockPush = jest.fn(); jest.mock('expo-router', () => ({ router: { push: (h
 const ride = { ride_id: 'ride', share_code: 'CODE1234', route_id: 'route', direction: 'a_to_b', from_name: 'Maadi', from_area: 'South', to_name: 'New Cairo', to_area: 'East', duration_minutes: 45, ride_date: '2026-11-22', departure_time: '07:30:00', departs_at: '2026-11-22T05:30:00Z', flex_minutes: 10, seats_offered: 3, seats_left: 2, repeat: 'weekdays', pickup_note: 'Main gate', notes: null, created_at: '2026-11-19T09:55:00Z', state: 'available', is_own: false, owner_display: 'Ahmed M.', owner_initials: 'AM', owner_member_since: 'Nov 2026', owner_phone_verified: true, car_label: 'Hyundai Elantra · Sedan' } as RideProjection;
 let api: RidesApi;
 beforeEach(() => { mockPush.mockReset(); api = { listRides: jest.fn(async () => [ride]) } as unknown as RidesApi; });
+afterEach(() => { jest.useRealTimers(); });
 const start = () => render(<RidesApiProvider api={api}><RideBoard route={{ id: 'route', fromName: 'Maadi', toName: 'New Cairo' }} /></RidesApiProvider>);
 test('D1 renders approved card content and disabled deferred controls', async () => {
+ jest.useFakeTimers({
+  now: new Date('2026-11-19T10:00:00Z'),
+  doNotFake: ['nextTick', 'setImmediate', 'clearImmediate', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'queueMicrotask', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'hrtime', 'performance'],
+ });
  await start(); expect(await screen.findByText('Ahmed M.')).toBeTruthy(); for (const text of ['Phone verified', 'No ratings yet', 'Main gate', 'New Cairo', 'about 45 min', '2 seats left', 'Weekdays', 'Posted 5 min ago']) expect(screen.getByText(text)).toBeTruthy();
  expect(screen.getByRole('button', { name: 'Request seat' })).toBeDisabled(); expect(screen.getByRole('button', { name: /Notifications/ })).toBeDisabled(); expect(screen.queryByText(/notification dot/i)).toBeNull();
 });

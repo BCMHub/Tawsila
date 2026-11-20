@@ -109,6 +109,19 @@ function uncertainError() {
   return new RidesError('uncertain', 'uncertain', 'rides.errors.uncertain');
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isRide(value: unknown): value is RideProjection {
+  return isRecord(value) && typeof value.ride_id === 'string';
+}
+
+function isRideState(value: unknown): value is RideState {
+  return value === 'available' || value === 'full' || value === 'departed' ||
+    value === 'cancelled' || value === 'withdrawn';
+}
+
 async function request<T>(run: () => PromiseLike<RpcResponse>): Promise<T> {
   let response: RpcResponse;
   try {
@@ -190,15 +203,31 @@ export function createRidesApi(client: RidesClient = adaptRidesClient(getSupabas
         replayed: result.replayed,
       };
     },
-    listRides: input => rpc('list_rides', {
-      p_route_id: input.routeId,
-      p_direction: input.direction,
-      p_day: input.day ?? null,
-      p_after_departs_at: input.after?.departsAt ?? null,
-      p_after_id: input.after?.rideId ?? null,
-      p_limit: input.limit ?? null,
-    }),
-    getRide: (id, source) => rpc('get_ride', { p_ride_id: id, p_source: source }),
-    resolveSharedRide: code => rpc('resolve_shared_ride', { p_code: code }),
+    async listRides(input) {
+      const data = await rpc<unknown>('list_rides', {
+        p_route_id: input.routeId,
+        p_direction: input.direction,
+        p_day: input.day ?? null,
+        p_after_departs_at: input.after?.departsAt ?? null,
+        p_after_id: input.after?.rideId ?? null,
+        p_limit: input.limit ?? null,
+      });
+      if (!Array.isArray(data) || !data.every(isRide)) throw uncertainError();
+      return data;
+    },
+    async getRide(id, source) {
+      const data = await rpc<unknown>('get_ride', { p_ride_id: id, p_source: source });
+      if (!isRide(data)) throw uncertainError();
+      return data;
+    },
+    async resolveSharedRide(code) {
+      const data = await rpc<unknown>('resolve_shared_ride', { p_code: code });
+      if (isRecord(data)) {
+        const { state, ride } = data;
+        if (state === 'not_found' && ride === undefined) return { state };
+        if (isRideState(state) && isRide(ride)) return { state, ride };
+      }
+      throw uncertainError();
+    },
   };
 }

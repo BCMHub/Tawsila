@@ -60,3 +60,23 @@ test.each([undefined, 0, 401, 408, 429, 500, 503])('transport status %s is sanit
  const f = fixture(); f.reply({ data: null, error: { message: 'private ride payload' }, status });
  await expect(f.api.publishRide(input)).rejects.toMatchObject({ code: 'uncertain', classification: 'uncertain', messageKey: 'rides.errors.uncertain' });
 });
+
+const uncertain = { code: 'uncertain', classification: 'uncertain', messageKey: 'rides.errors.uncertain' };
+
+test.each([[{}], [[null]], [[{ ride_id: 1 }]]])('list rejects malformed data %j', async data => {
+ const f = fixture();
+ f.reply({ data, error: null });
+ await expect(f.api.listRides({ routeId: 'route', direction: 'a_to_b' })).rejects.toMatchObject(uncertain);
+});
+
+test.each([[[]], [{}], [{ ride_id: 1 }]])('detail rejects malformed data %j', async data => {
+ const f = fixture();
+ f.reply({ data, error: null });
+ await expect(f.api.getRide('ride', 'list')).rejects.toMatchObject(uncertain);
+});
+
+test.each([{ state: 'unknown', ride: { ride_id: 'ride' } }, { state: 'available' }, { state: 'full', ride: {} }, { state: 'not_found', ride: { ride_id: 'ride' } }])('link rejects malformed data %j', async data => {
+ const f = fixture();
+ f.reply({ data, error: null });
+ await expect(f.api.resolveSharedRide('CODE1234')).rejects.toMatchObject(uncertain);
+});

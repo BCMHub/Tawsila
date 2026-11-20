@@ -10,7 +10,7 @@ let api: RidesApi;
 beforeEach(() => { mockReplace.mockReset(); api = { canPublish: jest.fn(async () => 'ok'), publishRide: jest.fn(async () => ({ seriesId: 'series', rideId: 'ride', shareCode: 'CODE1234', rideCount: 1, replayed: false })) } as unknown as RidesApi; });
 const start = async () => render(<RidesApiProvider api={api}><PostRideFlow route={{ id: 'route', fromName: 'Maadi', toName: 'New Cairo' }} car={{ label: 'Catalogue car · Sedan', passengerSeats: 4 }} window={{ first: '2026-11-19', last: '2026-12-02' }} /></RidesApiProvider>);
 
-test.each([['phone_unverified', 'Verify your phone to post rides'], ['car_not_approved', '(verify)/status']] as const)('entry gate %s blocks P1a at the mandated destination', async (gate, expected) => {
+test.each([['phone_unverified', 'Verify your phone to post rides'], ['car_not_approved', '/(verify)/status']] as const)('entry gate %s blocks P1a at the mandated destination', async (gate, expected) => {
  jest.mocked(api.canPublish).mockResolvedValue(gate); await start();
  if (gate === 'phone_unverified') expect(await screen.findByText(expected)).toBeTruthy(); else await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(expected));
  expect(screen.queryByText('Route and time')).toBeNull();
@@ -45,7 +45,7 @@ test.each(['missing_argument', 'account_missing', 'request_conflict', 'invalid_r
  jest.mocked(api.publishRide).mockRejectedValue(new RidesError(code, 'rejected', `rides.errors.${code}`)); await start(); await fireEvent.press(screen.getByRole('button', { name: 'Continue' })); await fireEvent.press(screen.getByRole('button', { name: 'Continue' })); await fireEvent.press(screen.getByRole('button', { name: 'Publish ride' }));
  expect(await screen.findByRole('alert')).toBeTruthy(); expect(screen.queryByText(code)).toBeNull();
 });
-test.each([['phone_unverified', 'Verify your phone to post rides'], ['car_not_approved', '(verify)/status']] as const)('publish gate %s uses its mandated destination', async (code, expected) => {
+test.each([['phone_unverified', 'Verify your phone to post rides'], ['car_not_approved', '/(verify)/status']] as const)('publish gate %s uses its mandated destination', async (code, expected) => {
  jest.mocked(api.publishRide).mockRejectedValue(new RidesError(code, 'rejected', `rides.errors.${code}`)); await start(); await fireEvent.press(screen.getByRole('button', { name: 'Continue' })); await fireEvent.press(screen.getByRole('button', { name: 'Continue' })); await fireEvent.press(screen.getByRole('button', { name: 'Publish ride' }));
  if (code === 'phone_unverified') { expect(await screen.findByText(expected)).toBeTruthy(); expect(screen.getByText('Posting is open to members with a verified phone number. Phone verification is coming to Tawsila soon.')).toBeTruthy(); } else await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(expected));
 });

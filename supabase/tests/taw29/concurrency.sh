@@ -7,11 +7,13 @@ db=(docker exec -i "$container" psql -X -qAt -v ON_ERROR_STOP=1 -U postgres -d p
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/taw29-concurrency.XXXXXX")
 pids=()
 passed=0
+completed=0
 failures=()
 
 route_id=a29f1000-0000-4000-8000-000000000001
 place_a_id=a29f1000-0000-4000-8000-000000000002
 place_b_id=a29f1000-0000-4000-8000-000000000003
+community_id=a29f0c00-0000-4000-8000-000000000001
 owners=(
   a29f1001-0000-4000-8000-000000000001
   a29f1002-0000-4000-8000-000000000001
@@ -46,11 +48,14 @@ delete from auth.users where id in (
 );
 delete from public.routes where id = '$route_id';
 delete from public.places where id in ('$place_a_id', '$place_b_id');
+delete from public.legal_documents where version = 'taw29-concurrency-v1';
+delete from public.communities where id = '$community_id';
 SQL
   fi
   rm -rf "$tmp_dir"
 }
-trap cleanup EXIT
+on_exit() { local rc=$?; cleanup; if [[ $rc -eq 0 && $completed -ne 1 ]]; then rc=1; fi; exit "$rc"; }
+trap on_exit EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
@@ -58,7 +63,8 @@ die() { echo "FAIL $*" >&2; exit 1; }
 scenario_fail() { echo "  $*" >&2; return 1; }
 
 run_bg() {
-  local name=$1 sql=$2 out="$tmp_dir/$name.out"
+  local name=$1 sql=$2
+  local out="$tmp_dir/$name.out"
   (printf '%s\n' "$sql" | psql_local >"$out" 2>&1) &
   RUN_BG_PID=$!
   pids+=("$RUN_BG_PID")
@@ -112,7 +118,7 @@ wait_for_lock() {
 }
 
 jwt() {
-  printf "do \\$\\$ begin perform pg_catalog.set_config('request.jwt.claims', pg_catalog.json_build_object('sub','%s','role','authenticated')::text, false); end \\$\\$;" "$1"
+  printf "do \$\$ begin perform pg_catalog.set_config('request.jwt.claims', pg_catalog.json_build_object('sub','%s','role','authenticated')::text, false); end \$\$;" "$1"
 }
 
 make_gap() {
@@ -157,10 +163,12 @@ objects_ok=$(psql_local -c "select
 
 # Fixed, script-owned fixtures. Cleanup first makes recovery from an interrupted run idempotent.
 cleanup
-trap cleanup EXIT
+trap on_exit EXIT
 mkdir -p "$tmp_dir"
 
 psql_local >/dev/null <<SQL
+insert into public.communities (id, name, sort_order, active) values ('$community_id', 'TAW-29 concurrency community', 2901, true) on conflict (id) do nothing;
+insert into public.legal_documents (kind, version, is_current) select v.k, 'taw29-concurrency-v1', true from (values ('terms'), ('privacy')) v(k) where not exists (select 1 from public.legal_documents d where d.kind = v.k and d.is_current) on conflict do nothing;
 insert into public.places (id, name, area_label, active, sort_order) values
   ('$place_a_id', 'TAW-29 concurrency A', null, true, 2901),
   ('$place_b_id', 'TAW-29 concurrency B', null, true, 2902);
@@ -177,7 +185,7 @@ insert into auth.users (id) values ('$owner');
 $(jwt "$owner")
 select public.complete_profile(
   'TAW', 'Concurrency',
-  (select id from public.communities where active order by sort_order, id limit 1),
+  '$community_id',
   'car_owner', true,
   (select version from public.legal_documents where kind = 'terms' and is_current),
   (select version from public.legal_documents where kind = 'privacy' and is_current));
@@ -326,3 +334,4 @@ if [[ -n ${failures[@]+present} ]]; then
   exit 1
 fi
 echo 'PASS 6 scenarios'
+completed=1

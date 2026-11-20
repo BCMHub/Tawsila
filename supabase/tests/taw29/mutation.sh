@@ -7,7 +7,8 @@ generator="$root/supabase/tests/taw29/gen-privileges.sh"
 container=supabase_db_tawsila
 psql=(docker exec -i "$container" psql -X -q -A -t -U postgres -d postgres -v ON_ERROR_STOP=1)
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/taw29-mutations.XXXXXX")
-trap 'rm -rf "$tmp_dir"' EXIT
+completed=0
+trap 'rc=$?; rm -rf "$tmp_dir"; if [[ $rc -eq 0 && $completed -ne 1 ]]; then rc=1; fi; exit "$rc"' EXIT
 
 bash "$generator" --ids > "$tmp_dir/ids"
 bash "$generator" --mutations > "$tmp_dir/mutations"
@@ -93,3 +94,4 @@ if ((${#failures[@]})); then
   printf 'undetected mutation: %s\n' "${failures[@]}" >&2
   exit 1
 fi
+completed=1

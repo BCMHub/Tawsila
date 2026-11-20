@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { router, Stack } from 'expo-router';
+import { router, Stack, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, Text, View, useColorScheme } from 'react-native';
 import { useTheme, typography, spacing } from '../theme';
@@ -14,6 +14,34 @@ import { RidesApiProvider } from '../features/rides/RidesApiProvider';
 import { clearPendingSharedRide, takePendingSharedRide } from '../features/rides/pendingSharedRide';
 import { strings } from '../strings';
 
+function ResumePendingSharedRide({ ready }: { ready: boolean }) {
+  const root = useRootNavigationState();
+  // Expo Router wraps the app's Stack in the root layout route.
+  const stack = root?.routes[root.index]?.state;
+  const focusedRoute = stack?.routes[stack.index ?? 0];
+  const focusedGroup = focusedRoute?.name.split('/')[0];
+  const navigationReady = Boolean(root?.key && stack?.key && focusedGroup && focusedGroup !== '(onboarding)');
+  const rideRoute = focusedRoute?.name === 'r' ? focusedRoute.state : undefined;
+  const params = rideRoute?.routes[rideRoute.index ?? 0]?.params;
+  const openCode = params && 'code' in params ? params.code : undefined;
+  const checkedPendingLink = useRef(false);
+
+  useEffect(() => {
+    if (!ready) {
+      checkedPendingLink.current = false;
+      return;
+    }
+    // The protected onboarding screen queues its own redirect when auth changes.
+    // Wait until the committed stack has focused a ready screen before taking the link.
+    if (!navigationReady || checkedPendingLink.current) return;
+    checkedPendingLink.current = true;
+    const code = takePendingSharedRide();
+    if (code && code !== openCode) router.replace(`/r/${code}`);
+  }, [ready, navigationReady, openCode]);
+
+  return null;
+}
+
 export function AuthRoutes() {
   const { state } = useAuth();
   const t = useTheme();
@@ -21,20 +49,19 @@ export function AuthRoutes() {
   const hadSession = useRef(false);
 
   useEffect(() => {
-    if (state === 'ready_to_browse') {
-      hadSession.current = true;
-      const code = takePendingSharedRide();
-      if (code) router.replace(`/r/${code}`);
-    } else if (state === 'needs_profile') {
+    if (ready || state === 'needs_profile') {
       hadSession.current = true;
     } else if (state === 'signed_out' && hadSession.current) {
       // Visiting sign-in on a cold start must preserve the incoming link.
       clearPendingSharedRide();
       hadSession.current = false;
     }
-  }, [state]);
+  }, [ready, state]);
 
-  return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t['bg/base'] } }}>
+  return <Stack
+    layout={({ children }) => <>{children}<ResumePendingSharedRide ready={ready} /></>}
+    screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t['bg/base'] } }}
+  >
     <Stack.Protected guard={!ready}><Stack.Screen name="(onboarding)" /></Stack.Protected>
     <Stack.Protected guard={ready}>
       <Stack.Screen name="(tabs)" />

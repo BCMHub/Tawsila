@@ -138,3 +138,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-12-raw.txt (Tawsila checkout); brief spec-gate-12-brief.md; last message spec-gate-12-last.md
 Usage: 153,467 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 13   Round: 13
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 4a66711:41410cbe7ff008270aa9d7def5b0597474aa66c0
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=6 P2=1 P3=0 (resolved: F79, F80, F81, F82, F83, F84. New P1: F85 same service_role transaction updating a car type and reviewing a car vs a client writer's level-2 wait; F86 tests still relying on the removed account wait; F87 3.6 vs first-trigger rule; F88 pilot_events_id_seq privileges; F89 D2 car label and badge from a stale projection; F91 riders_count definition. New P2: F90 D2 privacy note with null pickup note)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-13-raw.txt (Tawsila checkout); brief spec-gate-13-brief.md; last message spec-gate-13-last.md
+Usage: 137,404 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: cumulative 1,905,953; a further round would cross the 1,950,000 stop-and-ask threshold (P1 5→6, first non-falling round); escalated to the owner. Round-13 findings are already repaired in the next commit, not yet reviewed.

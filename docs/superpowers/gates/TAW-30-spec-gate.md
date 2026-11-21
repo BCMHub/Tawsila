@@ -25,3 +25,14 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-2-raw.txt (Tawsila checkout); brief spec-gate-2-brief.md; last message spec-gate-2-last.md
 Usage: 158,272 tokens (reported by Codex CLI)   Started: 2026-11-21T09:02:05Z   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 3   Round: 3
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 2bdf6a9:c1b5f91a04b0d6982e97934c4102e1fa0e26bfab
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=1 P1=15 P2=0 P3=1 (resolved: F6, F16, F22, F25, F27, F29, F30, F31. Open P1: F5 share-code wait after v_now; F13 R4 closed requests, non-anchor pending, cancelled driving days, rider closed copy; F15 new key while first attempt in flight; F18 release procedure (departed holds, fencing, expiry deadlock); F19 PostRideFlow outside paths; F21 identity substitution probe; F23 three-transaction share-code cycle; F24 release multi-series order, TAW-4 writer inventory; F26 distinct-key boundary race; F28 series stop closes departed one-day requests. New: P0 F32 regression tests outside paths (taw29_events, rides.integration); P1 F33 sweep misses cancelled future anchors; F34 ride lookup before gate; F35 grant mutations masked by RLS; F36 service_role reads of rides/ride_series boundary; F37 ±60-minute predicate misstated. P3 F38 function count)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-3-raw.txt (Tawsila checkout); brief spec-gate-3-brief.md; last message spec-gate-3-last.md
+Usage: 141,115 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

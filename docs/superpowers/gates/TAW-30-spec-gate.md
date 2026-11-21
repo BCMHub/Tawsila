@@ -231,3 +231,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-20-raw.txt (Tawsila checkout); brief spec-gate-20-brief.md; last message spec-gate-20-last.md
 Usage: 126,289 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 21   Round: 21
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 0b158b2:91f35d943a0bda1f7ca393dddc42031360145b15
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=2 P2=0 P3=0 (resolved: F106. Open P1, test design only: F104 scenario 31 successful-send variant; F107 pause must precede the pending-count statement)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-21-raw.txt (Tawsila checkout); brief spec-gate-21-brief.md; last message spec-gate-21-last.md
+Usage: 135,511 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: owner instruction 2026-11-21 ("once this round finishes we will end the rounds at this and try to fix it in the plan"). F104 and F107 repaired in d40c0ee:00988b401a9b9b6f6b88eb6d4821fbc528474e72, not gate-reviewed; carried into the plan, whose gate reviews the spec revision it binds.

@@ -15,3 +15,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-1-raw.txt (Tawsila checkout); brief plan-gate-1-brief.md; last message plan-gate-1-last.md
 Usage: 153,130 tokens (reported by Codex CLI)   Started: 2026-11-21T19:43:30Z   Ended: 2026-11-21T19:49:39Z
 Verdict: FAIL
+
+Attempt: 2   Round: 2
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 7f3ea411fa8b2b1e079234fb34e53c8f9efbc85d:66be7e988ce7d97b17e9e6f0caf88d491a393291
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=9 P2=0 P3=0 (resolved: P-F1, P-F2, P-F3, P-F5, P-F6, P-F8 to P-F12. Open: P-F4 future-cancellation inventory after the first reset, upgrade psql invocation; P-F7 placeholder substitution and README-only snippet mode; P-F13 bundle check treats grep errors as PASS. New: P-F14 Q before T3 needs the expiry job that T3 creates, no schema-only command; P-F15 reset and Q not fail-closed, TAW-29 run without reset trap, T8 omits it; P-F16 request routes and _layout.tsx registration missing from T7 files, no guarded direct-entry tests; P-F17 R6 banner on R5 untested; P-F18 device gate lacks local fixtures and endpoint check; P-F19 checkbox tracking would edit the approved plan)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-2-raw.txt (Tawsila checkout); brief plan-gate-2-brief.md; last message plan-gate-2-last.md
+Usage: 134,222 tokens (reported by Codex CLI)   Started: 2026-11-21T20:42Z   Ended: 2026-11-21T20:46:38Z
+Verdict: FAIL

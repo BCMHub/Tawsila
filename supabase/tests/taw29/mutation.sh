@@ -28,8 +28,12 @@ ids = Path(inventory).read_text().splitlines()
 plans = [int(m.group(1)) for line in lines if (m := re.fullmatch(r'1\.\.(\d+)', line))]
 results = []
 for line in lines:
-    m = re.fullmatch(r'(not )?ok (\d+) - ((?:schema:)?(?:cell|grant|bypass|struct):\S+)(?: .*)?', line)
+    directive = re.search(r'\s+#\s*(TODO|SKIP)\b', line, re.IGNORECASE)
+    result_line = line[:directive.start()] if directive else line
+    m = re.fullmatch(r'(not )?ok (\d+) - ((?:schema:)?(?:cell|grant|bypass|struct):\S+)(?: .*)?', result_line)
     if m:
+        if directive:
+            raise SystemExit(f'TAP assertion {m.group(3)} has a forbidden #{directive.group(1).upper()} directive')
         results.append((int(m.group(2)), m.group(3), not bool(m.group(1))))
 if any(re.search(r'Bail out!|(?:ERROR|FATAL|PANIC):', line) for line in lines + err_lines):
     raise SystemExit('aborted/error TAP session')

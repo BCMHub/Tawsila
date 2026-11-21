@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(51);
+select plan(54);
 
 -- Only TAW-29 value probes trap missing functions at T2.
 create function pg_temp.dynamic_text(p_sql text) returns text language plpgsql as $$
@@ -115,10 +115,14 @@ alter table public.pilot_events drop constraint taw29_a29a4_posted_failure;
 alter table public.pilot_events add constraint taw29_a29a4_viewed_failure check (false) not valid;
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a29a4000-0000-4000-8000-000000000002","role":"authenticated"}';
-insert into a29a4_call_results select 'failed_get', lives_ok($call$select public.get_ride((select ride_id from a29a4_ride_ref), 'list')$call$,
+insert into a29a4_call_results select 'failed_get', lives_ok($call$
+  insert into a29a4_call_results select 'get_with_failure', public.get_ride((select ride_id from a29a4_ride_ref), 'list')::text
+$call$,
   'events:viewed:failure-isolated-get injected event failure does not fail get_ride');
 select result from a29a4_call_results where name = 'failed_get';
-insert into a29a4_call_results select 'failed_link', lives_ok($call$select public.resolve_shared_ride((select share_code from a29a4_ride_ref))$call$,
+insert into a29a4_call_results select 'failed_link', lives_ok($call$
+  insert into a29a4_call_results select 'link_with_failure', public.resolve_shared_ride((select share_code from a29a4_ride_ref))::text
+$call$,
   'events:viewed:failure-isolated-link injected event failure does not fail resolve_shared_ride');
 select result from a29a4_call_results where name = 'failed_link';
 reset role;
@@ -135,6 +139,15 @@ select lives_ok($call$select public.get_ride((select ride_id from a29a4_ride_ref
 reset role;
 select is((select count(*) from public.pilot_events where user_id = 'a29a4000-0000-4000-8000-000000000002' and event_type = 'ride_viewed' and source = 'published' and ride_state = 'available'), 1::bigint,
   'events:viewed:get get_ride records its source and state');
+
+set local role authenticated;
+select ok((select result from a29a4_call_results where name = 'get_with_failure') =
+  pg_temp.dynamic_text($call$select public.get_ride((select ride_id from a29a4_ride_ref), 'list')::text$call$),
+  'events:viewed:failure-result-get injected event failure preserves the get_ride response');
+select ok((select result from a29a4_call_results where name = 'link_with_failure') =
+  pg_temp.dynamic_text($call$select public.resolve_shared_ride((select share_code from a29a4_ride_ref))::text$call$),
+  'events:viewed:failure-result-link injected event failure preserves the resolve_shared_ride response');
+reset role;
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a29a4000-0000-4000-8000-000000000003","role":"authenticated"}';
@@ -219,6 +232,24 @@ select lives_ok($call$select public.get_ride((select ride_id from a29a4_ride_ref
 reset role;
 select is((select count(*) from public.pilot_events where user_id = 'a29a4000-0000-4000-8000-000000000002' and ride_id = (select published_ride_id from public.ride_series where request_id = 'a29a4000-0000-4000-8000-000000000201') and event_type = 'ride_viewed'), 1::bigint,
   'events:viewed:daily-unique repeated views produce one row per user ride and Cairo day');
+
+-- Move the existing view to yesterday in Cairo while the transaction clock stays fixed.
+update public.pilot_events set event_day = event_day - 1,
+  occurred_at = ((event_day - 1) + time '12:00') at time zone 'Africa/Cairo'
+where user_id = 'a29a4000-0000-4000-8000-000000000002'
+  and ride_id = (select ride_id from a29a4_ride_ref) and event_type = 'ride_viewed';
+set local role authenticated;
+do $$ begin
+  perform pg_temp.dynamic_text($call$select public.get_ride((select ride_id from a29a4_ride_ref), 'list')::text$call$);
+end $$;
+reset role;
+select results_eq(
+  $$select event_day from public.pilot_events
+    where user_id = 'a29a4000-0000-4000-8000-000000000002'
+      and ride_id = (select ride_id from a29a4_ride_ref) and event_type = 'ride_viewed'
+    order by event_day$$,
+  $$select (now() at time zone 'Africa/Cairo')::date - n from generate_series(0, 1) g(n) order by n desc$$,
+  'events:viewed:cross-day same viewer and ride produce one event on each of two Cairo dates');
 select ok((select count(*) >= 6
   and bool_and(event_day = (occurred_at at time zone 'Africa/Cairo')::date)
   from public.pilot_events where user_id::text like 'a29a4%'),

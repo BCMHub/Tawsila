@@ -97,9 +97,16 @@ wait_ok() {
 }
 
 wait_for_lock() {
-  local application_name=$1 holder_pid=$2 waiter_pid=$3 waiter_file=$4 i blocked
+  local application_name=$1 holder_pid=$2 waiter_pid=$3 waiter_file=$4 holder_application_name=${5:-} i blocked
   for i in $(seq 1 100); do
-    blocked=$(psql_local -c "select exists (select 1 from pg_catalog.pg_stat_activity where application_name = '$application_name' and wait_event_type = 'Lock');") || return 1
+    blocked=$(psql_local -c "select exists (
+      select 1 from pg_catalog.pg_stat_activity waiter
+      where waiter.application_name = '$application_name' and waiter.wait_event_type = 'Lock'
+        and ('$holder_application_name' = '' or exists (
+          select 1 from pg_catalog.pg_stat_activity holder
+          where holder.application_name = '$holder_application_name' and holder.xact_start is not null
+            and holder.pid = any(pg_catalog.pg_blocking_pids(waiter.pid))
+        ));") || return 1
     [[ "$blocked" == t ]] && return 0
     if ! kill -0 "$waiter_pid" 2>/dev/null; then
       wait "$waiter_pid" 2>/dev/null || true
@@ -270,13 +277,15 @@ scenario_cancellation() {
 }
 
 scenario_overlapping_extensions() {
-  local owner=${owners[3]} before after pid_a second
+  local owner=${owners[3]} before after pid_a second first_open
   make_gap "$owner"; before=$(gap_count "$owner")
-  run_bg s4_first "begin; select public.extend_weekday_series(); select 'READY_EXTENSION'; select pg_sleep(1); commit;"; pid_a=$RUN_BG_PID
+  run_bg s4_first "set application_name='taw29_overlap_first'; begin; select public.extend_weekday_series(); select 'READY_EXTENSION'; select pg_sleep(4); commit;"; pid_a=$RUN_BG_PID
   wait_for_marker "$tmp_dir/s4_first.out" READY_EXTENSION "$pid_a" || return 1
   second=$(psql_local -c 'select public.extend_weekday_series();') || return 1
-  wait_ok "$pid_a" "$tmp_dir/s4_first.out" || return 1; after=$(gap_count "$owner")
+  first_open=$(psql_local -c "select exists (select 1 from pg_catalog.pg_stat_activity where application_name = 'taw29_overlap_first' and xact_start is not null and wait_event = 'PgSleep');") || return 1
+  [[ "$first_open" == t ]] || scenario_fail 'second extension did not finish while the first transaction was paused' || return 1
   [[ "$second" == 0 ]] || scenario_fail "overlapping extension returned $second, expected 0" || return 1
+  wait_ok "$pid_a" "$tmp_dir/s4_first.out" || return 1; after=$(gap_count "$owner")
   [[ "$after" == "$((before + 1))" ]] || scenario_fail "row count is not exactly one run's ($before -> $after)" || return 1
 }
 
@@ -308,9 +317,10 @@ scenario_extension_vs_publish() {
 
 scenario_duplicate_request() {
   local owner=${owners[6]} request=a29f1009-0000-4000-8000-000000000299 pid_a pid_b a b count
-  run_bg s6_first "begin; $(jwt "$owner") select 'RESULT|' || public.publish_ride('$request','$route_id','b_to_a','$ride_date',time '14:00',5,1,'Gate 1','Bring ID','once')::text; select 'READY_PUBLISH'; select pg_sleep(1); commit;"; pid_a=$RUN_BG_PID
+  run_bg s6_first "set application_name='taw29_duplicate_first'; begin; $(jwt "$owner") select 'RESULT|' || public.publish_ride('$request','$route_id','b_to_a','$ride_date',time '14:00',5,1,'Gate 1','Bring ID','once')::text; select 'READY_PUBLISH'; select pg_sleep(4); commit;"; pid_a=$RUN_BG_PID
   wait_for_marker "$tmp_dir/s6_first.out" READY_PUBLISH "$pid_a" || return 1
-  run_bg s6_second "$(jwt "$owner") select 'RESULT|' || public.publish_ride('$request','$route_id','b_to_a','$ride_date',time '14:00',5,1,'Gate 1','Bring ID','once')::text;"; pid_b=$RUN_BG_PID
+  run_bg s6_second "set application_name='taw29_duplicate_replay'; $(jwt "$owner") select 'RESULT|' || public.publish_ride('$request','$route_id','b_to_a','$ride_date',time '14:00',5,1,'Gate 1','Bring ID','once')::text;"; pid_b=$RUN_BG_PID
+  wait_for_lock taw29_duplicate_replay "$pid_a" "$pid_b" "$tmp_dir/s6_second.out" taw29_duplicate_first || return 1
   wait_ok "$pid_a" "$tmp_dir/s6_first.out" || return 1; wait_ok "$pid_b" "$tmp_dir/s6_second.out" || return 1
   a=$(grep '^RESULT|' "$tmp_dir/s6_first.out" | head -1 | cut -d'|' -f2- || true); b=$(grep '^RESULT|' "$tmp_dir/s6_second.out" | head -1 | cut -d'|' -f2- || true)
   [[ -n "$a" && -n "$b" ]] || scenario_fail 'one or both publish responses were missing' || return 1

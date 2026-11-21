@@ -2,8 +2,8 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 set constraints all deferred;
--- 221 captured outcomes + 18 single-row assertions + 6 replay comparisons.
-select plan(245);
+-- 224 captured outcomes + 18 single-row assertions + 6 replay comparisons.
+select plan(248);
 
 -- State A must be red for missing schema; state B must finish with failed RPC
 -- assertions. Never create replacement TAW-29 functions to make tests run.
@@ -298,12 +298,18 @@ select pg_temp.capture('in_past:before-weekday',
   pg_temp.call_sql('past-weekend', p_date => '(select max(pg_temp.today()-n) from generate_series(1,7) g(n) where extract(dow from pg_temp.today()-n) in (5,6))',
     p_repeat => '''weekdays'''), 'in_past');
 select pg_temp.capture('in_past:yesterday', pg_temp.call_sql('yesterday', p_date => 'pg_temp.today()-1'), 'in_past');
+select pg_temp.capture('in_past:far-past',
+  pg_temp.call_sql('far-past', p_date => 'date ''1900-01-01'''), 'in_past');
 select pg_temp.capture('in_past:same-day',
   pg_temp.call_sql('midnight', p_date => 'pg_temp.today()', p_time => '''00:00'''), 'in_past');
 select pg_temp.capture('beyond_window:day-13',
   pg_temp.call_sql('day-13', p_date => 'pg_temp.today()+13', p_time => '''23:59'''));
 select pg_temp.capture('beyond_window:day-14',
   pg_temp.call_sql('day-14', p_date => 'pg_temp.today()+14'), 'beyond_window');
+select pg_temp.capture('beyond_window:far-future',
+  pg_temp.call_sql('far-future', p_date => 'date ''200000-01-01'''), 'beyond_window');
+select pg_temp.capture('beyond_window:max-date',
+  pg_temp.call_sql('max-date', p_date => 'date ''5874897-12-31'''), 'beyond_window');
 select pg_temp.capture('invalid_weekday:weekend',
   pg_temp.call_sql('weekend', p_date => '(select min(pg_temp.today()+n) from generate_series(1,13) g(n) where extract(dow from pg_temp.today()+n) in (5,6))',
     p_repeat => '''weekdays'''), 'invalid_weekday');

@@ -208,9 +208,10 @@ begin
   end if;
 
   -- 11. Cairo dates/instants and the inclusive fourteen-date window.
-  v_departure := (p_date + p_time) at time zone 'Africa/Cairo';
-  if p_date < v_today or v_departure <= pg_catalog.now() then raise exception 'in_past'; end if;
+  if p_date < v_today then raise exception 'in_past'; end if;
   if p_date > v_last then raise exception 'beyond_window'; end if;
+  v_departure := (p_date + p_time) at time zone 'Africa/Cairo';
+  if v_departure <= pg_catalog.now() then raise exception 'in_past'; end if;
   if p_repeat = 'weekdays' and extract(dow from p_date) not in (0, 1, 2, 3, 4) then
     raise exception 'invalid_weekday';
   end if;

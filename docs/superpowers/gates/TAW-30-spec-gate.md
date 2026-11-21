@@ -92,3 +92,26 @@ Raw output: .clh/evidence/TAW-37/spec-gate-8-raw.txt (Tawsila checkout); brief s
 Usage: 128,312 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
 Stop: review pass rule stall (F15 and F47 open after two repairs; P1 6→7) and the 1,125,000 stop-and-ask threshold crossed; escalated to the owner.
+
+Attempt: 9   Round: 9
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: f272127:d09b3d170e0fba3f77740bd8ee3108a5c722996e
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude (revision drafted by a Fable subagent at the owner's direction, reviewed by Claude Opus 5.5)   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=4 P2=0 P3=0 (resolved: F15, F47, F58, F60, F62. Open P1: F61 car_types.passenger_seats read by offerability is not locked; F63 hosted cron check must require runs started after the migration. New P1: F64 no reachable action on D2 to resume an unsettled attempt; F65 one cancellation-eligibility predicate for readers and writers on a cancelled series)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-9-raw.txt (Tawsila checkout); brief spec-gate-9-brief.md; last message spec-gate-9-last.md
+Usage: 160,024 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+
+Attempt: 10   Round: 10
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: b72bffa:fc9195aeddb7403218ce9539e0538a22c1669f3c
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=7 P2=0 P3=0 (resolved: F63, F64. Open P1: F61 the weekday job must also lock vehicle and car type before offerability; F65 owner refusal on a stopped series and list_my_series omission need their own outcomes. New P1: F66 multi-row catalogue updates vs share locks on car_types; F67 an anchor with a future cancelled_at can still be accepted; F68 R1 direct entry lacks ride summary, repeat and pickup note; F69 list_my_trips item keys per type; F70 scheduler test must assert command, role, database and real extension work)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-10-raw.txt (Tawsila checkout); brief spec-gate-10-brief.md; last message spec-gate-10-last.md
+Usage: 153,453 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: budget ceiling reached (1,474,808 of 1,500,000) and review pass rule stall (P1 4→7; F61 open after two repairs); escalated to the owner.

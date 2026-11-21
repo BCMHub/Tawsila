@@ -291,3 +291,15 @@ Raw output: .clh/evidence/TAW-37/spec-gate-25-raw.txt (Tawsila checkout); brief 
 Usage: 163,670 tokens (reported by Codex CLI)   Started: 2026-11-21T20:15Z   Ended: 2026-11-21T20:21:44Z
 Verdict: FAIL
 Stop: review pass rule stall (F111 open after two repairs). F111 and F114 repaired and F115 answered in the next commit; further rounds need the owner's decision.
+
+Attempt: 26   Round: 26
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 623f3b0:ac4b5d2e59d9b5f1afb1fc78df2229a2981c039f
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=5 P2=0 P3=0 (open: F111 launcher barrier unverified; F114 same barrier in the TAW-29 suite; F115 confirmed: a second window case (window_expected, lines 615-618) can include Cairo today, the author's round-25 response was wrong. New: F116 scheduled jobs can interfere with the TAW-30 concurrency and mutation runs; F117 job_run_details completion may lag the job's commit)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-26-raw.txt (Tawsila checkout); brief spec-gate-26-brief.md; last message spec-gate-26-last.md
+Usage: 130,928 tokens (reported by Codex CLI)   Started: 2026-11-21T20:22Z   Ended: 2026-11-21T20:27:20Z
+Verdict: FAIL
+Stop: review pass rule stall (F111 open after three repairs; P1 count rose). Next commit replaces the scheduler barriers with one quiesced-stack protocol Q (jobs inactive, database restart with data kept) for every manual database test run (F111, F114, F116), polls for completion rows (F117) and makes a targeted change to the TAW-29 window case (F115). Further rounds need the owner's decision.

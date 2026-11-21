@@ -162,3 +162,15 @@ Raw output: .clh/evidence/TAW-37/spec-gate-14-raw.txt (Tawsila checkout); brief 
 Usage: 145,791 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
 Stop: cumulative 2,051,744 of 2,200,000; owner instruction for round 14 (on failure, stop and decide residuals or split); escalated to the owner.
+
+Attempt: 15   Round: 15
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: b60b303:e7417412c353e3950599c58596a4f9d87483baf0
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude (revision drafted by a Fable subagent at the owner's direction, reviewed by Claude Opus 5.5)   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: F85, F88, F92, F93, F94. New P1: F95 TAW-29 concurrency scenario 5 publish-first half expects the job to wait; F96 scenario 11a mutation needs a barrier on a specific later account; F97 inherited publish_ride/service_role catalogue cycle not covered by the claim)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-15-raw.txt (Tawsila checkout); brief spec-gate-15-brief.md; last message spec-gate-15-last.md
+Usage: 169,047 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: budget exceeded (2,220,791 of 2,200,000); escalated to the owner. Round-15 findings repaired in commit 93d625d, not yet reviewed.

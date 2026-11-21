@@ -27,3 +27,13 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-2-raw.txt (Tawsila checkout); brief plan-gate-2-brief.md; last message plan-gate-2-last.md
 Usage: 134,222 tokens (reported by Codex CLI)   Started: 2026-11-21T20:42Z   Ended: 2026-11-21T20:46:38Z
 Verdict: FAIL
+
+Attempt: 3   Round: 3 (technical failure, no review result)
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 29a968b47a2f34709d52b82b70fef6b972161c0d:122afe03c4b6d6d5b15930d9e2b9a894189dcf0c
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: none reported; the run stopped mid-review with "You've hit your usage limit ... try again at Nov 22nd, 2026 1:23 AM" (exit 1, empty last message)
+Raw output: .clh/evidence/TAW-37/plan-gate-3-raw.txt (Tawsila checkout); brief plan-gate-3-brief.md
+Usage: 95,418 tokens (reported by Codex CLI)   Started: 2026-11-21T20:47Z   Ended: 2026-11-21T20:50:18Z
+Verdict: none (technical failure 1 of 3; the same revision is resubmitted when the Codex allowance resets)

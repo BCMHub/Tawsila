@@ -185,3 +185,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-16-raw.txt (Tawsila checkout); brief spec-gate-16-brief.md; last message spec-gate-16-last.md
 Usage: 143,653 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 17   Round: 17
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: d765818:343799bb09468389528b63d909bd0ea7c10a6b88
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=2 P2=0 P3=0 (resolved: F95, F96, F98. New P1: F99 series-lock mutation outcome for 11e and 23; F100 D4b copy for a withdrawn day with a live hold)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-17-raw.txt (Tawsila checkout); brief spec-gate-17-brief.md; last message spec-gate-17-last.md
+Usage: 159,776 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: a further round would cross the 2,650,000 stop-and-ask threshold (cumulative 2,524,220); escalated to the owner. Round-17 findings repaired in 59ae96f, not yet reviewed.

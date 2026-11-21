@@ -197,3 +197,14 @@ Raw output: .clh/evidence/TAW-37/spec-gate-17-raw.txt (Tawsila checkout); brief 
 Usage: 159,776 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
 Stop: a further round would cross the 2,650,000 stop-and-ask threshold (cumulative 2,524,220); escalated to the owner. Round-17 findings repaired in 59ae96f, not yet reviewed.
+
+Attempt: 18   Round: 18
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 59ae96f:9abef232c0ac3488755e8907896ee1fabb865b68
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: F99, F100. New P1: F101 R7 for an unavailable hold on a cancelled recovery-state day; F102 deadlock claim scoped to one writer call per transaction; F103 skipped extension run whose retry crosses departure)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-18-raw.txt (Tawsila checkout); brief spec-gate-18-brief.md; last message spec-gate-18-last.md
+Usage: 184,439 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

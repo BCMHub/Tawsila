@@ -127,3 +127,14 @@ Raw output: .clh/evidence/TAW-37/spec-gate-11-raw.txt (Tawsila checkout); brief 
 Usage: 140,274 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
 Stop: cumulative Codex 1,615,082 of 2,200,000; a further round (~150,000) would cross the 1,650,000 stop-and-ask threshold; escalated to the owner.
+
+Attempt: 12   Round: 12
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 0c0e1c7:262ba6fe03b9608d5a2e6fb137c842f82c6551d7
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=5 P2=1 P3=0 (resolved: F66, F71, F72, F73, F74, F75, F76, F77, F78. Open P2: F79 R1 helper with null pickup note. New P1: F80 client-writer chain through a late account foreign-key wait; F81 scenarios 10 and 12 contradict chosen_days scope and job skipping; F82 open-for-seats mutation has no failing named test; F83 ride_series column privileges unasserted; F84 rider screens for unavailable and departed holds)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-12-raw.txt (Tawsila checkout); brief spec-gate-12-brief.md; last message spec-gate-12-last.md
+Usage: 153,467 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

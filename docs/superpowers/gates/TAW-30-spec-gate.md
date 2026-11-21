@@ -314,3 +314,14 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-27-raw.txt (Tawsila checkout); brief spec-gate-27-brief.md; last message spec-gate-27-last.md
 Usage: 158,079 tokens (reported by Codex CLI)   Started: 2026-11-21T20:28Z   Ended: 2026-11-21T20:34:26Z
 Verdict: FAIL
+
+Attempt: 28   Round: 28
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: a7917ad:f98f06429df127d138ca5a587e2faca857a71902
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=0 P2=0 P3=0 (resolved: F118)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-28-raw.txt (Tawsila checkout); brief spec-gate-28-brief.md; last message spec-gate-28-last.md
+Usage: 168,042 tokens (reported by Codex CLI)   Started: 2026-11-21T20:35Z   Ended: 2026-11-21T20:41:16Z
+Verdict: PASS

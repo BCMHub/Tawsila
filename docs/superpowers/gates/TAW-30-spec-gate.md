@@ -14,3 +14,14 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-1-raw.txt (Tawsila checkout); brief spec-gate-1-brief.md; last message spec-gate-1-last.md
 Usage: 117,398 tokens (reported by Codex CLI)   Started: 2026-11-21T08:50:38Z   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 2   Round: 2
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: d6c7b07:9309102a1ecc20c2fc1d8d984864e4b52b9af0e1
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=1 P1=15 P2=2 P3=0 (round 1: F1-F4, F7-F12, F14, F17, F20 resolved; F5, F6, F13, F15, F16, F18, F19, F21 open (P1), F22 open (P2). New: P0 F29 required timestamps not set on owner cancellation; P1 F23 extension vs publish_ride deadlock through the share-code unique index; F24 stated lock order inconsistent, expiry query target, FK waits on inherited for-update locks, lock-strength verification; F25 service_role SELECT on pilot_events links riders to requests; F26 rate limit off by one; F27 request button enablement vs AC1 message, profile_incomplete; F28 zero-day 'all' on once rides and one-day requests rewrites history; F31 caller/argument rules vs owner-only helpers. P2: F30 D2 privacy copy still promises chat)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-2-raw.txt (Tawsila checkout); brief spec-gate-2-brief.md; last message spec-gate-2-last.md
+Usage: 158,272 tokens (reported by Codex CLI)   Started: 2026-11-21T09:02:05Z   Ended: 2026-11-21
+Verdict: FAIL

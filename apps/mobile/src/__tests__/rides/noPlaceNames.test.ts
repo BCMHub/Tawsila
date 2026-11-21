@@ -7,5 +7,6 @@ function files(dir: string): string[] { return fs.readdirSync(dir, { withFileTyp
 test('ride implementation exists and contains no hard-coded pilot place names', () => {
  const root = path.join(process.cwd(), 'src'), implementation = path.join(root, 'features', 'rides');
  expect(fs.existsSync(implementation)).toBe(true);
- for (const file of files(root).filter(file => !file.includes(`${path.sep}__tests__${path.sep}`) && !file.includes(`${path.sep}__integration__${path.sep}`))) expect(fs.readFileSync(file, 'utf8')).not.toMatch(/10th of Ramadan|New Cairo/i);
+ // The pilot migration seeds two place names and the Fifth Settlement area label.
+ for (const file of files(root).filter(file => !file.includes(`${path.sep}__tests__${path.sep}`) && !file.includes(`${path.sep}__integration__${path.sep}`))) expect(fs.readFileSync(file, 'utf8')).not.toMatch(/10th of Ramadan|New Cairo|Fifth Settlement/i);
 });

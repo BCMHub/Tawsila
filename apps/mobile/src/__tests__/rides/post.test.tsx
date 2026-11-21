@@ -13,12 +13,26 @@ const start = async () => render(<RidesApiProvider api={api}><PostRideFlow route
 test.each([['phone_unverified', 'Verify your phone to post rides'], ['car_not_approved', '/(verify)/status']] as const)('entry gate %s blocks P1a at the mandated destination', async (gate, expected) => {
  jest.mocked(api.canPublish).mockResolvedValue(gate); await start();
  if (gate === 'phone_unverified') expect(await screen.findByText(expected)).toBeTruthy(); else await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(expected));
- expect(screen.queryByText('Route and time')).toBeNull();
+ expect(screen.queryByRole('button', { name: 'Reverse' })).toBeNull();
 });
 
-test('P1a swaps direction and offers only the approved schedule choices', async () => {
- await start(); expect(screen.getByText('Maadi')).toBeTruthy(); expect(screen.getByText('New Cairo')).toBeTruthy(); await fireEvent.press(screen.getByRole('button', { name: 'Reverse' }));
- expect(screen.getAllByText(/Maadi|New Cairo/).map(node => node.props.children)).toEqual(expect.arrayContaining(['New Cairo', 'Maadi']));
+test('P1a swaps the From and To stops and publishes the reversed direction', async () => {
+  await start();
+  expect(screen.getByText('From').parent).toContainElement(screen.getByText('Maadi'));
+  expect(screen.getByText('To').parent).toContainElement(screen.getByText('New Cairo'));
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Reverse' }));
+  expect(screen.getByText('From').parent).toContainElement(screen.getByText('New Cairo'));
+  expect(screen.getByText('To').parent).toContainElement(screen.getByText('Maadi'));
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Publish ride' }));
+  expect(api.publishRide).toHaveBeenCalledWith(expect.objectContaining({ direction: 'b_to_a' }));
+});
+
+test('P1a offers only the approved schedule choices', async () => {
+ await start();
  await fireEvent.press(screen.getByRole('button', { name: /Flexibility/ })); for (const n of ['0', '5', '10', '15', '30']) expect(screen.getByRole('radio', { name: new RegExp(`^${n} minutes?$`) })).toBeTruthy();
  await fireEvent.press(screen.getByRole('button', { name: /Leaves at/ })); expect(screen.getByRole('radio', { name: '7:05 AM' })).toBeTruthy(); expect(screen.queryByRole('radio', { name: '7:03 AM' })).toBeNull();
 });

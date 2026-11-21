@@ -1,4 +1,5 @@
 import { formatRideDate, formatRideTime } from './format';
+import { getShareLinkOrigin } from './shareLinkBase';
 
 type ShareableRide = {
   from_name: string;
@@ -10,27 +11,14 @@ type ShareableRide = {
   share_code: string;
 };
 
-function httpsBase(baseUrl: string | undefined): string | null {
-  if (!baseUrl) return null;
-  try {
-    const url = new URL(baseUrl);
-    if (url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash) {
-      return url.href.replace(/\/+$/, '');
-    }
-  } catch {
-    // Use the development link when the supplied base URL is invalid.
-  }
-  return null;
-}
-
 export function buildShareMessage(ride: ShareableRide, baseUrl?: string) {
-  const base = httpsBase(baseUrl);
-  const link = base ? `${base}/r/${ride.share_code}` : `tawsila://r/${ride.share_code}`;
+  const origin = getShareLinkOrigin(baseUrl);
+  const link = origin ? `${origin}/r/${ride.share_code}` : `tawsila://r/${ride.share_code}`;
   const seats = ride.seats_offered === 1 ? 'seat' : 'seats';
   const repeat = ride.repeat === 'weekdays' ? ' · weekdays' : '';
 
   return {
-    developmentLink: base === null,
+    developmentLink: origin === undefined,
     link,
     message: [
       'Tawsila · ride offer',

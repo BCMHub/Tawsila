@@ -279,3 +279,15 @@ Raw output: .clh/evidence/TAW-37/spec-gate-24-raw.txt (Tawsila checkout); brief 
 Usage: 136,436 tokens (reported by Codex CLI)   Started: 2026-11-21T20:07Z   Ended: 2026-11-21T20:14:57Z
 Verdict: FAIL
 Stop: owner instruction 2026-11-21 (after the round 23 stall: if round 24 finds P1s, repair and ask). F111, F112, F113 repaired in the next commit.
+
+Attempt: 25   Round: 25
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 0cb8d85:a28581ee701b5346b816b4479b524d1b51b01e7f
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: F112, F113. Open: F111 cron-run.sh, a task selected before deactivation can start after the fence is released. New: F114 scheduled extension run can interfere with the TAW-29 manual concurrency suite; F115 taw29_series.test.sql window across 07:00 (author's response: not reproducible, expected dates start at the next Sunday; evidence added to spec 8.3))
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-25-raw.txt (Tawsila checkout); brief spec-gate-25-brief.md; last message spec-gate-25-last.md
+Usage: 163,670 tokens (reported by Codex CLI)   Started: 2026-11-21T20:15Z   Ended: 2026-11-21T20:21:44Z
+Verdict: FAIL
+Stop: review pass rule stall (F111 open after two repairs). F111 and F114 repaired and F115 answered in the next commit; further rounds need the owner's decision.

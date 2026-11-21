@@ -208,3 +208,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-18-raw.txt (Tawsila checkout); brief spec-gate-18-brief.md; last message spec-gate-18-last.md
 Usage: 184,439 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 19   Round: 19
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 277dd65:20ed23e0aa32e862bb39b08e06a29cd3e1a7547d
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=1 P2=1 P3=0 (resolved: F101, F102, F103. New P1: F104 sweep committing between request_seat's v_now and its one-open-request check. New P2: F105 R8 suggestions when the route was deactivated)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-19-raw.txt (Tawsila checkout); brief spec-gate-19-brief.md; last message spec-gate-19-last.md
+Usage: 213,491 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: a further round would cross the 3,100,000 stop-and-ask threshold (cumulative 2,922,150); escalated to the owner. Round-19 findings repaired in ae7f93f, not yet reviewed.

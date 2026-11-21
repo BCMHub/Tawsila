@@ -69,3 +69,14 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-6-raw.txt (Tawsila checkout); brief spec-gate-6-brief.md; last message spec-gate-6-last.md
 Usage: 152,002 tokens (reported by Codex CLI)   Started: 2026-11-21T09:54:03Z   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 7   Round: 7
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: a78b48f:49b18973fda76f3f2a8183f78e1583de36da96d2
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=6 P2=0 P3=0 (resolved: F39, F45, F46, F53, F54, F55, F56. Open P1: F15 only after-lookup errors may settle an attempt; F47 a series stop sets equal timestamps, so the tie must mean series. New P1: F57 cancellation status must be re-read under the locks; F58 D2 seat count and button from the status response; F59 sweep second-run zero only for unlocked rows, catch-up test; F60 day_state of future days on a cancelled series)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-7-raw.txt (Tawsila checkout); brief spec-gate-7-brief.md; last message spec-gate-7-last.md
+Usage: 111,187 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

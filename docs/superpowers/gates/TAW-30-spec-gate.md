@@ -80,3 +80,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-7-raw.txt (Tawsila checkout); brief spec-gate-7-brief.md; last message spec-gate-7-last.md
 Usage: 111,187 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 8   Round: 8
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: ad5b864:e95748e99be10852afbb4a3d5ed5a8321f5d5026
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=7 P2=0 P3=0 (resolved: F57, F59. Open P1: F15 no guaranteed caller-scoped lookup by client_request_id for reconciliation; F47 null series timestamp and once-ride copy; F58 status response must be authoritative for every viewer on D2 and the shared view, UI test; F60 cancelled-series day_state must compare with the stop time, not the read time. New P1: F61 offerability and departure need one decision point in request_seat; F62 no durable app entry to stop a weekday series with zero future days; F63 effective isolation of the pg_cron job unverified)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-8-raw.txt (Tawsila checkout); brief spec-gate-8-brief.md; last message spec-gate-8-last.md
+Usage: 128,312 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: review pass rule stall (F15 and F47 open after two repairs; P1 6→7) and the 1,125,000 stop-and-ask threshold crossed; escalated to the owner.

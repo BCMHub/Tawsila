@@ -174,3 +174,14 @@ Raw output: .clh/evidence/TAW-37/spec-gate-15-raw.txt (Tawsila checkout); brief 
 Usage: 169,047 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
 Stop: budget exceeded (2,220,791 of 2,200,000); escalated to the owner. Round-15 findings repaired in commit 93d625d, not yet reviewed.
+
+Attempt: 16   Round: 16
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 93d625d:2c51217d701ec96e39c9221ddd83a666d375b974
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: F97. Open P1: F95 regression list omits the scenario-5 publish-first half; F96 concurrency-mutations runner outcome for 11a. New P1: F98 scenario 30 ordering, barriers and the expected inherited 40P01)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-16-raw.txt (Tawsila checkout); brief spec-gate-16-brief.md; last message spec-gate-16-last.md
+Usage: 143,653 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

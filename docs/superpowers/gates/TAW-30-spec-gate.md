@@ -267,3 +267,15 @@ Raw output: .clh/evidence/TAW-37/spec-gate-23-raw.txt (Tawsila checkout); brief 
 Usage: 125,540 tokens (reported by Codex CLI)   Started: 2026-11-21T19:59Z   Ended: 2026-11-21T20:05:36Z
 Verdict: FAIL
 Stop: review pass rule stall (P1 count 2, 2, 2 over rounds 21 to 23: not falling for two consecutive rounds). F110 and F111 repaired in the next commit; further rounds need the owner's decision.
+
+Attempt: 24   Round: 24
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 053e774:1c70887bd8f09dabc4410391f88c42f26cbcad4d
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: F110. Open: F111 (cron-run.sh fence; scenario 31 part resolved). New: F112 null p_seats code and the not_enough_seats fixture; F113 TAW-29 concurrency.sh scenario 1 depends on a freshly reset database)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-24-raw.txt (Tawsila checkout); brief spec-gate-24-brief.md; last message spec-gate-24-last.md
+Usage: 136,436 tokens (reported by Codex CLI)   Started: 2026-11-21T20:07Z   Ended: 2026-11-21T20:14:57Z
+Verdict: FAIL
+Stop: owner instruction 2026-11-21 (after the round 23 stall: if round 24 finds P1s, repair and ask). F111, F112, F113 repaired in the next commit.

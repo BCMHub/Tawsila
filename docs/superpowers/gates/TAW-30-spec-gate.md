@@ -150,3 +150,15 @@ Raw output: .clh/evidence/TAW-37/spec-gate-13-raw.txt (Tawsila checkout); brief 
 Usage: 137,404 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
 Stop: cumulative 1,905,953; a further round would cross the 1,950,000 stop-and-ask threshold (P1 5→6, first non-falling round); escalated to the owner. Round-13 findings are already repaired in the next commit, not yet reviewed.
+
+Attempt: 14   Round: 14
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: d6ca175:b9a9b118d1933ecd1bcaa17705e5460776d9b03d
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=4 P2=1 P3=0 (resolved: F86, F87, F89, F90, F91. Open P1: F85 table-level lock on car_types held by service_role can still block a client writer at level 2; F88 sequence cells not generated per grant. New P1: F92 service_role can still execute complete_profile/submit_car (accounts FOR UPDATE) for two accounts in one transaction; F93 expiry concurrency mutation blocked by the event check. New P2: F94 R8 copy when a series stops exactly at a day's departure)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-14-raw.txt (Tawsila checkout); brief spec-gate-14-brief.md; last message spec-gate-14-last.md
+Usage: 145,791 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL
+Stop: cumulative 2,051,744 of 2,200,000; owner instruction for round 14 (on failure, stop and decide residuals or split); escalated to the owner.

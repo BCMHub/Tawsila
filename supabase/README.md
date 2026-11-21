@@ -166,3 +166,39 @@ Generated input counts: 11,543 source rows, 66 base brands and 1,456 normalized 
 
 ### Hands-on test fixtures (TAW-4, local stack only)
 `supabase/tests/seed/taw4-dev-fixtures.sql` adds three clearly named test communities and the current test Terms and Privacy versions (`test-v1`) so the onboarding screens can be tried by hand: `docker exec -i supabase_db_tawsila psql -U postgres -X -v load_taw4_fixtures=1 < supabase/tests/seed/taw4-dev-fixtures.sql`. It is idempotent, never runs by itself, and is not for the hosted project. Real communities and the real legal versions are the owner's content.
+
+## Pilot test accounts and rides
+
+Until TAW-5 is DONE, manually verify only internal test accounts listed in the evidence log outside the repository. Keep user IDs and phone numbers in that external log. Each verified test account needs a distinct phone number because of the verified-number unique index.
+
+Use the Supabase dashboard SQL editor as the database owner, or service-role SQL, to verify the account. Replace the placeholders using the external evidence log.
+
+```sql
+update public.accounts
+set phone_e164 = '<+20 test number>', phone_verified = true
+where user_id = '<uuid>';
+```
+
+To undo manual verification, set `phone_verified = false` for that account. No function or client path sets `phone_verified`. TAW-29 adds no privilege on `accounts`.
+
+- **Approve a test car.** Use the existing TAW-4 `review_item` as the service role. Follow the [owner review procedure](#owner-review-procedure). Test data must never edit `vehicles` directly.
+- **Change the pilot route (AC2).** Update or insert rows in `places` and `routes`. Deactivating a route hides its rides from `list_rides` and blocks new posts on that route.
+- **Stop a series until TAW-30.** In one transaction in the SQL editor, first set `status = 'cancelled', cancelled_at = now()` on the selected `ride_series` row to take the series lock. Then set the same fields on its rides with `departs_at > now()`. Existing links show the D4b cancelled state.
+
+### Pilot release checklist (AC8)
+
+- [ ] Set `EXPO_PUBLIC_SHARE_LINK_BASE_URL` to the HTTPS share base URL in `apps/mobile/.env` before handing an internal-test build to testers. With the variable unset in development, the share sheet uses `tawsila://r/<code>` and shows “Development link”.
+- [ ] Keep manual verification for internal test accounts only. Before the public pilot, list every manually verified account and either re-verify it through TAW-5 or set it back to unverified.
+- [ ] Confirm TAW-5 is DONE before opening the public pilot. This is a procedural, owner-run gate. Record in the TAW-29 card evidence that the gate is open only for internal testing until the public-pilot requirements are met.
+
+### Share domain setup
+
+These steps are owner-run and outside the authorization of TAW-29.
+
+1. Choose or buy the domain.
+2. Host [the share fallback](../web/share/r/index.html) and [the association file](../web/share/.well-known/apple-app-site-association) from `web/share/` on that domain. Serve the association file over HTTPS as `application/json` without redirects.
+3. Replace the literal `<TEAM_ID>` in the hosted association file with the owner's Apple team ID.
+4. Enable Associated Domains for the app ID.
+5. Rebuild the dev client.
+
+Use the scheme link for V1 while domain setup is pending. AC6 universal-link verification from WhatsApp remains pending V2.

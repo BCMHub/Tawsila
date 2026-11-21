@@ -106,7 +106,7 @@ wait_for_lock() {
           select 1 from pg_catalog.pg_stat_activity holder
           where holder.application_name = '$holder_application_name' and holder.xact_start is not null
             and holder.pid = any(pg_catalog.pg_blocking_pids(waiter.pid))
-        ));") || return 1
+        )));") || return 1
     [[ "$blocked" == t ]] && return 0
     if ! kill -0 "$waiter_pid" 2>/dev/null; then
       wait "$waiter_pid" 2>/dev/null || true

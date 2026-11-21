@@ -47,3 +47,14 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-4-raw.txt (Tawsila checkout); brief spec-gate-4-brief.md; last message spec-gate-4-last.md
 Usage: 148,068 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 5   Round: 5
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 9b45096:c960935ba23bc06bbc52be0a83d2ed6658afc44f
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=2 P1=9 P2=2 P3=0 (resolved: F13, F24, F28, F32, F36, F40, F44. Open: P0 F39 privilege matrix lists the old two-argument request-view signature, projection must be evaluated at p_at in one snapshot; P0 F43 profile_completed_at is on accounts, not profiles; P1 F41 driver's own R1 entry and profile_incomplete as exception; P1 F42 withdraw ownership-before-lock needs a blocking test; P2 F15 residual delayed-original risk needs owner approval. New P1: F45 pending-attempt store not bound to the signed-in user; F46 fixture cleanup inflates seats_taken; F47 stopped-membership copy; F48 concurrency mutations need committed DDL in a disposable DB; F49 sweep with future cancelled_at can loop; F50 TAW-29 integration uses service-role account writes; F52 My trips cap without pagination. New P2: F51 TAW-4 lock summary)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-5-raw.txt (Tawsila checkout); brief spec-gate-5-brief.md; last message spec-gate-5-last.md
+Usage: 204,977 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

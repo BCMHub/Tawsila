@@ -255,3 +255,15 @@ Raw output: .clh/evidence/TAW-37/spec-gate-22-raw.txt (Tawsila checkout); brief 
 Usage: 157,205 tokens (reported by Codex CLI)   Started: 2026-11-21T19:51Z   Ended: 2026-11-21T19:58:38Z
 Verdict: FAIL
 Note: owner reopened the spec gate 2026-11-21 after plan gate round 1 P-F1 (a gate cannot be waived); budget raised to 4.2M.
+
+Attempt: 23   Round: 23
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: b33528c:0086804efa1ed0b1fdf978edd96447d90ceb154b
+Card binding: authoring card TAW-37 scope revision 2; criteria snapshot TAW-30 AC1-AC10 (scope revision 4) sha256 9f4feee4031dbfd9ac5ec479c37199ea5fe7b50cffe7ddc9de54ac410f4a54ac; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=2 P2=0 P3=0 (resolved: F108, F109. New P1: F110 request_seat step 6 wording inverted the invalid_seats range; F111 scenario 31 and cron-run quiesce do not fence a scheduled run already selected)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-23-raw.txt (Tawsila checkout); brief spec-gate-23-brief.md; last message spec-gate-23-last.md
+Usage: 125,540 tokens (reported by Codex CLI)   Started: 2026-11-21T19:59Z   Ended: 2026-11-21T20:05:36Z
+Verdict: FAIL
+Stop: review pass rule stall (P1 count 2, 2, 2 over rounds 21 to 23: not falling for two consecutive rounds). F110 and F111 repaired in the next commit; further rounds need the owner's decision.

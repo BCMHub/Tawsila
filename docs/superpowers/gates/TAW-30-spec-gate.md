@@ -36,3 +36,14 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/spec-gate-3-raw.txt (Tawsila checkout); brief spec-gate-3-brief.md; last message spec-gate-3-last.md
 Usage: 141,115 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
 Verdict: FAIL
+
+Attempt: 4   Round: 4
+Document: docs/superpowers/specs/2026-11-21-TAW-30-design.md
+Revision: 0cf73ce:099ae567cb7ef9099800307e585ea522183ef5ec
+Card binding: authoring card TAW-37 scope revision 1; criteria snapshot TAW-30 AC1-AC10 (scope revision 3) sha256 d4b99d6934cf4662dde3aaa750771c1c2259583aadd0f9b2adb38dea9f956472; Figma file 2j3vO1USLBA8XiRpQKCF3H section 228:810
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, gpt-6.2-sol, reasoning effort high (task_routing critical_plan_gate)
+Findings: P0=0 P1=11 P2=1 P3=0 (resolved: F5, F18, F19, F21, F23, F26, F33, F34, F35, F37, F38. Open P1: F13 cancelled weekday seat visibility while membership active; F15 unresolved key across R1 re-entry and delayed original; F24 owner-deletion cascade vs expiry; F28 party detail shows series-cancelled for departed days; F32 owner event check after fixture cleanup; F36 service-role boundary statement too broad. New P1: F39 one timestamp through nested views; F40 Next card may pick a cancelled day; F41 R1 entry eligibility and empty states; F42 withdraw locks before ownership check; F43 column REFERENCES isolation probes, account matrix alignment. New P2: F44 deletion handoff wording)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped once, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/spec-gate-4-raw.txt (Tawsila checkout); brief spec-gate-4-brief.md; last message spec-gate-4-last.md
+Usage: 148,068 tokens (reported by Codex CLI)   Started: 2026-11-21   Ended: 2026-11-21
+Verdict: FAIL

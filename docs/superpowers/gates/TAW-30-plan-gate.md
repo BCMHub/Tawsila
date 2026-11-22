@@ -169,3 +169,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-14-raw.txt (Tawsila checkout); brief plan-gate-14-brief.md; last message plan-gate-14-last.md
 Usage: 172,660 tokens (reported by Codex CLI)   Ended: 2026-11-22T09:31:29Z
 Verdict: FAIL (P1 rose 1 -> 2, both from the round-12 repair)
+
+Attempt: 15   Round: 14
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: eef1454ea32bda7c69f8ca4c91c2e8590fab04c8:648812535d753fe3b532867570b3683cfd361cc1
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=1 P2=0 P3=0 (resolved: P-F44, P-F45. New: P-F46 the old-Z cancellation passes a ride id where cancel_my_ride takes a series id, and fails for departed, already-cancelled or pre-reset Z)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-15-raw.txt (Tawsila checkout); brief plan-gate-15-brief.md; last message plan-gate-15-last.md
+Usage: 137,097 tokens (reported by Codex CLI)   Ended: 2026-11-22T09:35:57Z
+Verdict: FAIL (P1 fell 2 -> 1)

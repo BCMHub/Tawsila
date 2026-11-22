@@ -49,3 +49,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-4-raw.txt (Tawsila checkout); brief plan-gate-4-brief.md; last message plan-gate-4-last.md
 Usage: 138,800 tokens (reported by Codex CLI)   Started: 2026-11-22T06:38Z   Ended: 2026-11-22T06:43:35Z
 Verdict: FAIL (stall rule: P-F13 open after two repairs; owner asked)
+
+Attempt: 5   Round: 4
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 400678edb300c2fc0719849cd39956a0d1c8b950:942200a76bc0c16f2d2a107cdef48149b56d0382
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=6 P2=0 P3=0 (resolved: P-F13, P-F16, P-F20 to P-F24. Open: P-F14 red classifier accepts unrelated not-ok lines, and the fixture-only taw29_series change should be green on the baseline; P-F18 local Google Auth and Metro prerequisites, explicit t_reset input, T8 dependency; P-F25 rule (c) passes on the current README line 191. New: P-F26 cron-run marker must be clock_timestamp() in the activation transaction per spec 8.4 step 4, not max(runid); P-F27 integration runs lack an explicit local fixture setup; P-F28 per-script expected T1 statuses and an explicit T12 final suite list)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-5-raw.txt (Tawsila checkout); brief plan-gate-5-brief.md; last message plan-gate-5-last.md
+Usage: 157,574 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:09:41Z
+Verdict: FAIL (stall rule: P-F14 and P-F18 open after two repairs; owner asked)

@@ -191,3 +191,15 @@ Findings: none reported; the run stopped mid-review with "You've hit your usage 
 Raw output: .clh/evidence/TAW-37/plan-gate-16-raw.txt (Tawsila checkout); brief plan-gate-16-brief.md
 Usage: 63,415 tokens (reported by Codex CLI)   Ended: 2026-11-22T09:37:23Z
 Verdict: none (technical failure 1 of 3 consecutive; the same revision is resubmitted when the Codex allowance resets)
+
+Attempt: 17   Round: 15 (resubmission after the attempt-16 technical failure)
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: eb70e2cd47cb41d1c739348e88ce4b5d9ad30a2f:75b1362975df4e7ac10e027625bab158f2da301f
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=1 P2=0 P3=0 (resolved: P-F46. New: P-F47 the Z prepare is not resumable: an interruption can leave the driver revoked, an unrecorded pending request, or extra series against TAW-29's 24-hour publish limit)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-17-raw.txt (Tawsila checkout); brief plan-gate-17-brief.md; last message plan-gate-17-last.md
+Usage: 178,631 tokens (reported by Codex CLI)   Ended: 2026-11-22T11:47:57Z
+Verdict: FAIL (P1 flat at 1 for one round, 14 -> 15; the technical failure ends the consecutive technical-failure count; no stall yet)

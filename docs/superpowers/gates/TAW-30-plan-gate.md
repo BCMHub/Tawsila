@@ -133,3 +133,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-11-raw.txt (Tawsila checkout); brief plan-gate-11-brief.md; last message plan-gate-11-last.md
 Usage: 160,261 tokens (reported by Codex CLI)   Ended: 2026-11-22T08:56:45Z
 Verdict: FAIL (stall rule: P1 did not fall for two rounds in a row, 3 -> 3 -> 3; owner asked)
+
+Attempt: 12   Round: 11
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 554f9f99b10cc565d2aafba7983a761f638cbf00:0aec77373d9e5b32814c8778bf8ce06562c5a047
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=2 P2=0 P3=0 (resolved: P-F39, P-F41. Open: P-F40 the presence check tests a shell variable, not the exported environment the CLI sees. New: P-F42 the Trips identity capture is ordered before the fixtures exist and relies on states that expire)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-12-raw.txt (Tawsila checkout); brief plan-gate-12-brief.md; last message plan-gate-12-last.md
+Usage: 144,953 tokens (reported by Codex CLI)   Ended: 2026-11-22T09:22:39Z
+Verdict: FAIL (P1 fell 3 -> 2; continuing under the owner's standing instruction)

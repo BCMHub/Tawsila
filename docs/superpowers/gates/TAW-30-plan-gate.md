@@ -61,3 +61,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-5-raw.txt (Tawsila checkout); brief plan-gate-5-brief.md; last message plan-gate-5-last.md
 Usage: 157,574 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:09:41Z
 Verdict: FAIL (stall rule: P-F14 and P-F18 open after two repairs; owner asked)
+
+Attempt: 6   Round: 5
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: c70e0296f13605aca99cdeca7c20333d5300120e:3745ea8cdbb45beb022dc6e1a8407fbec76d9869
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5 (round-4 repairs drafted by Fable, owner decision)   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=5 P2=0 P3=0 (resolved: P-F26, P-F27, P-F28. Open: P-F14 pass outcome accepts SKIP lines and lacks per-file assertion counts; P-F18 device-env check conflicts with T10's CLI ban and Metro inputs not controlled; P-F25 a declarative contradiction passes the deny pattern. New: P-F29 T4 runs runbook-check.sh --self-test before T8; P-F30 R6 device fixture needs a second owner-verified rider)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-6-raw.txt (Tawsila checkout); brief plan-gate-6-brief.md; last message plan-gate-6-last.md
+Usage: 139,042 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:25:18Z
+Verdict: FAIL (stall rule: P-F14, P-F18, P-F25 open after two or more repairs; owner asked)

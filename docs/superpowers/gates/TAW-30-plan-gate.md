@@ -121,3 +121,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-10-raw.txt (Tawsila checkout); brief plan-gate-10-brief.md; last message plan-gate-10-last.md
 Usage: 187,362 tokens (reported by Codex CLI)   Ended: 2026-11-22T08:50:06Z
 Verdict: FAIL (no stall: every round-8 finding resolved; P1 flat 3 -> 3 for one round only)
+
+Attempt: 11   Round: 10
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 504aa61aa08dc11384ad47252fd07195abd44047:568ebc2e3ab799616ae8edf60eb79f43f7256952
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: P-F37, P-F38. Open: P-F39 the Profile tab shows no account name. New: P-F40 SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID not provisioned in Claude's CLI shell for T0 and quiesce.sh restarts; P-F41 .env copied from .env.example has an unquoted placeholder that breaks sourcing it in bash)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-11-raw.txt (Tawsila checkout); brief plan-gate-11-brief.md; last message plan-gate-11-last.md
+Usage: 160,261 tokens (reported by Codex CLI)   Ended: 2026-11-22T08:56:45Z
+Verdict: FAIL (stall rule: P1 did not fall for two rounds in a row, 3 -> 3 -> 3; owner asked)

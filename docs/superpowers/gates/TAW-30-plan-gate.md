@@ -251,3 +251,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-21-raw.txt (Tawsila checkout); brief plan-gate-21-brief.md; last message plan-gate-21-last.md
 Usage: 150,069 tokens (reported by Codex CLI)   Ended: 2026-11-22T12:11:04Z
 Verdict: FAIL (P1 fell 3 -> 2). Continued under the owner's standing order.
+
+Attempt: 22   Round: 20
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 25a99c7a4f17e502e30c8fe141862a403122197f:1a8321bf482316f48292d3aef474c5cbefd17b67
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=0 P2=0 P3=0 (resolved: P-F52, P-F55; P-F18 and P-F25 resolved under the owner's simplification decision)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-22-raw.txt (Tawsila checkout); brief plan-gate-22-brief.md; last message plan-gate-22-last.md
+Usage: 155,928 tokens (reported by Codex CLI)   Ended: 2026-11-22T12:16:35Z
+Verdict: PASS

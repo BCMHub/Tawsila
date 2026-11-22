@@ -97,3 +97,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-8-raw.txt (Tawsila checkout); brief plan-gate-8-brief.md; last message plan-gate-8-last.md
 Usage: 162,247 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:54:17Z
 Verdict: FAIL (stall rule: P-F18 still open; owner asked)
+
+Attempt: 9   Round: 8
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 4771260ab3ca3b3a6baca545b925505ea577457d:499e00afc0d850d17c1c3e0f69e5abc3bd10e8b5
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: P-F18, P-F31, P-F33. Open: P-F34 abort check matches a substring and the fixtures must set status = 'cancelled' with cancelled_at. New: P-F35 iPhone rebuild needs npx expo run:ios --device and reconnection to the recorded Metro session; P-F36 requestRoutes.test.tsx needs synthetic public Supabase inputs or a stubbed client under EXPO_NO_DOTENV)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-9-raw.txt (Tawsila checkout); brief plan-gate-9-brief.md; last message plan-gate-9-last.md
+Usage: 140,942 tokens (reported by Codex CLI)   Ended: 2026-11-22T08:44:21Z
+Verdict: FAIL (no stall: P1 fell 4 -> 3, no finding open after two repairs)

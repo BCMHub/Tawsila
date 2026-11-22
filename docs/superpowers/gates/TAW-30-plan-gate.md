@@ -109,3 +109,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-9-raw.txt (Tawsila checkout); brief plan-gate-9-brief.md; last message plan-gate-9-last.md
 Usage: 140,942 tokens (reported by Codex CLI)   Ended: 2026-11-22T08:44:21Z
 Verdict: FAIL (no stall: P1 fell 4 -> 3, no finding open after two repairs)
+
+Attempt: 10   Round: 9
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 45b686a347497c4af84bb7355e241316634222d7:e360f1594ff41125b62c75afe4e48d65ec70c3db
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: P-F34, P-F35, P-F36. New: P-F37 T1 abort-case outcome when the migration file is absent; P-F38 T0 TAW-29 baseline runs with the weekday job active; P-F39 no account-switch procedure between device accounts)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-10-raw.txt (Tawsila checkout); brief plan-gate-10-brief.md; last message plan-gate-10-last.md
+Usage: 187,362 tokens (reported by Codex CLI)   Ended: 2026-11-22T08:50:06Z
+Verdict: FAIL (no stall: every round-8 finding resolved; P1 flat 3 -> 3 for one round only)

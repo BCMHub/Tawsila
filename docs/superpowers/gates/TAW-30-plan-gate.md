@@ -73,3 +73,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-6-raw.txt (Tawsila checkout); brief plan-gate-6-brief.md; last message plan-gate-6-last.md
 Usage: 139,042 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:25:18Z
 Verdict: FAIL (stall rule: P-F14, P-F18, P-F25 open after two or more repairs; owner asked)
+
+Attempt: 7   Round: 6
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 4ed60bcfdc0a09323462f2786771a88dadf09335:012a65c76396b7f0dcd2add3189ef7b0f6ab03e7
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5 (round-5 repairs drafted by Fable, owner decision; owner-simplified P-F18 and P-F25)   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=4 P2=0 P3=0 (resolved: P-F25, P-F29, P-F30. Open: P-F14 psql exits 0 on not-ok TAP, so the notok outcome must require exit 0; P-F18 Metro may inherit an EXPO_PUBLIC key overriding .env. New: P-F31 mutation routing across taw30_schema, taw30_auth and taw30_privileges; P-F32 device fixtures lack held-seat unavailable, withdrawn-day and departed phases for deviations 19 and 20)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-7-raw.txt (Tawsila checkout); brief plan-gate-7-brief.md; last message plan-gate-7-last.md
+Usage: 164,282 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:38:14Z
+Verdict: FAIL (stall rule: P-F14 and P-F18 still open; owner asked)

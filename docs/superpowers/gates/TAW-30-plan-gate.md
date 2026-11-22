@@ -145,3 +145,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-12-raw.txt (Tawsila checkout); brief plan-gate-12-brief.md; last message plan-gate-12-last.md
 Usage: 144,953 tokens (reported by Codex CLI)   Ended: 2026-11-22T09:22:39Z
 Verdict: FAIL (P1 fell 3 -> 2; continuing under the owner's standing instruction)
+
+Attempt: 13   Round: 12
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 4a1893be0f60bb272d18db7242a5ba93fdb2e99a:a94fabb2ed6897cf44d52c9f70fd229eb184d900
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=1 P2=0 P3=0 (resolved: P-F40, P-F42. New: P-F43 phase 8b uses the hold on X, which may have departed by then)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-13-raw.txt (Tawsila checkout); brief plan-gate-13-brief.md; last message plan-gate-13-last.md
+Usage: 172,433 tokens (reported by Codex CLI)   Ended: 2026-11-22T09:26:53Z
+Verdict: FAIL (P1 fell 2 -> 1)

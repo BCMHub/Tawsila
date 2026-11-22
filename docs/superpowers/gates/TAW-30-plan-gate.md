@@ -37,3 +37,15 @@ Findings: none reported; the run stopped mid-review with "You've hit your usage 
 Raw output: .clh/evidence/TAW-37/plan-gate-3-raw.txt (Tawsila checkout); brief plan-gate-3-brief.md
 Usage: 95,418 tokens (reported by Codex CLI)   Started: 2026-11-21T20:47Z   Ended: 2026-11-21T20:50:18Z
 Verdict: none (technical failure 1 of 3; the same revision is resubmitted when the Codex allowance resets)
+
+Attempt: 4   Round: 3 (resubmission of the attempt-3 revision after the Codex allowance reset)
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 29a968b47a2f34709d52b82b70fef6b972161c0d:122afe03c4b6d6d5b15930d9e2b9a894189dcf0c
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=10 P2=0 P3=0 (resolved: P-F4, P-F7, P-F15, P-F17, P-F19. Open: P-F13 bundle check does not verify effective public inputs or dotenv overrides; P-F14 pgtap-schema checkpoint has no assertion-level procedure or accepted exit statuses; P-F16 app/request/_layout.tsx missing so the request guard misses request/[id]; P-F18 device gate fixtures, owner-only phone verification and per-device endpoint check. New: P-F20 runbook-snippet green at T4 before T8 adds markers; P-F21 blanket Q after reset defeats cron-run.sh active-job assertion; P-F22 upgrade SQL under supabase/tests is discovered by supabase test db; P-F23 scenario 28(a) RPC not pinned; P-F24 integration command keeps inherited SUPABASE_* values on status failure; P-F25 no runbook check for legacy service-role and direct-cancel paths)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-4-raw.txt (Tawsila checkout); brief plan-gate-4-brief.md; last message plan-gate-4-last.md
+Usage: 138,800 tokens (reported by Codex CLI)   Started: 2026-11-22T06:38Z   Ended: 2026-11-22T06:43:35Z
+Verdict: FAIL (stall rule: P-F13 open after two repairs; owner asked)

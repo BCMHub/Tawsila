@@ -215,3 +215,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-18-raw.txt (Tawsila checkout); brief plan-gate-18-brief.md; last message plan-gate-18-last.md
 Usage: 149,104 tokens (reported by Codex CLI)   Ended: 2026-11-22T11:55:19Z
 Verdict: FAIL. STALL (P1 did not fall for two rounds: 1, 1, 2). Continued without asking under the owner's standing order of 2026-11-22T09:19:39Z; the round-17 repair replaces the intent-file design with one owner transaction and reset-derived keys.
+
+Attempt: 19   Round: 17
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: ea22d61eff5f817915ed2e21592485ad3a2c3e32:4f4f373a83d48010652fbdac0a7e59b11b28b9f4
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=3 P2=0 P3=0 (resolved: P-F47, P-F48. New: P-F49 three writers in one transaction breaks spec 6.3/8.1; P-F50 the drill has no defined start or recovery once a Z exists; P-F51 drill cases accept exit 1 without a marker for the injected point)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-19-raw.txt (Tawsila checkout); brief plan-gate-19-brief.md; last message plan-gate-19-last.md
+Usage: 144,855 tokens (reported by Codex CLI)   Ended: 2026-11-22T12:00:02Z
+Verdict: FAIL. STALL continues (P1 1, 2, 3), all three new findings from the round-16 repair. Continued under the owner's standing order; the round-18 repair removes failure injection and uses per-writer transactions with a staged --stop-after resume check.

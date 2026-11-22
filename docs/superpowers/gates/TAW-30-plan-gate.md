@@ -239,3 +239,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-20-raw.txt (Tawsila checkout); brief plan-gate-20-brief.md; last message plan-gate-20-last.md
 Usage: 152,977 tokens (reported by Codex CLI)   Ended: 2026-11-22T12:05:21Z
 Verdict: FAIL. STALL continues (P1 2, 3, 3). Continued under the owner's standing order.
+
+Attempt: 21   Round: 19
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 29c424d16b66f5d44f5e48e04c8d47471d661bed:1a19e9f93074427a7376cd3b6adf9d5fe1dbcc49
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=2 P2=0 P3=0 (resolved: P-F53, P-F54. P-F52 OPEN: a resume sentence still skips stage 2. New: P-F55 the total pilot_events comparison can be broken by a legitimate expiry of X)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-21-raw.txt (Tawsila checkout); brief plan-gate-21-brief.md; last message plan-gate-21-last.md
+Usage: 150,069 tokens (reported by Codex CLI)   Ended: 2026-11-22T12:11:04Z
+Verdict: FAIL (P1 fell 3 -> 2). Continued under the owner's standing order.

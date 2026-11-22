@@ -203,3 +203,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-17-raw.txt (Tawsila checkout); brief plan-gate-17-brief.md; last message plan-gate-17-last.md
 Usage: 178,631 tokens (reported by Codex CLI)   Ended: 2026-11-22T11:47:57Z
 Verdict: FAIL (P1 flat at 1 for one round, 14 -> 15; the technical failure ends the consecutive technical-failure count; no stall yet)
+
+Attempt: 18   Round: 16
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: b89e2406bfa6c40ee688ed6275fe3bb9c6b1981b:6ef6315dfec64286ffc08dacc20c93e337bbbbeb
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=2 P2=0 P3=0 (P-F47 OPEN: publish not keyed, reset recovery skips steps 1-4. New: P-F48 a crash between phase-z.txt and deleting phase-z.pending leaves both records)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-18-raw.txt (Tawsila checkout); brief plan-gate-18-brief.md; last message plan-gate-18-last.md
+Usage: 149,104 tokens (reported by Codex CLI)   Ended: 2026-11-22T11:55:19Z
+Verdict: FAIL. STALL (P1 did not fall for two rounds: 1, 1, 2). Continued without asking under the owner's standing order of 2026-11-22T09:19:39Z; the round-17 repair replaces the intent-file design with one owner transaction and reset-derived keys.

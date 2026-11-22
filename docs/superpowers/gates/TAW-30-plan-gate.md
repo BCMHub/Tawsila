@@ -85,3 +85,15 @@ Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
 Raw output: .clh/evidence/TAW-37/plan-gate-7-raw.txt (Tawsila checkout); brief plan-gate-7-brief.md; last message plan-gate-7-last.md
 Usage: 164,282 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:38:14Z
 Verdict: FAIL (stall rule: P-F14 and P-F18 still open; owner asked)
+
+Attempt: 8   Round: 7
+Document: docs/superpowers/plans/2026-11-21-TAW-30.md
+Revision: 1b32cf3f74e179bad002dce30367ef90c0573396:4561a2038376d1235bd075d573b98dc406e1186d
+Spec revision (plan gate only): a7917ad:f98f06429df127d138ca5a587e2faca857a71902 (spec gate PASS round 28)
+Card binding: authoring card TAW-37; criteria snapshot TAW-30 AC1-AC10 (scope revision 4), .clh/evidence/TAW-37/criteria-TAW-30-rev4.md
+Author: Claude Opus 5.5   Reviewer: Codex CLI 0.171.0, model gpt-6.2-sol, effort high (task_routing critical_plan_gate), read-only sandbox
+Findings: P0=0 P1=4 P2=0 P3=0 (resolved: P-F14, P-F32. Open: P-F18 unset EXPO_NO_DOTENV lets higher-priority dotenv files override .env; P-F31 conflicting ownership of the 3.6 trigger assertions between taw30_schema, taw30_expiry and taw30_privileges. New: P-F33 no dev-client build or install tied to the implementation commit; P-F34 no upgrade fixture proving the migration aborts with future_cancelled_at_present)
+Criteria mapping: exhaustive, AC1 to AC10 each mapped, none UNCOVERED
+Raw output: .clh/evidence/TAW-37/plan-gate-8-raw.txt (Tawsila checkout); brief plan-gate-8-brief.md; last message plan-gate-8-last.md
+Usage: 162,247 tokens (reported by Codex CLI)   Ended: 2026-11-22T07:54:17Z
+Verdict: FAIL (stall rule: P-F18 still open; owner asked)
